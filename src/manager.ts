@@ -9,8 +9,6 @@ import {
 
 /**
  * A micro manager that contains the document context
- *
- * This will grow in the future if we implement bokeh.io.push_notebook
  */
 export
 class ContextManager implements IDisposable {

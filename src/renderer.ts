@@ -20,19 +20,19 @@ import {
 
 
 /**
- * The MIME types for BokehJS.
+ * The MIME types for HoloViews
  */
 const HTML_MIME_TYPE = 'text/html'
 const JS_MIME_TYPE = 'application/javascript'
-export const BOKEHJS_LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
-export const BOKEHJS_EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
+export const HV_LOAD_MIME_TYPE = 'application/vnd.holoviews_load.v0+json'
+export const HV_EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json'
 
 /**
- * Load BokehJS and CSS into the DOM
+ * Load HVJS and CSS into the DOM
  */
 export
-class BokehJSLoad extends Widget implements IRenderMime.IRenderer {
-  private _load_mimetype: string = BOKEHJS_LOAD_MIME_TYPE
+class HVJSLoad extends Widget implements IRenderMime.IRenderer {
+  private _load_mimetype: string = HV_LOAD_MIME_TYPE
   private _script_element: HTMLScriptElement
 
   constructor(options: IRenderMime.IRendererOptions) {
@@ -51,15 +51,15 @@ class BokehJSLoad extends Widget implements IRenderMime.IRenderer {
 
 
 /**
- * Exec BokehJS in window
+ * Exec HVJS in window
  */
 export
-class BokehJSExec extends Widget implements IRenderMime.IRenderer {
+class HVJSExec extends Widget implements IRenderMime.IRenderer {
   // for classic nb compat reasons, the payload in contained in these mime messages
   private _html_mimetype: string = HTML_MIME_TYPE
   private _js_mimetype: string = JS_MIME_TYPE
   // the metadata is stored here
-  private _exec_mimetype: string = BOKEHJS_EXEC_MIME_TYPE
+  private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
   private _server_id: string
   private _manager: ContextManager;
@@ -102,10 +102,6 @@ class BokehJSExec extends Widget implements IRenderMime.IRenderer {
     if (this.isDisposed) {
       return;
     }
-    let content: KernelMessage.IExecuteRequest = {
-      code: `import bokeh.io.notebook as ion; ion.destroy_server('${this._server_id}')`
-    }
-    this._manager.context.session.kernel.requestExecute(content, true)
     this._manager, this._server_id = null, null;
   }
 }

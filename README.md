@@ -1,6 +1,6 @@
-# jupyterlab_bokeh
+# jupyterlab_holoviews
 
-A JupyterLab extension for rendering Bokeh content
+A JupyterLab extension for rendering HoloViews content
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ A JupyterLab extension for rendering Bokeh content
 ## Installation
 
 ```bash
-jupyter labextension install jupyterlab_bokeh
+jupyter labextension install jupyterlab_holoviews
 ```
 
 ## Development

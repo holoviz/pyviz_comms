@@ -1,15 +1,16 @@
 {
-  "name": "jupyterlab_bokeh",
-  "version": "0.3.1",
-  "description": "A JupyterLab extension for rendering Bokeh content",
-  "author": "Luke Canavan <lcanavan@anaconda.org>",
+  "name": "jupyterlab_holoviews",
+  "version": "0.0.1",
+  "description": "A JupyterLab extension for rendering HoloViews content",
+  "author": "Philipp Rudiger <prudiger@anaconda.org>",
   "main": "lib/index.js",
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension",
     "bokeh",
-    "bokehjs"
+    "bokehjs",
+	"holoviews"  
   ],
   "scripts": {
     "build": "tsc",
@@ -24,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bokeh/jupyterlab_bokeh.git"
+    "url": "https://github.com/pyviz/jupyterlab_holoviews.git"
   },
   "dependencies": {
     "@jupyterlab/application": "^0.15.0",

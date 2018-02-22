@@ -22,10 +22,10 @@ import {
 } from './manager'
 
 import {
-  BokehJSExec,
-  BokehJSLoad,
-  BOKEHJS_EXEC_MIME_TYPE,
-  BOKEHJS_LOAD_MIME_TYPE
+  HVJSExec,
+  HVJSLoad,
+  HV_EXEC_MIME_TYPE,
+  HV_LOAD_MIME_TYPE
 } from './renderer'
 
 
@@ -40,19 +40,19 @@ class NBWidgetExtension implements INBWidgetExtension {
 
     nb.rendermime.addFactory({
         safe: false,
-        mimeTypes: [BOKEHJS_LOAD_MIME_TYPE],
-        createRenderer: (options) => new BokehJSLoad(options)
+        mimeTypes: [HV_LOAD_MIME_TYPE],
+        createRenderer: (options) => new HVJSLoad(options)
     }, 0);
 
     nb.rendermime.addFactory({
         safe: false,
-        mimeTypes: [BOKEHJS_EXEC_MIME_TYPE],
-        createRenderer: (options) => new BokehJSExec(options, manager)
+        mimeTypes: [HV_EXEC_MIME_TYPE],
+        createRenderer: (options) => new HVJSExec(options, manager)
     }, 0);
 
     return new DisposableDelegate(() => {
         if (nb.rendermime) {
-            nb.rendermime.removeMimeType(BOKEHJS_EXEC_MIME_TYPE);
+            nb.rendermime.removeMimeType(HV_EXEC_MIME_TYPE);
         }
         manager.dispose();
     });
@@ -61,10 +61,10 @@ class NBWidgetExtension implements INBWidgetExtension {
 
 export
   const extension: JupyterLabPlugin<void> = {
-    id: 'jupyterlab_bokeh',
+    id: 'jupyterlab_holoviews',
     autoStart: true,
     activate: (app: JupyterLab) => {
-        // this adds the Bokeh widget extension onto Notebooks specifically
+        // this adds the HoloViews widget extension onto Notebooks specifically
         app.docRegistry.addWidgetExtension('Notebook', new NBWidgetExtension());
     }
 }
