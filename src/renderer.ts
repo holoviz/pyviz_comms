@@ -3,10 +3,6 @@ import {
 } from '@jupyterlab/rendermime-interfaces'
 
 import {
-  KernelMessage
-} from '@jupyterlab/services'
-
-import {
   ReadonlyJSONObject
 } from '@phosphor/coreutils'
 
@@ -79,8 +75,9 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
     if (metadata.id !== undefined) {
       // I'm a static document
-      let data = model.data[this._js_mimetype] as string
-      this._script_element.textContent = data
+      let data = model.data[this._js_mimetype] as string;
+      this._script_element.textContent = data;
+      (window as any).HoloViews.kernels[String(metadata.id)] = this._manager.context.session.kernel;
     } else if (metadata.server_id !== undefined) {
       // I'm a server document
       this._server_id = metadata.server_id as string
