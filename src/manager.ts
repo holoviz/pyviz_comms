@@ -30,6 +30,15 @@ class ContextManager implements IDisposable {
     if (this.isDisposed) {
       return;
     }
+	for (let key in (window as any).HoloViews.kernels) {
+      const kernel = (window as any).HoloViews.kernels[key];
+      if (kernel == this.context.session.kernel) {
+        delete (window as any).HoloViews.kernels[key];
+      }
+	  if (key in (window as any).HoloViews.index) {
+		delete (window as any).HoloViews.index[key];
+      }
+    }
     this._context = null;
   }
 }
