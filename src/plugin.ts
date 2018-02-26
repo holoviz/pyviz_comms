@@ -41,7 +41,7 @@ class NBWidgetExtension implements INBWidgetExtension {
     nb.rendermime.addFactory({
         safe: false,
         mimeTypes: [HV_LOAD_MIME_TYPE],
-        createRenderer: (options) => new HVJSLoad(options, manager)
+        createRenderer: (options) => new HVJSLoad(options)
     }, 0);
 
     nb.rendermime.addFactory({

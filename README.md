@@ -9,7 +9,7 @@ A JupyterLab extension for rendering HoloViews content
 ## Installation
 
 ```bash
-jupyter labextension install jupyterlab_holoviews
+jupyter labextension install @pyviz/jupyterlab_holoviews
 ```
 
 ## Development

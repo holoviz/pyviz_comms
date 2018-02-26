@@ -3,6 +3,14 @@ import {
 } from '@jupyterlab/rendermime-interfaces'
 
 import {
+  KernelMessage
+} from '@jupyterlab/services'
+
+import {
+    IClientSession
+} from '@jupyterlab/apputils';
+
+import {
   ReadonlyJSONObject
 } from '@phosphor/coreutils'
 
@@ -36,20 +44,10 @@ class HVJSLoad extends Widget implements IRenderMime.IRenderer {
   private _load_mimetype: string = HV_LOAD_MIME_TYPE
   private _script_element: HTMLScriptElement
 
-  constructor(options: IRenderMime.IRendererOptions, manager: ContextManager) {
-    super()
-    this._script_element = document.createElement("script")
-
-	const kernel: any = manager.context.session.kernel;
-	if (!kernel) { return }
-    kernel.statusChanged.connect((kernel: string, status: string) => {
-      for (const key in (window as any).HoloViews.kernels) {
-        if ((status == "restarting") && ((window as any).HoloViews.kernels[key] == kernel)) {
-          delete (window as any).HoloViews.kernels[key];
-        }
-      }
-    });
-	(window as any).jQuery = jquery;
+  constructor(options: IRenderMime.IRendererOptions) {
+    super();
+    this._script_element = document.createElement("script");
+    (window as any).jQuery = jquery;
     (window as any).$ = jquery;
   }
 
@@ -57,7 +55,7 @@ class HVJSLoad extends Widget implements IRenderMime.IRenderer {
     let data = model.data[this._load_mimetype] as string
     this._script_element.textContent = data;
     this.node.appendChild(this._script_element)
-	return Promise.resolve()
+    return Promise.resolve()
   }
 }
 
@@ -70,6 +68,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   private _html_mimetype: string = HTML_MIME_TYPE
   private _js_mimetype: string = JS_MIME_TYPE
   // the metadata is stored here
+  private _document_id: string
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
   private _server_id: string
@@ -90,15 +89,21 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
     if (metadata.id !== undefined) {
       // I'm a static document
-	  if ((window as any).HoloViews === undefined) {
+      if ((window as any).HoloViews === undefined) {
         (window as any).HoloViews = {kernels: {}};
-	  }
-	  (window as any).HoloViews.init_slider = init_slider;
+      }
+      (window as any).HoloViews.init_slider = init_slider;
       (window as any).HoloViews.init_dropdown = init_dropdown;
       let data = model.data[this._js_mimetype] as string;
       this._script_element.textContent = data;
       const kernel = this._manager.context.session.kernel;
       (window as any).HoloViews.kernels[String(metadata.id)] = kernel;
+      this._document_id = String(metadata.id);
+      this._manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
+        if (status == "restarting") {
+          delete (window as any).HoloViews.kernels[String(metadata.id)];
+        }
+      });
     } else if (metadata.server_id !== undefined) {
       // I'm a server document
       this._server_id = metadata.server_id as string
@@ -112,7 +117,6 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     }
 
     this.node.appendChild(this._script_element)
-
     return Promise.resolve()
   }
 
@@ -120,6 +124,18 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     if (this.isDisposed) {
       return;
     }
-    this._manager, this._server_id = null, null;
+    if (this._server_id) {
+      let content: KernelMessage.IExecuteRequest = {
+        code: `import bokeh.io.notebook as ion; ion.destroy_server('${this._server_id}')`
+      }
+      this._manager.context.session.kernel.requestExecute(content, true)
+      this._server_id = null
+    } else if (this._document_id) {
+      if (((window as any).HoloViews !== undefined) && ((window as any).HoloViews.kernels !== undefined)) {
+        delete (window as any).HoloViews.kernels[this._document_id];
+      }
+      this._document_id = null;
+    }
+    this._manager = null;
   }
 }
