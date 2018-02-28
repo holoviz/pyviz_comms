@@ -82,7 +82,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       (window as any).HoloViews.index[plot_id].set_frame(dim_val, dim_idx);
       if (Object.keys(next_vals).length > 0) {
         var new_vals = next_vals[dim_val];
-        var next_widget = jQuery('#_anim_widget'+id+'_'+next_dim);
+        var next_widget = $('#_anim_widget'+id+'_'+next_dim);
         update_widget(next_widget, new_vals);
         }
     }
