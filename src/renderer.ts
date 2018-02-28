@@ -3,6 +3,7 @@ import {
 } from '@jupyterlab/rendermime-interfaces'
 
 import {
+  Kernel,
   KernelMessage
 } from '@jupyterlab/services'
 
@@ -13,6 +14,14 @@ import {
 import {
   ReadonlyJSONObject
 } from '@phosphor/coreutils'
+
+import {
+  IDisposable
+} from '@phosphor/disposable';
+
+import {
+  JSONObject, JSONValue
+} from '@phosphor/coreutils';
 
 import {
   Widget
@@ -27,6 +36,18 @@ import {
 } from './widgets';
 
 import * as jquery from 'jquery';
+import 'jquery-ui-bundle'
+
+export declare interface CommProxy {
+  open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture,
+  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture
+}
+
+export declare interface KernelProxy {
+  // copied from https://github.com/jupyterlab/jupyterlab/blob/master/packages/services/src/kernel/default.ts#L605
+  registerCommTarget(targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable,
+  connectToComm(targetName: string, commId?: string): CommProxy,
+}
 
 /**
  * The MIME types for HoloViews
@@ -97,8 +118,26 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       let data = model.data[this._js_mimetype] as string;
       this._script_element.textContent = data;
       const kernel = this._manager.context.session.kernel;
-      (window as any).HoloViews.kernels[String(metadata.id)] = kernel;
-      this._document_id = String(metadata.id);
+      const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable => {
+        return kernel.registerCommTarget(targetName, callback);
+      };
+      const connectClosure = (targetName: string, commId?: string): CommProxy => {
+        const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
+        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture => {
+          return comm.send(data, metadata, buffers, disposeOnDone);
+        };
+        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture => {
+          return comm.open(data, metadata, buffers);
+        };
+        const comm_proxy: CommProxy = {open: openClosure, send: sendClosure};
+        return comm_proxy;
+      }
+      const kernel_proxy: KernelProxy = {
+        connectToComm: connectClosure,
+        registerCommTarget: registerClosure
+      };
+      (window as any).HoloViews.kernels[String(metadata.id)] = kernel_proxy;
+      this._document_id = metadata.id as string;
       this._manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
         if (status == "restarting") {
           delete (window as any).HoloViews.kernels[String(metadata.id)];
