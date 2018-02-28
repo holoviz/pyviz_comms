@@ -40,7 +40,8 @@ import 'jquery-ui-bundle'
 
 export declare interface CommProxy {
   open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture,
-  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture
+  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture,
+  onMsg: (msg: KernelMessage.ICommOpenMsg) => void
 }
 
 export declare interface KernelProxy {
@@ -129,7 +130,12 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture => {
           return comm.open(data, metadata, buffers);
         };
-        const comm_proxy: CommProxy = {open: openClosure, send: sendClosure};
+        const comm_proxy: CommProxy = {
+          set onMsg(callback: (msg: KernelMessage.ICommOpenMsg) => void) {
+            comm.onMsg = callback;
+          },
+          open: openClosure,
+          send: sendClosure};
         return comm_proxy;
       }
       const kernel_proxy: KernelProxy = {
@@ -154,7 +160,6 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         this._script_element.setAttribute(script_attrs[i].name, script_attrs[i].value)
       }
     }
-
     this.node.appendChild(this._script_element)
     return Promise.resolve()
   }
