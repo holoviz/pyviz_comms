@@ -10,7 +10,7 @@ function update_widget(widget: any, values: any) {
       dim_vals: values,
       value: 0,
       dim_labels: values
-	})
+    })
     widget.slider('option', 'slide').call(widget, event, {value: 0})
   } else {
     widget.empty();
@@ -28,20 +28,26 @@ function update_widget(widget: any, values: any) {
 
 export
 function init_slider(id: string, plot_id: string, dim: string, values: any, next_vals: any,
-					 labels: number[], dynamic: boolean, step: number, next_dim: string,
-					 dim_idx: number, delay: number = 500) {
+                     labels: number[], dynamic: boolean, step: number, value: any, next_dim: string,
+                     dim_idx: number, delay: number = 500) {
   var vals = values;
   if (dynamic && vals.constructor === Array) {
+    var default_value = parseFloat(value);
     var min = parseFloat(vals[0]);
     var max = parseFloat(vals[vals.length-1]);
     var wstep = step;
-    var wlabels = [min];
+    var wlabels = [default_value];
+    var init_label = default_value;
   } else {
     var min = 0;
     if (dynamic) {
       var max = Object.keys(vals).length - 1;
+      var init_label = labels[value];
+      var default_value: number = values[value];
     } else {
       var max = vals.length - 1;
+      var init_label = labels[value];
+      var default_value: number = value;
     }
     var wstep = 1;
     var wlabels = labels;
@@ -57,7 +63,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     min: min,
     max: max,
     step: wstep,
-    value: min,
+    value: default_value,
     dim_vals: vals,
     dim_labels: wlabels,
     next_vals: next_vals,
@@ -116,15 +122,15 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     }
   });
   var textInput = $('#textInput'+id+'_'+dim)
-  textInput.val(wlabels[0]);
+  textInput.val(init_label);
   adjustFontSize(textInput);
 }
 
 
 export
 function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
-					   next_vals: any, labels: any, next_dim: string,
-					   dim_idx: number, dynamic: boolean) {
+                       value: number, next_vals: any, labels: any, next_dim: string,
+                       dim_idx: number, dynamic: boolean) {
   var widget = $("#_anim_widget"+id+'_'+dim);
   widget.data('values', vals)
   for (var i=0; i<vals.length; i++){
@@ -139,6 +145,7 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
     }));
   };
   widget.data("next_vals", next_vals);
+  widget.val(value);
   widget.on('change', function(event, ui) {
     if (dynamic) {
       var dim_val: any = parseInt(this.value);
@@ -151,7 +158,7 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
       var next_widget = $('#_anim_widget'+id+'_'+next_dim);
       update_widget(next_widget, new_vals);
     }
-	var widgets = (window as any).HoloViews.index[plot_id]
+    var widgets = (window as any).HoloViews.index[plot_id]
     if (widgets) {
       widgets.set_frame(dim_val, dim_idx);
     }
