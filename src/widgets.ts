@@ -1,7 +1,3 @@
-import * as $ from 'jquery';
-import 'jquery-ui-bundle'
-
-
 function update_widget(widget: any, values: any) {
   if (widget.hasClass("ui-slider")) {
     widget.slider('option', {
@@ -15,7 +11,7 @@ function update_widget(widget: any, values: any) {
   } else {
     widget.empty();
     for (var i=0; i<values.length; i++){
-      widget.append($("<option>", {
+      widget.append((window as any).HoloViews.jQuery("<option>", {
         value: i,
         text: values[i]
       }))
@@ -57,7 +53,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     var size = Math.min(0.9, Math.max(0.6, width_ratio))+'em';
     text.css('font-size', size);
   }
-  var slider: any = $('#_anim_widget'+id+'_'+dim);
+  var slider: any = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+dim);
   slider.slider({
     animate: "fast",
     min: min,
@@ -82,13 +78,13 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
         var dim_val = vals[ui.value];
         var label = dlabels[ui.value];
       }
-      var text = $('#textInput'+id+'_'+dim);
+      var text = (window as any).HoloViews.jQuery('#textInput'+id+'_'+dim);
       text.val(label);
       adjustFontSize(text);
       (window as any).HoloViews.index[plot_id].set_frame(dim_val, dim_idx);
       if (Object.keys(next_vals).length > 0) {
         var new_vals = next_vals[dim_val];
-        var next_widget = $('#_anim_widget'+id+'_'+next_dim);
+        var next_widget = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+next_dim);
         update_widget(next_widget, new_vals);
         }
     }
@@ -99,7 +95,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       var stop =  slider.slider("option", "max");
       for (var i=start; i<=stop; i++) {
         var d = i*delay;
-        $.proxy(function doSetTimeout(i: number) { setTimeout($.proxy(function() {
+        (window as any).HoloViews.jQuery.proxy(function doSetTimeout(i: number) { setTimeout((window as any).HoloViews.jQuery.proxy(function() {
           var val = {value:i};
           slider.slider('value',i);
           slider.slider("option", "slide")(null, val);
@@ -113,7 +109,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       for (var i=start; i>=stop; i--) {
         var d = count*delay;
         count = count + 1;
-        $.proxy(function doSetTimeout(i: number) { setTimeout($.proxy(function() {
+        (window as any).HoloViews.jQuery.proxy(function doSetTimeout(i: number) { setTimeout((window as any).HoloViews.jQuery.proxy(function() {
           var val = {value:i};
           slider.slider('value',i);
           slider.slider("option", "slide")(null, val);
@@ -121,7 +117,7 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       }
     }
   });
-  var textInput = $('#textInput'+id+'_'+dim)
+  var textInput = (window as any).HoloViews.jQuery('#textInput'+id+'_'+dim)
   textInput.val(init_label);
   adjustFontSize(textInput);
 }
@@ -131,7 +127,7 @@ export
 function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
                        value: number, next_vals: any, labels: any, next_dim: string,
                        dim_idx: number, dynamic: boolean) {
-  var widget = $("#_anim_widget"+id+'_'+dim);
+  var widget = (window as any).HoloViews.jQuery("#_anim_widget"+id+'_'+dim);
   widget.data('values', vals)
   for (var i=0; i<vals.length; i++){
     if (dynamic) {
@@ -139,23 +135,23 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
     } else {
       var val: any = i;
     }
-    widget.append($("<option>", {
+    widget.append((window as any).HoloViews.jQuery("<option>", {
       value: val,
       text: labels[i]
     }));
   };
   widget.data("next_vals", next_vals);
   widget.val(value);
-  widget.on('change', function(event, ui) {
+  widget.on('change', function(event: any, ui: any) {
     if (dynamic) {
       var dim_val: any = parseInt(this.value);
     } else {
-      var dim_val: any = $.data(this, 'values')[this.value];
+      var dim_val: any = (window as any).HoloViews.jQuery.data(this, 'values')[this.value];
     }
-    var next_vals = $.data(this, "next_vals");
+    var next_vals = (window as any).HoloViews.jQuery.data(this, "next_vals");
     if (Object.keys(next_vals).length > 0) {
       var new_vals = next_vals[dim_val];
-      var next_widget = $('#_anim_widget'+id+'_'+next_dim);
+      var next_widget = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+next_dim);
       update_widget(next_widget, new_vals);
     }
     var widgets = (window as any).HoloViews.index[plot_id]
