@@ -124,10 +124,10 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         }
         return kernel.registerCommTarget(targetName, callback);
       };
-      const connectClosure = (targetName: string, commId?: string): CommProxy => {
+      const connectClosure = (targetName: string, commId?: string): any => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not connect to comm target ', targetName);
-          return;
+          return {open: function (): void {}, send: function (): void {}, onMsg: function (): void {}};
         }
         const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
         const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture => {
