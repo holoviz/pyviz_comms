@@ -1,3 +1,6 @@
+import * as $ from 'jquery';
+import * as noUiSlider from 'nouislider';
+
 function update_widget(widget: any, values: any) {
   if (widget.hasClass("ui-slider")) {
     widget.slider('option', {
@@ -11,7 +14,7 @@ function update_widget(widget: any, values: any) {
   } else {
     widget.empty();
     for (var i=0; i<values.length; i++){
-      widget.append((window as any).HoloViews.jQuery("<option>", {
+      widget.append($("<option>", {
         value: i,
         text: values[i]
       }))
@@ -24,100 +27,75 @@ function update_widget(widget: any, values: any) {
 
 export
 function init_slider(id: string, plot_id: string, dim: string, values: any, next_vals: any,
-                     labels: number[], dynamic: boolean, step: number, value: any, next_dim: string,
+                     labels: any[], dynamic: boolean, step: number, value: any, next_dim: string,
                      dim_idx: number, delay: number = 500) {
+  var fileref=document.createElement("link")
+  fileref.setAttribute("rel", "stylesheet")
+  fileref.setAttribute("type", "text/css")
+  fileref.setAttribute("href", "//cdn.bootcss.com/noUiSlider/8.5.1/nouislider.min.css")
+  document.getElementsByTagName("head")[0].appendChild(fileref)
   var vals = values;
   if (dynamic && vals.constructor === Array) {
     var default_value = parseFloat(value);
     var min = parseFloat(vals[0]);
     var max = parseFloat(vals[vals.length-1]);
     var wstep = step;
-    var wlabels = [default_value];
-    var init_label = default_value;
+    var dim_labels: any[] = [default_value];
+    var init_label: any = default_value;
   } else {
     var min = 0;
     if (dynamic) {
       var max = Object.keys(vals).length - 1;
-      var init_label = labels[value];
+      var init_label: any = labels[value];
       var default_value: number = values[value];
     } else {
       var max = vals.length - 1;
-      var init_label = labels[value];
+      var init_label: any = labels[value];
       var default_value: number = value;
     }
     var wstep = 1;
-    var wlabels = labels;
+    var dim_labels: any[] = labels;
   }
   function adjustFontSize(text: any) {
     var width_ratio = (text.parent().width()/8)/text.val().length;
     var size = Math.min(0.9, Math.max(0.6, width_ratio))+'em';
     text.css('font-size', size);
   }
-  var slider: any = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+dim);
-  slider.slider({
-    animate: "fast",
-    min: min,
-    max: max,
-    step: wstep,
-    value: default_value,
-    dim_vals: vals,
-    dim_labels: wlabels,
-    next_vals: next_vals,
-    slide: function(event: any, ui: any) {
-      var vals = slider.slider("option", "dim_vals");
-      var next_vals = slider.slider("option", "next_vals");
-      var dlabels = slider.slider("option", "dim_labels");
-      if (dynamic) {
-        var dim_val = ui.value;
-        if (vals.constructor === Array) {
-          var label = ui.value;
-        } else {
-          var label = dlabels[ui.value];
-        }
+  var slider = (document as any).getElementById('_anim_widget'+id+'_'+dim);
+  noUiSlider.create(slider, {
+    range: {
+      'min': min,
+      'max': max
+    },
+    start: [default_value],
+    step: wstep
+  });
+  slider.noUiSlider.on('update', function() {
+    var dim_val = slider.noUiSlider.get();
+    if (dynamic) {
+      if (vals.constructor === Array) {
+        var dim_val: any = parseFloat(dim_val);
+        var label: any = dim_val;
       } else {
-        var dim_val = vals[ui.value];
-        var label = dlabels[ui.value];
+        var dim_val: any = parseInt(dim_val);
+        var label: any = dim_labels[parseInt(dim_val)];
       }
-      var text = (window as any).HoloViews.jQuery('#textInput'+id+'_'+dim);
-      text.val(label);
-      adjustFontSize(text);
-      (window as any).HoloViews.index[plot_id].set_frame(dim_val, dim_idx);
-      if (Object.keys(next_vals).length > 0) {
-        var new_vals = next_vals[dim_val];
-        var next_widget = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+next_dim);
-        update_widget(next_widget, new_vals);
-        }
+    } else {
+      var dim_val = vals[parseInt(dim_val)];
+      var label: any = dim_labels[parseInt(dim_val)];
+    }
+    var text = $('#textInput'+id+'_'+dim);
+    text.val(label);
+    adjustFontSize(text);
+    if (!(plot_id in (window as any).HoloViews.index)) { return; }
+    (window as any).HoloViews.index[plot_id].set_frame(dim_val, dim_idx);
+    if (Object.keys(next_vals).length > 0) {
+      var new_vals = next_vals[dim_val];
+      var next_widget = $('#_anim_widget'+id+'_'+next_dim);
+      update_widget(next_widget, new_vals);
     }
   });
-  slider.keypress(function(event: any) {
-    if (event.which == 80 || event.which == 112) {
-      var start = slider.slider("option", "value");
-      var stop =  slider.slider("option", "max");
-      for (var i=start; i<=stop; i++) {
-        var d = i*delay;
-        (window as any).HoloViews.jQuery.proxy(function doSetTimeout(i: number) { setTimeout((window as any).HoloViews.jQuery.proxy(function() {
-          var val = {value:i};
-          slider.slider('value',i);
-          slider.slider("option", "slide")(null, val);
-        }, slider), d);}, slider)(i);
-      }
-    }
-    if (event.which == 82 || event.which == 114) {
-      var start = slider.slider("option", "value");
-      var stop =  slider.slider("option", "min");
-      var count = 0;
-      for (var i=start; i>=stop; i--) {
-        var d = count*delay;
-        count = count + 1;
-        (window as any).HoloViews.jQuery.proxy(function doSetTimeout(i: number) { setTimeout((window as any).HoloViews.jQuery.proxy(function() {
-          var val = {value:i};
-          slider.slider('value',i);
-          slider.slider("option", "slide")(null, val);
-        }, slider), d);}, slider)(i);
-      }
-    }
-  });
-  var textInput = (window as any).HoloViews.jQuery('#textInput'+id+'_'+dim)
+  var textInput = $('#textInput'+id+'_'+dim)
   textInput.val(init_label);
   adjustFontSize(textInput);
 }
@@ -127,7 +105,7 @@ export
 function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
                        value: number, next_vals: any, labels: any, next_dim: string,
                        dim_idx: number, dynamic: boolean) {
-  var widget = (window as any).HoloViews.jQuery("#_anim_widget"+id+'_'+dim);
+  var widget = $("#_anim_widget"+id+'_'+dim);
   widget.data('values', vals)
   for (var i=0; i<vals.length; i++){
     if (dynamic) {
@@ -135,7 +113,7 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
     } else {
       var val: any = i;
     }
-    widget.append((window as any).HoloViews.jQuery("<option>", {
+    widget.append($("<option>", {
       value: val,
       text: labels[i]
     }));
@@ -146,12 +124,12 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
     if (dynamic) {
       var dim_val: any = parseInt(this.value);
     } else {
-      var dim_val: any = (window as any).HoloViews.jQuery.data(this, 'values')[this.value];
+      var dim_val: any = $.data(this, 'values')[this.value];
     }
-    var next_vals = (window as any).HoloViews.jQuery.data(this, "next_vals");
+    var next_vals = $.data(this, "next_vals");
     if (Object.keys(next_vals).length > 0) {
       var new_vals = next_vals[dim_val];
-      var next_widget = (window as any).HoloViews.jQuery('#_anim_widget'+id+'_'+next_dim);
+      var next_widget = $('#_anim_widget'+id+'_'+next_dim);
       update_widget(next_widget, new_vals);
     }
     var widgets = (window as any).HoloViews.index[plot_id]

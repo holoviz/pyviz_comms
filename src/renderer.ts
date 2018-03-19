@@ -36,7 +36,6 @@ import {
 } from './widgets';
 
 import * as jquery from 'jquery';
-import 'jquery-ui-bundle'
 
 export declare interface CommProxy {
   open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture,
@@ -111,7 +110,6 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       if ((window as any).HoloViews === undefined) {
         (window as any).HoloViews = {kernels: {}};
       }
-      (window as any).HoloViews.jQuery = jquery;
       (window as any).HoloViews.init_slider = init_slider;
       (window as any).HoloViews.init_dropdown = init_dropdown;
       let data = model.data[this._js_mimetype] as string;
