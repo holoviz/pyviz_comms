@@ -74,15 +74,15 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     var dim_val = slider.noUiSlider.get();
     if (dynamic) {
       if (vals.constructor === Array) {
-        var dim_val: any = parseFloat(dim_val);
         var label: any = dim_val;
+        var dim_val: any = parseFloat(dim_val);
       } else {
-        var dim_val: any = parseInt(dim_val);
         var label: any = dim_labels[parseInt(dim_val)];
+        var dim_val: any = parseInt(dim_val);
       }
     } else {
-      var dim_val = vals[parseInt(dim_val)];
       var label: any = dim_labels[parseInt(dim_val)];
+      var dim_val = vals[parseInt(dim_val)];
     }
     var text = $('#textInput'+id+'_'+dim);
     text.val(label);
