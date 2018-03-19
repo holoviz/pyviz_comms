@@ -95,6 +95,20 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       update_widget(next_widget, new_vals);
     }
   });
+  var handle = slider.querySelector('.noUi-handle');
+  handle.setAttribute('tabindex', 0);
+  handle.addEventListener('click', function(){
+    this.focus();
+  });
+  handle.addEventListener('keydown', function(e: any) {
+    var value = Number(slider.noUiSlider.get());
+    if (e.which === 37) {
+      slider.noUiSlider.set(value - wstep);
+    }
+    if (e.which === 39) {
+      slider.noUiSlider.set(value + wstep);
+    }
+  });
   var textInput = $('#textInput'+id+'_'+dim)
   textInput.val(init_label);
   adjustFontSize(textInput);
