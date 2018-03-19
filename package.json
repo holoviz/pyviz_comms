@@ -1,6 +1,6 @@
 {
   "name": "@pyviz/jupyterlab_holoviews",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A JupyterLab extension for rendering HoloViews content",
   "author": "Philipp Rudiger <prudiger@anaconda.org>",
   "main": "lib/index.js",
