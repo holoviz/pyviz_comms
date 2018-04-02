@@ -113,8 +113,9 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       (window as any).HoloViews.init_slider = init_slider;
       (window as any).HoloViews.init_dropdown = init_dropdown;
       let data = model.data[this._js_mimetype] as string;
-      this._script_element.textContent = data;
-      const kernel = this._manager.context.session.kernel;
+	  this._script_element.textContent = data;
+	  const manager = this._manager;
+	  const kernel = manager.context.session.kernel;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
@@ -148,9 +149,10 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       };
       (window as any).HoloViews.kernels[String(metadata.id)] = kernel_proxy;
       this._document_id = metadata.id as string;
-      this._manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
+      manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
         if (status == "restarting") {
           delete (window as any).HoloViews.kernels[String(metadata.id)];
+		  manager.comm = null;
         }
       });
     }
@@ -162,9 +164,17 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     if (this.isDisposed) {
       return;
     }
-    if (this._document_id) {
+    const id = this._document_id;
+	if (id !== null) {
+      if (this._manager.comm !== null) {
+        this._manager.comm.send({event_type: "delete", "id": id});
+      }
       if (((window as any).HoloViews !== undefined) && ((window as any).HoloViews.kernels !== undefined)) {
-        delete (window as any).HoloViews.kernels[this._document_id];
+        delete (window as any).HoloViews.kernels[id];
+      }
+      if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
+        (window as any).Bokeh.index[id].model.document.clear();
+        delete (window as any).Bokeh.index[id];
       }
       this._document_id = null;
     }
