@@ -52,6 +52,7 @@ export declare interface KernelProxy {
 /**
  * The MIME types for HoloViews
  */
+const HTML_MIME_TYPE = 'text/html'
 const JS_MIME_TYPE = 'application/javascript'
 export const HV_LOAD_MIME_TYPE = 'application/vnd.holoviews_load.v0+json'
 export const HV_EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json'
@@ -85,15 +86,18 @@ class HVJSLoad extends Widget implements IRenderMime.IRenderer {
 export
 class HVJSExec extends Widget implements IRenderMime.IRenderer {
   // for classic nb compat reasons, the payload in contained in these mime messages
+  private _html_mimetype: string = HTML_MIME_TYPE
   private _js_mimetype: string = JS_MIME_TYPE
   // the metadata is stored here
   private _document_id: string
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
+  private _div_element: HTMLDivElement
   private _manager: ContextManager;
 
   constructor(options: IRenderMime.IRendererOptions, manager: ContextManager) {
     super()
+    this._div_element = document.createElement("div")
     this._script_element = document.createElement("script")
     this._manager = manager
   }
@@ -104,18 +108,23 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     let metadata = model.metadata[this._exec_mimetype] as ReadonlyJSONObject
-
-    if (metadata.id !== undefined) {
+	const id = metadata.id as string;
+    if (id !== undefined) {
       // I'm a static document
       if ((window as any).HoloViews === undefined) {
         (window as any).HoloViews = {kernels: {}};
       }
       (window as any).HoloViews.init_slider = init_slider;
       (window as any).HoloViews.init_dropdown = init_dropdown;
+
+      const html_data = model.data[this._html_mimetype] as string;
+      this._div_element.innerHTML = html_data;
+      this.node.appendChild(this._div_element)
+
       let data = model.data[this._js_mimetype] as string;
-	  this._script_element.textContent = data;
-	  const manager = this._manager;
-	  const kernel = manager.context.session.kernel;
+      this._script_element.textContent = data;
+      const manager = this._manager;
+      const kernel = manager.context.session.kernel;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
@@ -147,17 +156,24 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         connectToComm: connectClosure,
         registerCommTarget: registerClosure
       };
-      (window as any).HoloViews.kernels[String(metadata.id)] = kernel_proxy;
-      this._document_id = metadata.id as string;
+      (window as any).HoloViews.kernels[id] = kernel_proxy;
+      this._document_id = id;
       manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
         if (status == "restarting") {
           delete (window as any).HoloViews.kernels[String(metadata.id)];
-		  manager.comm = null;
+          manager.comm = null;
         }
       });
     }
     this.node.appendChild(this._script_element)
-    return Promise.resolve()
+
+    return Promise.resolve().then(function() {
+	  if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
+        (window as any).HoloViews.plot_index[id] = (window as any).Bokeh.index[id];
+      } else {
+        (window as any).HoloViews.plot_index[id] = null;
+      }
+	});
   }
 
   dispose(): void {
@@ -165,7 +181,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       return;
     }
     const id = this._document_id;
-	if (id !== null) {
+    if (id !== null) {
       if (this._manager.comm !== null) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
@@ -178,6 +194,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       }
       this._document_id = null;
     }
+	delete (window as any).HoloViews.plot_index[id];
     this._manager = null;
   }
 }
