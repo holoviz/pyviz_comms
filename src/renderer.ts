@@ -38,8 +38,8 @@ import {
 import * as jquery from 'jquery';
 
 export declare interface CommProxy {
-  open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture,
-  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture,
+  open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Promise<void>,
+  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Promise<void>,
   onMsg: (msg: KernelMessage.ICommOpenMsg) => void
 }
 
@@ -108,7 +108,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     let metadata = model.metadata[this._exec_mimetype] as ReadonlyJSONObject
-	const id = metadata.id as string;
+    const id = metadata.id as string;
     if (id !== undefined) {
       // I'm a static document
       if ((window as any).HoloViews === undefined) {
@@ -137,16 +137,22 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           console.log('Kernel not found, could not connect to comm target ', targetName);
           return {open: function (): void {}, send: function (): void {}, onMsg: function (): void {}};
         }
-        const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
-        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Kernel.IFuture => {
-          return comm.send(data, metadata, buffers, disposeOnDone);
+        const comm_promise: Promise<Kernel.IComm> = kernel.connectToComm(targetName, commId);
+        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Promise<void> => {
+          return comm_promise.then(function(comm: Kernel.IComm) {
+            comm.send(data, metadata, buffers, disposeOnDone);
+          });
         };
-        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Kernel.IFuture => {
-          return comm.open(data, metadata, buffers);
+        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Promise<void> => {
+          return comm_promise.then(function(comm: Kernel.IComm) {
+            comm.open(data, metadata, buffers);
+          });
         };
         const comm_proxy: CommProxy = {
           set onMsg(callback: (msg: KernelMessage.ICommOpenMsg) => void) {
-            comm.onMsg = callback;
+            comm_promise.then(function(comm: Kernel.IComm) {
+              comm.onMsg = callback;
+            })
           },
           open: openClosure,
           send: sendClosure};
@@ -168,12 +174,12 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     this.node.appendChild(this._script_element)
 
     return Promise.resolve().then(function() {
-	  if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
+      if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
         (window as any).HoloViews.plot_index[id] = (window as any).Bokeh.index[id];
       } else {
         (window as any).HoloViews.plot_index[id] = null;
       }
-	});
+    });
   }
 
   dispose(): void {
@@ -183,7 +189,9 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     const id = this._document_id;
     if (id !== null) {
       if (this._manager.comm !== null) {
-        this._manager.comm.send({event_type: "delete", "id": id});
+        this._manager.comm.then(function(comm: Kernel.IComm) {
+          comm.send({event_type: "delete", "id": id});
+        });
       }
       if (((window as any).HoloViews !== undefined) && ((window as any).HoloViews.kernels !== undefined)) {
         delete (window as any).HoloViews.kernels[id];
@@ -194,7 +202,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       }
       this._document_id = null;
     }
-	delete (window as any).HoloViews.plot_index[id];
+    delete (window as any).HoloViews.plot_index[id];
     this._manager = null;
   }
 }
