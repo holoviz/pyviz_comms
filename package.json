@@ -37,7 +37,7 @@
     "@phosphor/widgets": "^1.5.0",
     "@types/jquery": "^2.0.48",
     "@types/nouislider": "^9.0.4",
-    "jquery": "^2.1.4",
+    "jquery": ">=3.0.0",
     "nouislider": "^9.0.4"
   },
   "devDependencies": {
