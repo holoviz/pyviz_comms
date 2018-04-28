@@ -4,6 +4,7 @@
   "description": "A JupyterLab extension for rendering HoloViews content",
   "author": "Philipp Rudiger <prudiger@anaconda.org>",
   "main": "lib/index.js",
+  "license": "BSD-3-Clause",
   "keywords": [
     "jupyter",
     "jupyterlab",
