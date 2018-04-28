@@ -25,15 +25,24 @@ function update_widget(widget: any, values: any) {
   };
 }
 
+function adjustFontSize(text: any) {
+  var width_ratio = (text.parentNode.offsetWidth/8)/text.value.length;
+  var size = Math.min(0.9, Math.max(0.6, width_ratio))+'em';
+  text.style.fontSize = size;
+}
+
 export
 function init_slider(id: string, plot_id: string, dim: string, values: any, next_vals: any,
                      labels: any[], dynamic: boolean, step: number, value: any, next_dim: string,
                      dim_idx: number, delay: number = 500) {
+  // Insert CSS
   var fileref=document.createElement("link")
   fileref.setAttribute("rel", "stylesheet")
   fileref.setAttribute("type", "text/css")
   fileref.setAttribute("href", "//cdn.bootcss.com/noUiSlider/8.5.1/nouislider.min.css")
   document.getElementsByTagName("head")[0].appendChild(fileref)
+
+  // Compute slider parameters
   var vals = values;
   if (dynamic && vals.constructor === Array) {
     var default_value = parseFloat(value);
@@ -56,12 +65,19 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     var wstep = 1;
     var dim_labels: any[] = labels;
   }
-  function adjustFontSize(text: any) {
-    var width_ratio = (text.parent().width()/8)/text.val().length;
-    var size = Math.min(0.9, Math.max(0.6, width_ratio))+'em';
-    text.css('font-size', size);
-  }
+
   var slider = (document as any).getElementById('_anim_widget'+id+'_'+dim);
+  var text = (document as any).getElementById('textInput'+id+'_'+dim);
+  text.value = init_label;
+  adjustFontSize(text);
+
+  // Do not display slider if there is no range
+  if (min === max) {
+	slider.style.display = "none";
+	return;
+  }
+
+  // Set up slider
   noUiSlider.create(slider, {
     range: {
       'min': min,
@@ -70,6 +86,8 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
     start: [default_value],
     step: wstep
   });
+
+  // Set up slider callback
   slider.noUiSlider.on('update', function() {
     var dim_val = slider.noUiSlider.get();
     if (dynamic) {
@@ -84,17 +102,18 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       var label: any = dim_labels[parseInt(dim_val)];
       var dim_val = vals[parseInt(dim_val)];
     }
-    var text = $('#textInput'+id+'_'+dim);
-    text.val(label);
+    text.value = label;
     adjustFontSize(text);
     if (!(plot_id in (window as any).HoloViews.index)) { return; }
     (window as any).HoloViews.index[plot_id].set_frame(dim_val, dim_idx);
     if (Object.keys(next_vals).length > 0) {
       var new_vals = next_vals[dim_val];
-      var next_widget = $('#_anim_widget'+id+'_'+next_dim);
+      var next_widget = (document as any).getElementById('_anim_widget'+id+'_'+next_dim);
       update_widget(next_widget, new_vals);
     }
   });
+
+  // Add focus and key events to slider
   var handle = slider.querySelector('.noUi-handle');
   handle.setAttribute('tabindex', 0);
   handle.addEventListener('click', function(){
@@ -109,9 +128,6 @@ function init_slider(id: string, plot_id: string, dim: string, values: any, next
       slider.noUiSlider.set(value + wstep);
     }
   });
-  var textInput = $('#textInput'+id+'_'+dim)
-  textInput.val(init_label);
-  adjustFontSize(textInput);
 }
 
 
