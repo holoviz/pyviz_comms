@@ -94,12 +94,19 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   private _script_element: HTMLScriptElement
   private _div_element: HTMLDivElement
   private _manager: ContextManager;
+  private _displayed: boolean;
 
   constructor(options: IRenderMime.IRendererOptions, manager: ContextManager) {
     super()
+    this._createNodes();
+    this._manager = manager
+    this._displayed = false;
+  }
+
+  _createNodes(): void {
     this._div_element = document.createElement("div")
     this._script_element = document.createElement("script")
-    this._manager = manager
+    this._script_element.setAttribute('type', 'text/javascript');
   }
 
   get isDisposed(): boolean {
@@ -109,6 +116,12 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     let metadata = model.metadata[this._exec_mimetype] as ReadonlyJSONObject
     const id = metadata.id as string;
+    if (this._displayed) {
+      this._disposePlot()
+      this.node.removeChild(this._div_element);
+      this.node.removeChild(this._script_element);
+      this._createNodes()
+    }
     if (id !== undefined) {
       // I'm a static document
       if ((window as any).HoloViews === undefined) {
@@ -119,10 +132,14 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;
-      this.node.appendChild(this._div_element)
+      this.node.appendChild(this._div_element);
 
       let data = model.data[this._js_mimetype] as string;
       this._script_element.textContent = data;
+      this.node.appendChild(this._script_element);
+
+      this._displayed = true;
+
       const manager = this._manager;
       const kernel = manager.context.session.kernel;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable => {
@@ -166,13 +183,11 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       this._document_id = id;
       manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
         if (status == "restarting") {
-          delete (window as any).HoloViews.kernels[String(metadata.id)];
+          delete (window as any).HoloViews.kernels[id];
           manager.comm = null;
         }
       });
     }
-    this.node.appendChild(this._script_element)
-
     return Promise.resolve().then(function() {
       if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
         (window as any).HoloViews.plot_index[id] = (window as any).Bokeh.index[id];
@@ -182,10 +197,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     });
   }
 
-  dispose(): void {
-    if (this.isDisposed) {
-      return;
-    }
+  _disposePlot(): void {
     const id = this._document_id;
     if (id !== null) {
       if (this._manager.comm !== null) {
@@ -203,6 +215,13 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       this._document_id = null;
     }
     delete (window as any).HoloViews.plot_index[id];
+  }
+
+  dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+    this._disposePlot();
     this._manager = null;
   }
 }
