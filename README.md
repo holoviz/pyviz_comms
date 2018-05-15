@@ -1,6 +1,6 @@
-# jupyterlab_holoviews
+# jupyterlab_pyviz
 
-A JupyterLab extension for rendering HoloViews content
+A JupyterLab extension for rendering PyViz content
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ A JupyterLab extension for rendering HoloViews content
 ## Installation
 
 ```bash
-jupyter labextension install @pyviz/jupyterlab_holoviews
+jupyter labextension install @pyviz/jupyterlab_pyviz
 ```
 
 ## Development
