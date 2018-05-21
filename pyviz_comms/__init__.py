@@ -13,19 +13,19 @@ except:
 # Following JS block becomes body of the message handler callback
 bokeh_msg_handler = """
 var plot_id = "{plot_id}";
-if (plot_id in HoloViews.plot_index) {{
-  var plot = HoloViews.plot_index[plot_id];
+if (plot_id in PyViz.plot_index) {{
+  var plot = PyViz.plot_index[plot_id];
 }} else {{
   var plot = Bokeh.index[plot_id];
 }}
 
-if (plot_id in HoloViews.receivers) {{
-  var receiver = HoloViews.receivers[plot_id];
+if (plot_id in PyViz.receivers) {{
+  var receiver = PyViz.receivers[plot_id];
 }} else if (Bokeh.protocol === undefined) {{
   return;
 }} else {{
   var receiver = new Bokeh.protocol.Receiver();
-  HoloViews.receivers[plot_id] = receiver;
+  PyViz.receivers[plot_id] = receiver;
 }}
 
 if (buffers.length > 0) {{
@@ -64,7 +64,7 @@ JS_CALLBACK = """
         var events = unique_events(comm_status.event_buffer);
         for (var i=0; i<events.length; i++) {{
             var data = events[i];
-            var comm = HoloViews.comms[data["comm_id"]];
+            var comm = PyViz.comms[data["comm_id"]];
             comm.send(data);
         }}
         comm_status.event_buffer = [];
@@ -75,7 +75,7 @@ JS_CALLBACK = """
       // and unblocking Comm if event queue empty
       msg = JSON.parse(msg.content.data);
       var comm_id = msg["comm_id"]
-      var comm_status = HoloViews.comm_status[comm_id];
+      var comm_status = PyViz.comm_status[comm_id];
       if (comm_status.event_buffer.length) {{
         process_events(comm_status);
         comm_status.blocked = true;
@@ -92,16 +92,16 @@ JS_CALLBACK = """
     }}
 
     // Initialize Comm
-    comm = HoloViews.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
+    comm = PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
     if (!comm) {{
       return
     }}
 
     // Initialize event queue and timeouts for Comm
-    var comm_status = HoloViews.comm_status["{comm_id}"];
+    var comm_status = PyViz.comm_status["{comm_id}"];
     if (comm_status === undefined) {{
         comm_status = {{event_buffer: [], blocked: false, time: Date.now()}}
-        HoloViews.comm_status["{comm_id}"] = comm_status
+        PyViz.comm_status["{comm_id}"] = comm_status
     }}
 
     // Add current event to queue and process queue if not blocked
@@ -251,7 +251,7 @@ class JupyterComm(Comm):
       var msg = msg.content.data;
       {msg_handler}
     }}
-    HoloViews.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
+    PyViz.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
     """
 
     def init(self):
@@ -295,7 +295,7 @@ class JupyterCommJS(JupyterComm):
         var buffers = msg.buffers
         {msg_handler}
       }}
-      comm = HoloViews.comm_manager.get_client_comm("{comm_id}");
+      comm = PyViz.comm_manager.get_client_comm("{comm_id}");
       comm.on_msg(msg_handler);
     </script>
     """
@@ -339,7 +339,7 @@ class CommManager(object):
     CommManager.prototype.get_client_comm = function() {
     }
 
-    window.HoloViews.comm_manager = CommManager()
+    window.PyViz.comm_manager = CommManager()
     """
 
     _comms = {}
@@ -386,34 +386,34 @@ class JupyterCommManager(CommManager):
         comm_manager.register_target(comm_id, function(comm) {
           comm.on_msg(msg_handler);
         });
-      } else if ((plot_id in HoloViews.kernels) && (HoloViews.kernels[plot_id])) {
-        HoloViews.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
+      } else if ((plot_id in PyViz.kernels) && (PyViz.kernels[plot_id])) {
+        PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
           comm.onMsg = msg_handler;
         });
       }
     }
 
     JupyterCommManager.prototype.get_client_comm = function(plot_id, comm_id, msg_handler) {
-      if (comm_id in window.HoloViews.comms) {
-        return HoloViews.comms[comm_id];
+      if (comm_id in window.PyViz.comms) {
+        return PyViz.comms[comm_id];
       } else if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
         var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
         var comm = comm_manager.new_comm(comm_id, {}, {}, {}, comm_id);
         if (msg_handler) {
           comm.on_msg(msg_handler);
         }
-      } else if ((plot_id in HoloViews.kernels) && (HoloViews.kernels[plot_id])) {
-        var comm = HoloViews.kernels[plot_id].connectToComm(comm_id);
+      } else if ((plot_id in PyViz.kernels) && (PyViz.kernels[plot_id])) {
+        var comm = PyViz.kernels[plot_id].connectToComm(comm_id);
         comm.open();
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
       }
-      HoloViews.comms[comm_id] = comm;
+      PyViz.comms[comm_id] = comm;
       return comm;
     }
 
-    window.HoloViews.comm_manager = new JupyterCommManager();
+    window.PyViz.comm_manager = new JupyterCommManager();
     """
 
     server_comm = JupyterComm
