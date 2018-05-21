@@ -12,9 +12,13 @@ except:
 
 PYVIZ_PROXY = """
 if (window.PyViz === undefined) {
-   let PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
+   if (window.HoloViews === undefined) {
+     var PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
+   } else {
+     var PyViz = window.HoloViews;
+   }
    window.PyViz = PyViz;
-   window.HoloViews = PyViz;   // TEMPORARY HACK TILL NEXT NPM RELEASE
+   window.HoloViews = PyViz;  // TEMPORARY HACK TILL NEXT NPM RELEASE
 }
 """
 
