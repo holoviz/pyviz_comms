@@ -55,80 +55,80 @@ if (comm_msg != null) {{
 
 
 JS_CALLBACK = """
-    function unique_events(events) {{
-        // Processes the event queue ignoring duplicate events
-        // of the same type
-        var unique = [];
-        var unique_events = [];
-        for (var i=0; i<events.length; i++) {{
-            var _tmpevent = events[i];
-            event = _tmpevent[0];
-            data = _tmpevent[1];
-            if (unique_events.indexOf(event)===-1) {{
-                unique.unshift(data);
-                unique_events.push(event);
-            }}
+function unique_events(events) {{
+    // Processes the event queue ignoring duplicate events
+    // of the same type
+    var unique = [];
+    var unique_events = [];
+    for (var i=0; i<events.length; i++) {{
+        var _tmpevent = events[i];
+        event = _tmpevent[0];
+        data = _tmpevent[1];
+        if (unique_events.indexOf(event)===-1) {{
+            unique.unshift(data);
+            unique_events.push(event);
         }}
-        return unique;
     }}
+    return unique;
+}}
 
-    function process_events(comm_status) {{
-        // Iterates over event queue and sends events via Comm
-        var events = unique_events(comm_status.event_buffer);
-        for (var i=0; i<events.length; i++) {{
-            var data = events[i];
-            var comm = window.PyViz.comms[data["comm_id"]];
-            comm.send(data);
-        }}
-        comm_status.event_buffer = [];
+function process_events(comm_status) {{
+    // Iterates over event queue and sends events via Comm
+    var events = unique_events(comm_status.event_buffer);
+    for (var i=0; i<events.length; i++) {{
+        var data = events[i];
+        var comm = window.PyViz.comms[data["comm_id"]];
+        comm.send(data);
     }}
+    comm_status.event_buffer = [];
+}}
 
-    function on_msg(msg) {{
-      // Receives acknowledgement from Python, processing event
-      // and unblocking Comm if event queue empty
-      msg = JSON.parse(msg.content.data);
-      var comm_id = msg["comm_id"]
-      var comm_status = window.PyViz.comm_status[comm_id];
-      if (comm_status.event_buffer.length) {{
-        process_events(comm_status);
-        comm_status.blocked = true;
-        comm_status.time = Date.now()+{debounce};
-      }} else {{
-        comm_status.blocked = false;
-      }}
-      comm_status.event_buffer = [];
-      if ((msg.msg_type == "Ready") && msg.content) {{
-        console.log("Python callback returned following output:", msg.content);
-      }} else if (msg.msg_type == "Error") {{
-        console.log("Python failed with the following traceback:", msg['traceback'])
-      }}
-    }}
+function on_msg(msg) {{
+  // Receives acknowledgement from Python, processing event
+  // and unblocking Comm if event queue empty
+  msg = JSON.parse(msg.content.data);
+  var comm_id = msg["comm_id"]
+  var comm_status = window.PyViz.comm_status[comm_id];
+  if (comm_status.event_buffer.length) {{
+    process_events(comm_status);
+    comm_status.blocked = true;
+    comm_status.time = Date.now()+{debounce};
+  }} else {{
+    comm_status.blocked = false;
+  }}
+  comm_status.event_buffer = [];
+  if ((msg.msg_type == "Ready") && msg.content) {{
+    console.log("Python callback returned following output:", msg.content);
+  }} else if (msg.msg_type == "Error") {{
+    console.log("Python failed with the following traceback:", msg['traceback'])
+  }}
+}}
 
-    // Initialize Comm
-    comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
-    if (!comm) {{
-      return
-    }}
+// Initialize Comm
+comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
+if (!comm) {{
+  return
+}}
 
-    // Initialize event queue and timeouts for Comm
-    var comm_status = window.PyViz.comm_status["{comm_id}"];
-    if (comm_status === undefined) {{
-        comm_status = {{event_buffer: [], blocked: false, time: Date.now()}}
-        window.PyViz.comm_status["{comm_id}"] = comm_status
-    }}
+// Initialize event queue and timeouts for Comm
+var comm_status = window.PyViz.comm_status["{comm_id}"];
+if (comm_status === undefined) {{
+    comm_status = {{event_buffer: [], blocked: false, time: Date.now()}}
+    window.PyViz.comm_status["{comm_id}"] = comm_status
+}}
 
-    // Add current event to queue and process queue if not blocked
-    event_name = cb_obj.event_name
-    data['comm_id'] = "{comm_id}";
-    timeout = comm_status.time + {timeout};
-    if ((comm_status.blocked && (Date.now() < timeout))) {{
-        comm_status.event_buffer.unshift([event_name, data]);
-    }} else {{
-        comm_status.event_buffer.unshift([event_name, data]);
-        setTimeout(function() {{ process_events(comm_status); }}, {debounce});
-        comm_status.blocked = true;
-        comm_status.time = Date.now()+{debounce};
-    }}
+// Add current event to queue and process queue if not blocked
+event_name = cb_obj.event_name
+data['comm_id'] = "{comm_id}";
+timeout = comm_status.time + {timeout};
+if ((comm_status.blocked && (Date.now() < timeout))) {{
+    comm_status.event_buffer.unshift([event_name, data]);
+}} else {{
+    comm_status.event_buffer.unshift([event_name, data]);
+    setTimeout(function() {{ process_events(comm_status); }}, {debounce});
+    comm_status.blocked = true;
+    comm_status.time = Date.now()+{debounce};
+}}
 """
 
 
