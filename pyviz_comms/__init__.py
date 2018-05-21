@@ -377,11 +377,11 @@ class JupyterCommManager(CommManager):
 
     There are two cases for both the register_target and get_client_comm
     methods: one to handle the classic notebook frontend and one to
-    handle JupyterLab. The latter case uses the globally available
-    HoloViews object which is made available when the HoloViews notebook
-    extension is loaded. This object is handled in turn by the
-    JupyterLab extension which keeps track of the kernels associated
-    with each plot, ensuring the corresponding comms can be accessed.
+    handle JupyterLab. The latter case uses the globally available PyViz
+    object which is made available by each PyViz project requiring the
+    use of comms. This object is handled in turn by the JupyterLab
+    extension which keeps track of the kernels associated with each
+    plot, ensuring the corresponding comms can be accessed.
     """
 
     js_manager = """
