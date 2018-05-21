@@ -26,19 +26,19 @@ if (window.PyViz === undefined) {
 # Following JS block becomes body of the message handler callback
 bokeh_msg_handler = """
 var plot_id = "{plot_id}";
-if (plot_id in PyViz.plot_index) {{
-  var plot = PyViz.plot_index[plot_id];
+if (plot_id in window.PyViz.plot_index) {{
+  var plot = window.PyViz.plot_index[plot_id];
 }} else {{
   var plot = Bokeh.index[plot_id];
 }}
 
-if (plot_id in PyViz.receivers) {{
-  var receiver = PyViz.receivers[plot_id];
+if (plot_id in window.PyViz.receivers) {{
+  var receiver = window.PyViz.receivers[plot_id];
 }} else if (Bokeh.protocol === undefined) {{
   return;
 }} else {{
   var receiver = new Bokeh.protocol.Receiver();
-  PyViz.receivers[plot_id] = receiver;
+  window.PyViz.receivers[plot_id] = receiver;
 }}
 
 if (buffers.length > 0) {{
@@ -77,7 +77,7 @@ JS_CALLBACK = """
         var events = unique_events(comm_status.event_buffer);
         for (var i=0; i<events.length; i++) {{
             var data = events[i];
-            var comm = PyViz.comms[data["comm_id"]];
+            var comm = window.PyViz.comms[data["comm_id"]];
             comm.send(data);
         }}
         comm_status.event_buffer = [];
@@ -88,7 +88,7 @@ JS_CALLBACK = """
       // and unblocking Comm if event queue empty
       msg = JSON.parse(msg.content.data);
       var comm_id = msg["comm_id"]
-      var comm_status = PyViz.comm_status[comm_id];
+      var comm_status = window.PyViz.comm_status[comm_id];
       if (comm_status.event_buffer.length) {{
         process_events(comm_status);
         comm_status.blocked = true;
@@ -105,16 +105,16 @@ JS_CALLBACK = """
     }}
 
     // Initialize Comm
-    comm = PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
+    comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
     if (!comm) {{
       return
     }}
 
     // Initialize event queue and timeouts for Comm
-    var comm_status = PyViz.comm_status["{comm_id}"];
+    var comm_status = window.PyViz.comm_status["{comm_id}"];
     if (comm_status === undefined) {{
         comm_status = {{event_buffer: [], blocked: false, time: Date.now()}}
-        PyViz.comm_status["{comm_id}"] = comm_status
+        window.PyViz.comm_status["{comm_id}"] = comm_status
     }}
 
     // Add current event to queue and process queue if not blocked
@@ -264,7 +264,7 @@ class JupyterComm(Comm):
       var msg = msg.content.data;
       {msg_handler}
     }}
-    PyViz.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
+    window.PyViz.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
     """
 
     def init(self):
@@ -308,7 +308,7 @@ class JupyterCommJS(JupyterComm):
         var buffers = msg.buffers
         {msg_handler}
       }}
-      comm = PyViz.comm_manager.get_client_comm("{comm_id}");
+      comm = window.PyViz.comm_manager.get_client_comm("{comm_id}");
       comm.on_msg(msg_handler);
     </script>
     """
@@ -399,8 +399,8 @@ class JupyterCommManager(CommManager):
         comm_manager.register_target(comm_id, function(comm) {
           comm.on_msg(msg_handler);
         });
-      } else if ((plot_id in PyViz.kernels) && (PyViz.kernels[plot_id])) {
-        PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
+      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
+        window.PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
           comm.onMsg = msg_handler;
         });
       }
@@ -408,21 +408,22 @@ class JupyterCommManager(CommManager):
 
     JupyterCommManager.prototype.get_client_comm = function(plot_id, comm_id, msg_handler) {
       if (comm_id in window.PyViz.comms) {
-        return PyViz.comms[comm_id];
+        return window.PyViz.comms[comm_id];
       } else if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
         var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
         var comm = comm_manager.new_comm(comm_id, {}, {}, {}, comm_id);
         if (msg_handler) {
           comm.on_msg(msg_handler);
         }
-      } else if ((plot_id in PyViz.kernels) && (PyViz.kernels[plot_id])) {
-        var comm = PyViz.kernels[plot_id].connectToComm(comm_id);
+      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
+        var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
         comm.open();
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
       }
-      PyViz.comms[comm_id] = comm;
+
+      window.PyViz.comms[comm_id] = comm;
       return comm;
     }
 
