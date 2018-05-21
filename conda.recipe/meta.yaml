@@ -9,7 +9,7 @@ source:
 
 build:
   noarch: python
-  number: 0
+  number: 1
   script: python setup.py --quiet install --single-version-externally-managed --record record.txt
 
 
@@ -25,6 +25,6 @@ test:
     - pyviz_comms
 
 about:
-  home: www.holoviews.org
+  home: www.pyviz.org
   summary: Bidirectional communication for PyViz
   license: BSD 3-Clause
