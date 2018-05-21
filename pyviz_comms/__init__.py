@@ -14,6 +14,7 @@ PYVIZ_PROXY = """
 if (window.PyViz === undefined) {
    let PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
    window.PyViz = PyViz;
+   window.HoloViews = PyViz;   // TEMPORARY HACK TILL NEXT NPM RELEASE
 }
 """
 
