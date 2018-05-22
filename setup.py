@@ -14,6 +14,7 @@ setup_args.update(dict(
     install_requires = install_requires,
     description='Launch jobs, organize the output, and dissect the results.',
     long_description=open('README.md').read() if os.path.isfile('README.md') else 'Consult README.md',
+    long_description_content_type="text/markdown",
     author= "PyViz developers",
     author_email= "",
     maintainer= "PyViz",
