@@ -9,6 +9,7 @@ except:
     from io import StringIO
 
 
+__version__ = '0.1.0'
 
 PYVIZ_PROXY = """
 if (window.PyViz === undefined) {

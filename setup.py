@@ -10,7 +10,7 @@ install_requires = []
 setup_args = {}
 setup_args.update(dict(
     name='pyviz_comms',
-    version="0.5.0",
+    version="0.1.0",
     install_requires = install_requires,
     description='Launch jobs, organize the output, and dissect the results.',
     long_description=open('README.md').read() if os.path.isfile('README.md') else 'Consult README.md',
