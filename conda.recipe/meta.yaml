@@ -17,6 +17,7 @@ requirements:
   build:
     - python
     - setuptools
+    - param
   run:
     - python
     - param
