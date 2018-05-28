@@ -6,7 +6,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-install_requires = []
+install_requires = ['param']
 setup_args = {}
 setup_args.update(dict(
     name='pyviz_comms',
