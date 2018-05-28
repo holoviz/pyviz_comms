@@ -10,7 +10,9 @@ except:
 
 import param
 
-__version__ = '0.1.0'
+__version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
+                                        reponame="pyviz_comms"))
+
 
 PYVIZ_PROXY = """
 if (window.PyViz === undefined) {
