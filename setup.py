@@ -6,11 +6,31 @@ try:
 except ImportError:
     from distutils.core import setup
 
-install_requires = []
+
+def get_setup_version(reponame):
+    """
+    Helper to get the current version from either git describe or the
+    .version file (if available).
+    """
+    import json
+    basepath = os.path.split(__file__)[0]
+    version_file_path = os.path.join(basepath, reponame, '.version')
+    try:
+        from param import version
+    except:
+        version = None
+    if version is not None:
+        return version.Version.setup_version(basepath, reponame, archive_commit="$Format:%h$")
+    else:
+        print("WARNING: param>=1.6.0 unavailable. If you are installing a package, this warning can safely be ignored. If you are creating a package or otherwise operating in a git repository, you should install param>=1.6.0.")
+        return json.load(open(version_file_path, 'r'))['version_string']
+
+
+install_requires = ['param']
 setup_args = {}
 setup_args.update(dict(
     name='pyviz_comms',
-    version="0.1.0",
+    version=get_setup_version("pyviz_comms"),
     install_requires = install_requires,
     description='Launch jobs, organize the output, and dissect the results.',
     long_description=open('README.md').read() if os.path.isfile('README.md') else 'Consult README.md',
@@ -23,6 +43,7 @@ setup_args.update(dict(
     license='BSD',
     url='http://pyviz.org',
     packages = ["pyviz_comms"],
+    package_data={'pyviz_comms': ['.version']},
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",

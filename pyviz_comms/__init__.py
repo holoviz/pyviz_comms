@@ -8,8 +8,11 @@ try:
 except:
     from io import StringIO
 
+import param
 
-__version__ = '0.1.0'
+__version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
+                                        reponame="pyviz_comms"))
+
 
 PYVIZ_PROXY = """
 if (window.PyViz === undefined) {
@@ -154,7 +157,7 @@ class StandardOutput(list):
         sys.stdout = self._stdout
 
 
-class Comm(object):
+class Comm(param.Parameterized):
     """
     Comm encompasses any uni- or bi-directional connection between
     a python process and a frontend allowing passing of messages
@@ -179,15 +182,17 @@ class Comm(object):
     </div>
     """
 
+    id = param.String(doc="Unique identifier of this Comm instance")
+
     js_template = ''
 
     def __init__(self, id=None, on_msg=None):
         """
         Initializes a Comms object
         """
-        self.id = id if id else uuid.uuid4().hex
         self._on_msg = on_msg
         self._comm = None
+        super(Comm, self).__init__(id = id if id else uuid.uuid4().hex)
 
 
     def init(self, on_msg=None):
