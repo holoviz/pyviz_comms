@@ -42,13 +42,13 @@ class NBWidgetExtension implements INBWidgetExtension {
         safe: false,
         mimeTypes: [HV_LOAD_MIME_TYPE],
         createRenderer: (options) => new HVJSLoad(options)
-    }, 0);
+    }, -1);
 
     nb.rendermime.addFactory({
         safe: false,
         mimeTypes: [HV_EXEC_MIME_TYPE],
         createRenderer: (options) => new HVJSExec(options, manager)
-    }, 0);
+    }, -1);
 
     return new DisposableDelegate(() => {
         if (nb.rendermime) {
