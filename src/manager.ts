@@ -17,7 +17,7 @@ import {
 export
 class ContextManager implements IDisposable {
   private _context: DocumentRegistry.IContext<DocumentRegistry.IModel>;
-  private _comm: Promise<Kernel.IComm> | null;
+  private _comm: Kernel.IComm | null;
 
   constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>) {
     this._context = context;
@@ -31,7 +31,7 @@ class ContextManager implements IDisposable {
   get comm() {
     if ((this._comm === null) && (this._context.session.kernel !== null)) {
       this._comm = this._context.session.kernel.connectToComm("hv-extension-comm");
-      this._comm.then(function(comm: Kernel.IComm) { comm.open() });
+      this._comm.open();
     }
     return this._comm;
   }

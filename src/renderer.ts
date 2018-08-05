@@ -8,16 +8,12 @@ import {
 } from '@jupyterlab/services'
 
 import {
-    IClientSession
+  IClientSession
 } from '@jupyterlab/apputils';
 
 import {
   ReadonlyJSONObject
 } from '@phosphor/coreutils'
-
-import {
-  IDisposable
-} from '@phosphor/disposable';
 
 import {
   JSONObject, JSONValue
@@ -38,14 +34,14 @@ import {
 import * as jquery from 'jquery';
 
 export declare interface CommProxy {
-  open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Promise<void>,
-  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Promise<void>,
+  open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void,
+  send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void,
   onMsg: (msg: KernelMessage.ICommOpenMsg) => void
 }
 
 export declare interface KernelProxy {
   // copied from https://github.com/jupyterlab/jupyterlab/blob/master/packages/services/src/kernel/default.ts#L605
-  registerCommTarget(targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable,
+  registerCommTarget(targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void,
   connectToComm(targetName: string, commId?: string): CommProxy,
 }
 
@@ -142,7 +138,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
       const manager = this._manager;
       const kernel = manager.context.session.kernel;
-      const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): IDisposable => {
+      const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
           return;
@@ -154,22 +150,16 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           console.log('Kernel not found, could not connect to comm target ', targetName);
           return {open: function (): void {}, send: function (): void {}, onMsg: function (): void {}};
         }
-        const comm_promise: Promise<Kernel.IComm> = kernel.connectToComm(targetName, commId);
-        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): Promise<void> => {
-          return comm_promise.then(function(comm: Kernel.IComm) {
-            comm.send(data, metadata, buffers, disposeOnDone);
-          });
+        const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
+        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
+          comm.send(data, metadata, buffers, disposeOnDone);
         };
-        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): Promise<void> => {
-          return comm_promise.then(function(comm: Kernel.IComm) {
-            comm.open(data, metadata, buffers);
-          });
+        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void => {
+          comm.open(data, metadata, buffers);
         };
         const comm_proxy: CommProxy = {
           set onMsg(callback: (msg: KernelMessage.ICommOpenMsg) => void) {
-            comm_promise.then(function(comm: Kernel.IComm) {
-              comm.onMsg = callback;
-            })
+            comm.onMsg = callback;
           },
           open: openClosure,
           send: sendClosure};
@@ -181,8 +171,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       };
       (window as any).HoloViews.kernels[id] = kernel_proxy;
       this._document_id = id;
-      manager.context.session.statusChanged.connect((session: IClientSession, status: string) => {
-        if (status == "restarting") {
+      manager.context.session.statusChanged.connect((session: IClientSession, status: Kernel.Status) => {
+        if (status == "restarting" || status === "dead") {
           delete (window as any).HoloViews.kernels[id];
           manager.comm = null;
         }
@@ -201,9 +191,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     const id = this._document_id;
     if (id !== null) {
       if (this._manager.comm !== null) {
-        this._manager.comm.then(function(comm: Kernel.IComm) {
-          comm.send({event_type: "delete", "id": id});
-        });
+        this._manager.comm.send({event_type: "delete", "id": id});
       }
       if (((window as any).HoloViews !== undefined) && ((window as any).HoloViews.kernels !== undefined)) {
         delete (window as any).HoloViews.kernels[id];
