@@ -57,6 +57,17 @@ if (comm_msg != null) {{
 }}
 """
 
+embed_js = """
+// Ugly hack - see HoloViews #2574 for more information
+if (!(document.getElementById('{plot_id}')) && !(document.getElementById('_anim_img{widget_id}'))) {{
+  console.log("Creating DOM nodes dynamically for assumed nbconvert export. To generate clean HTML output set HV_DOC_HTML as an environment variable.")
+  var htmlObject = document.createElement('div');
+  htmlObject.innerHTML = `{html}`;
+  var scriptTags = document.getElementsByTagName('script');
+  var parentTag = scriptTags[scriptTags.length-1].parentNode;
+  parentTag.append(htmlObject)
+}}
+"""
 
 JS_CALLBACK = """
 function unique_events(events) {{
