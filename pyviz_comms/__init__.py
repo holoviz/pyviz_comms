@@ -201,6 +201,12 @@ class Comm(param.Parameterized):
         """
 
 
+    def close(self):
+        """
+        Closes the comm connection
+        """
+
+
     def send(self, data=None, buffers=[]):
         """
         Sends data to the frontend
@@ -290,6 +296,14 @@ class JupyterComm(Comm):
         return msg['content']['data']
 
 
+    def close(self):
+        """
+        Closes the comm connection
+        """
+        if self._comm:
+            self._comm.close()
+
+
     def send(self, data=None, buffers=[]):
         """
         Pushes data across comm socket.
@@ -327,6 +341,19 @@ class JupyterCommJS(JupyterComm):
         super(JupyterCommJS, self).__init__(id, on_msg)
         self.manager = get_ipython().kernel.comm_manager
         self.manager.register_target(self.id, self._handle_open)
+
+
+    def close(self):
+        """
+        Closes the comm connection
+        """
+        if self._comm:
+            self._comm.close()
+        else:
+            if self.id in self.manager.targets:
+                del self.manager.targets[self.id]
+            else:
+                raise AssertionError('JupyterCommJS %s is already closed' % self.id)
 
 
     def _handle_open(self, comm, msg):
