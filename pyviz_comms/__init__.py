@@ -120,6 +120,7 @@ function on_msg(msg) {{
 }}
 
 // Initialize Comm
+if (window.PyViz.comm_manager == undefined) {{ return }}
 comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
 if (!comm) {{
   return
