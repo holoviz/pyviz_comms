@@ -256,11 +256,13 @@ class Comm(param.Parameterized):
                 with StandardOutput() as stdout:
                     self._on_msg(msg)
         except Exception as e:
-            frame =traceback.extract_tb(sys.exc_info()[2])[-2]
-            fname,lineno,fn,text = frame
-            error_kwargs = dict(type=type(e).__name__, fn=fn, fname=fname,
-                                line=lineno, error=str(e))
-            error = '{fname} {fn} L{line}\n\t{type}: {error}'.format(**error_kwargs)
+            error = '\n'
+            frames = traceback.extract_tb(sys.exc_info()[2])
+            for frame in frames[-10:]:
+                fname,lineno,fn,text = frame
+                error_kwargs = dict(fn=fn, fname=fname, line=lineno)
+                error += '{fname} {fn} L{line}\n'.format(**error_kwargs)
+            error += '\t{type}: {error}'.format(type=type(e).__name__, error=str(e))
             if stdout:
                 stdout = '\n\t'+'\n\t'.join(stdout)
                 error = '\n'.join([stdout, error])
