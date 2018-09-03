@@ -1,6 +1,7 @@
+import os
+import sys
 import json
 import uuid
-import sys
 import traceback
 
 try:
@@ -12,6 +13,12 @@ import param
 
 __version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
                                         reponame="pyviz_comms"))
+
+
+# nb_mime_js is used to enable the necessary mime type support in jupyterlab
+comm_path = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(comm_path, 'notebook.js')) as f:
+    nb_mime_js = '\n\n' + f.read()
 
 
 PYVIZ_PROXY = """
