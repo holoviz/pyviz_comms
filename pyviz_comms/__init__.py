@@ -15,7 +15,7 @@ __version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:
                                         reponame="pyviz_comms"))
 
 
-# nb_mime_js is used to enable the necessary mime type support in jupyterlab
+# nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(comm_path, 'notebook.js')) as f:
     nb_mime_js = '\n\n' + f.read()
