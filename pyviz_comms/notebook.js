@@ -86,7 +86,7 @@ function register_renderer(events, OutputArea) {
     return toinsert
   }
 
-  events.on('output_added.OutputArea', handle_add_output);	
+  events.on('output_added.OutputArea', handle_add_output);
   events.on('output_updated.OutputArea', handle_update_output);
   events.on('clear_output.CodeCell', handle_clear_output);
   events.on('delete.Cell', handle_clear_output);
