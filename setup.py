@@ -43,7 +43,7 @@ setup_args.update(dict(
     license='BSD',
     url='http://pyviz.org',
     packages = ["pyviz_comms"],
-    package_data={'pyviz_comms': ['.version']},
+    package_data={'pyviz_comms': ['.version', 'notebook.js']},
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",
