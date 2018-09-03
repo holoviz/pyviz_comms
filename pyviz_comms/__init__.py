@@ -57,6 +57,17 @@ if (comm_msg != null) {{
 }}
 """
 
+embed_js = """
+// Ugly hack - see HoloViews #2574 for more information
+if (!(document.getElementById('{plot_id}')) && !(document.getElementById('_anim_img{widget_id}'))) {{
+  console.log("Creating DOM nodes dynamically for assumed nbconvert export. To generate clean HTML output set HV_DOC_HTML as an environment variable.")
+  var htmlObject = document.createElement('div');
+  htmlObject.innerHTML = `{html}`;
+  var scriptTags = document.getElementsByTagName('script');
+  var parentTag = scriptTags[scriptTags.length-1].parentNode;
+  parentTag.append(htmlObject)
+}}
+"""
 
 JS_CALLBACK = """
 function unique_events(events) {{
@@ -109,6 +120,7 @@ function on_msg(msg) {{
 }}
 
 // Initialize Comm
+if (window.PyViz.comm_manager == undefined) {{ return }}
 comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
 if (!comm) {{
   return
@@ -201,6 +213,12 @@ class Comm(param.Parameterized):
         """
 
 
+    def close(self):
+        """
+        Closes the comm connection
+        """
+
+
     def send(self, data=None, buffers=[]):
         """
         Sends data to the frontend
@@ -238,11 +256,13 @@ class Comm(param.Parameterized):
                 with StandardOutput() as stdout:
                     self._on_msg(msg)
         except Exception as e:
-            frame =traceback.extract_tb(sys.exc_info()[2])[-2]
-            fname,lineno,fn,text = frame
-            error_kwargs = dict(type=type(e).__name__, fn=fn, fname=fname,
-                                line=lineno, error=str(e))
-            error = '{fname} {fn} L{line}\n\t{type}: {error}'.format(**error_kwargs)
+            error = '\n'
+            frames = traceback.extract_tb(sys.exc_info()[2])
+            for frame in frames[-10:]:
+                fname,lineno,fn,text = frame
+                error_kwargs = dict(fn=fn, fname=fname, line=lineno)
+                error += '{fname} {fn} L{line}\n'.format(**error_kwargs)
+            error += '\t{type}: {error}'.format(type=type(e).__name__, error=str(e))
             if stdout:
                 stdout = '\n\t'+'\n\t'.join(stdout)
                 error = '\n'.join([stdout, error])
@@ -290,6 +310,14 @@ class JupyterComm(Comm):
         return msg['content']['data']
 
 
+    def close(self):
+        """
+        Closes the comm connection
+        """
+        if self._comm:
+            self._comm.close()
+
+
     def send(self, data=None, buffers=[]):
         """
         Pushes data across comm socket.
@@ -327,6 +355,19 @@ class JupyterCommJS(JupyterComm):
         super(JupyterCommJS, self).__init__(id, on_msg)
         self.manager = get_ipython().kernel.comm_manager
         self.manager.register_target(self.id, self._handle_open)
+
+
+    def close(self):
+        """
+        Closes the comm connection
+        """
+        if self._comm:
+            self._comm.close()
+        else:
+            if self.id in self.manager.targets:
+                del self.manager.targets[self.id]
+            else:
+                raise AssertionError('JupyterCommJS %s is already closed' % self.id)
 
 
     def _handle_open(self, comm, msg):
