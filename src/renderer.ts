@@ -46,7 +46,7 @@ export declare interface KernelProxy {
 }
 
 /**
- * The MIME types for HoloViews
+ * The MIME types for PyViz
  */
 const HTML_MIME_TYPE = 'text/html'
 const JS_MIME_TYPE = 'application/javascript'
@@ -120,11 +120,11 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     }
     if (id !== undefined) {
       // I'm a static document
-      if ((window as any).HoloViews === undefined) {
-        (window as any).HoloViews = {kernels: {}};
+      if ((window as any).PyViz === undefined) {
+        (window as any).PyViz = {kernels: {}};
       }
-      (window as any).HoloViews.init_slider = init_slider;
-      (window as any).HoloViews.init_dropdown = init_dropdown;
+      (window as any).PyViz.init_slider = init_slider;
+      (window as any).PyViz.init_dropdown = init_dropdown;
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;
@@ -169,20 +169,20 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         connectToComm: connectClosure,
         registerCommTarget: registerClosure
       };
-      (window as any).HoloViews.kernels[id] = kernel_proxy;
+      (window as any).PyViz.kernels[id] = kernel_proxy;
       this._document_id = id;
       manager.context.session.statusChanged.connect((session: IClientSession, status: Kernel.Status) => {
         if (status == "restarting" || status === "dead") {
-          delete (window as any).HoloViews.kernels[id];
+          delete (window as any).PyViz.kernels[id];
           manager.comm = null;
         }
       });
     }
     return Promise.resolve().then(function() {
       if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
-        (window as any).HoloViews.plot_index[id] = (window as any).Bokeh.index[id];
+        (window as any).PyViz.plot_index[id] = (window as any).Bokeh.index[id];
       } else {
-        (window as any).HoloViews.plot_index[id] = null;
+        (window as any).PyViz.plot_index[id] = null;
       }
     });
   }
@@ -193,16 +193,20 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       if (this._manager.comm !== null) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
-      if (((window as any).HoloViews !== undefined) && ((window as any).HoloViews.kernels !== undefined)) {
-        delete (window as any).HoloViews.kernels[id];
+      if (((window as any).PyViz !== undefined) && ((window as any).PyViz.kernels !== undefined)) {
+        delete (window as any).PyViz.kernels[id];
       }
       if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
-        (window as any).Bokeh.index[id].model.document.clear();
-        delete (window as any).Bokeh.index[id];
+        var doc: any = (window as any).Bokeh.index[id].model.document
+        doc.clear();
+        const i = (window as any).Bokeh.documents.indexOf(doc);
+        if (i > -1) {
+          (window as any).Bokeh.documents.splice(i, 1);
+        }
       }
       this._document_id = null;
     }
-    delete (window as any).HoloViews.plot_index[id];
+    delete (window as any).PyViz.plot_index[id];
   }
 
   dispose(): void {
