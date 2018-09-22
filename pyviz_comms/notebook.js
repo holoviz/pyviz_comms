@@ -30,9 +30,9 @@ function handle_add_output(event, handle) {
     toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
     output_area._hv_plot_id = id;
     if ((window.Bokeh !== undefined) && (id in Bokeh.index)) {
-      PyViz.plot_index[id] = Bokeh.index[id];
+      window.PyViz.plot_index[id] = Bokeh.index[id];
     } else {
-      PyViz.plot_index[id] = null;
+      window.PyViz.plot_index[id] = null;
     }
   }
 }
@@ -49,8 +49,12 @@ function handle_clear_output(event, handle) {
   }
   delete PyViz.plot_index[id];
   if ((window.Bokeh !== undefined) & (id in window.Bokeh.index)) {
-    window.Bokeh.index[id].model.document.clear();
-    delete Bokeh.index[id];
+    var doc = window.Bokeh.index[id].model.document
+    doc.clear();
+    const i = window.Bokeh.documents.indexOf(doc);
+    if (i > -1) {
+      window.Bokeh.documents.splice(i, 1);
+    }
   }
 }
 
