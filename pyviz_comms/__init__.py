@@ -127,7 +127,7 @@ function on_msg(msg) {{
 }}
 
 // Initialize Comm
-if (window.PyViz.comm_manager == undefined) {{ return }}
+if ((window.PyViz == undefined) || (window.PyViz.comm_manager == undefined)) {{ return }}
 comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
 if (!comm) {{
   return
@@ -297,7 +297,11 @@ class JupyterComm(Comm):
       var msg = msg.content.data;
       {msg_handler}
     }}
-    window.PyViz.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
+    if ((window.PyViz == undefined) || (!window.PyViz.comm_manager)) {{
+      console.log("Could not find comm manager")
+    }} else {{
+      window.PyViz.comm_manager.register_target('{plot_id}', '{comm_id}', msg_handler);
+    }}
     """
 
     def init(self):
