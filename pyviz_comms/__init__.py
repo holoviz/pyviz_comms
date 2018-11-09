@@ -4,6 +4,7 @@ import json
 import uuid
 import traceback
 
+
 try:
     from StringIO import StringIO
 except:
@@ -19,6 +20,33 @@ __version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:
 comm_path = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(comm_path, 'notebook.js')) as f:
     nb_mime_js = '\n\n' + f.read()
+
+
+
+class extension(param.ParameterizedFunction):
+    """
+    Base class for pyviz extensions, which allow defining shared cleanup
+    utilities.
+    """
+
+    # A registry of actions to perform when a delete event is received
+    _delete_actions = []
+
+    @classmethod
+    def add_delete_action(cls, action):
+        cls._delete_actions.append(action)
+
+    @classmethod
+    def _process_comm_msg(cls, msg):
+        """
+        Processes comm messages to handle global actions such as
+        cleaning up plots.
+        """
+        if msg['event_type'] != 'delete':
+            return
+
+        for action in cls._delete_actions:
+            action(msg['id'])
 
 
 PYVIZ_PROXY = """
