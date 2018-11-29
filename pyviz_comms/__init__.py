@@ -87,7 +87,7 @@ if (buffers.length > 0) {{
 }}
 
 const comm_msg = receiver.message;
-if (comm_msg != null) {{
+if ((comm_msg != null) && (Object.keys(comm_msg.content).length > 0)) {{
   plot.model.document.apply_json_patch(comm_msg.content, comm_msg.buffers)
 }}
 """
@@ -100,7 +100,11 @@ if (!(document.getElementById('{plot_id}')) && !(document.getElementById('_anim_
   htmlObject.innerHTML = `{html}`;
   var scriptTags = document.getElementsByTagName('script');
   var parentTag = scriptTags[scriptTags.length-1].parentNode;
-  parentTag.append(htmlObject)
+  if (parentTag.attributes.length && (parentTag.attributes[0].name == 'data-shell-mode')) {{
+    alert('Displaying PyViz objects in JupyterLab requires the jupyterlab_pyviz extension to be installed, install it with:\\n\\n\\tjupyter labextension install @pyviz/jupyterlab_pyviz');
+  }} else {{
+    parentTag.append(htmlObject)
+  }}
 }}
 """
 
