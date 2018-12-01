@@ -19,7 +19,7 @@ function render(props, node) {
 function handle_add_output(event, handle) {
   var output_area = handle.output_area;
   var output = handle.output;
-  if (!output.data.hasOwnProperty(EXEC_MIME_TYPE)) {
+  if ((output.data == undefined) || (!output.data.hasOwnProperty(EXEC_MIME_TYPE))) {
     return
   }
   var id = output.metadata[EXEC_MIME_TYPE]["id"];
