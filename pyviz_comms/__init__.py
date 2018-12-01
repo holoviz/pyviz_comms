@@ -80,7 +80,7 @@ if (plot_id in window.PyViz.receivers) {{
   window.PyViz.receivers[plot_id] = receiver;
 }}
 
-if (buffers.length > 0) {{
+if ((buffers != undefined) && (buffers.length > 0)) {{
   receiver.consume(buffers[0].buffer)
 }} else {{
   receiver.consume(msg)
@@ -140,8 +140,8 @@ function process_events(comm_status) {{
 function on_msg(msg) {{
   // Receives acknowledgement from Python, processing event
   // and unblocking Comm if event queue empty
-  msg = JSON.parse(msg.content.data);
-  var comm_id = msg["comm_id"]
+  var metadata = msg.metadata;
+  var comm_id = metadata.comm_id
   var comm_status = window.PyViz.comm_status[comm_id];
   if (comm_status.event_buffer.length) {{
     process_events(comm_status);
@@ -151,10 +151,10 @@ function on_msg(msg) {{
     comm_status.blocked = false;
   }}
   comm_status.event_buffer = [];
-  if ((msg.msg_type == "Ready") && msg.content) {{
-    console.log("Python callback returned following output:", msg.content);
-  }} else if (msg.msg_type == "Error") {{
-    console.log("Python failed with the following traceback:", msg['traceback'])
+  if ((metadata.msg_type == "Ready") && metadata.content) {{
+    console.log("Python callback returned following output:", metadata.content);
+  }} else if (metadata.msg_type == "Error") {{
+    console.log("Python failed with the following traceback:", metadata.traceback)
   }}
 }}
 
@@ -258,7 +258,7 @@ class Comm(param.Parameterized):
         """
 
 
-    def send(self, data=None, buffers=[]):
+    def send(self, data=None, metadata=None, buffers=[]):
         """
         Sends data to the frontend
         """
@@ -314,7 +314,7 @@ class Comm(param.Parameterized):
         # the correct comms handle is unblocked
         if comm_id:
             reply['comm_id'] = comm_id
-        self.send(json.dumps(reply))
+        self.send(metadata=reply)
 
 
 class JupyterComm(Comm):
@@ -325,9 +325,18 @@ class JupyterComm(Comm):
 
     js_template = """
     function msg_handler(msg) {{
+      var metadata = msg.metadata;
       var buffers = msg.buffers;
       var msg = msg.content.data;
-      {msg_handler}
+      if ((metadata.msg_type == "Ready")) {{
+        if (metadata.content) {{
+          console.log("Python callback returned following output:", metadata.content);
+        }}
+      }} else if (metadata.msg_type == "Error") {{
+        console.log("Python failed with the following traceback:", metadata.traceback)
+      }} else {{
+        {msg_handler}
+      }}
     }}
     if ((window.PyViz == undefined) || (!window.PyViz.comm_manager)) {{
       console.log("Could not find comm manager")
@@ -361,13 +370,13 @@ class JupyterComm(Comm):
             self._comm.close()
 
 
-    def send(self, data=None, buffers=[]):
+    def send(self, data=None, metadata=None, buffers=[]):
         """
         Pushes data across comm socket.
         """
         if not self._comm:
             self.init()
-        self.comm.send(data, buffers=buffers)
+        self.comm.send(data, metadata=metadata, buffers=buffers)
 
 
 
@@ -418,11 +427,11 @@ class JupyterCommJS(JupyterComm):
         self._comm.on_msg(self._handle_msg)
 
 
-    def send(self, data=None, buffers=[]):
+    def send(self, data=None, metadata=None, buffers=[]):
         """
         Pushes data across comm socket.
         """
-        self.comm.send(data, buffers=buffers)
+        self.comm.send(data, metadata=metadata, buffers=buffers)
 
 
 
