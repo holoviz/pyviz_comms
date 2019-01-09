@@ -86,6 +86,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   private _js_mimetype: string = JS_MIME_TYPE
   // the metadata is stored here
   private _document_id: string
+  private _kernel_id: string
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
   private _div_element: HTMLDivElement
@@ -138,6 +139,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
       const manager = this._manager;
       const kernel = manager.context.session.kernel;
+      if (kernel !== null)
+        this._kernel_id = kernel.id;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
@@ -189,8 +192,9 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
   _disposePlot(): void {
     const id = this._document_id;
+    const kernel = this._manager.context.session.kernel
     if (id !== null) {
-      if (this._manager.comm !== null) {
+      if ((this._manager.comm !== null) && (kernel.id === this._kernel_id)) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
       if (((window as any).PyViz !== undefined) && ((window as any).PyViz.kernels !== undefined)) {
