@@ -85,8 +85,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   private _html_mimetype: string = HTML_MIME_TYPE
   private _js_mimetype: string = JS_MIME_TYPE
   // the metadata is stored here
+  private _dispose: boolean
   private _document_id: string
-  private _kernel_id: string
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
   private _div_element: HTMLDivElement
@@ -98,6 +98,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     this._createNodes();
     this._manager = manager
     this._displayed = false;
+    this._dispose = true;
   }
 
   _createNodes(): void {
@@ -119,6 +120,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       this.node.removeChild(this._script_element);
       this._createNodes()
     }
+    this._dispose = true;
     if (id !== undefined) {
       // I'm a static document
       if ((window as any).PyViz === undefined) {
@@ -139,8 +141,6 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
       const manager = this._manager;
       const kernel = manager.context.session.kernel;
-      if (kernel !== null)
-        this._kernel_id = kernel.id;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
@@ -177,6 +177,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       manager.context.session.statusChanged.connect((session: IClientSession, status: Kernel.Status) => {
         if (status == "restarting" || status === "dead") {
           delete (window as any).PyViz.kernels[id];
+          this._dispose = false;
           manager.comm = null;
         }
       });
@@ -192,9 +193,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
   _disposePlot(): void {
     const id = this._document_id;
-    const kernel = this._manager.context.session.kernel
     if (id !== null) {
-      if ((this._manager.comm !== null) && (kernel.id === this._kernel_id)) {
+	  if ((this._manager.comm !== null) && this._dispose) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
       if (((window as any).PyViz !== undefined) && ((window as any).PyViz.kernels !== undefined)) {
