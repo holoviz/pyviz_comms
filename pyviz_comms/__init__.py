@@ -32,9 +32,16 @@ class extension(param.ParameterizedFunction):
     # A registry of actions to perform when a delete event is received
     _delete_actions = []
 
+    # A registry of actions to perform when a server delete event is received
+    _server_delete_actions = []
+
     @classmethod
     def add_delete_action(cls, action):
         cls._delete_actions.append(action)
+
+    @classmethod
+    def add_server_delete_action(cls, action):
+        cls._server_delete_actions.append(action)
 
     @classmethod
     def _process_comm_msg(cls, msg):
@@ -42,11 +49,13 @@ class extension(param.ParameterizedFunction):
         Processes comm messages to handle global actions such as
         cleaning up plots.
         """
-        if msg['event_type'] != 'delete':
-            return
-
-        for action in cls._delete_actions:
-            action(msg['id'])
+        event_type = msg['event_type']
+        if event_type == 'delete':
+            for action in cls._delete_actions:
+                action(msg['id'])
+        elif event_type == 'server_delete':
+            for action in cls._server_delete_actions:
+                action(msg['id'])
 
 
 PYVIZ_PROXY = """
