@@ -87,6 +87,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   // the metadata is stored here
   private _dispose: boolean
   private _document_id: string
+  private _server_id: string
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE
   private _script_element: HTMLScriptElement
   private _div_element: HTMLDivElement
@@ -181,6 +182,17 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           manager.comm = null;
         }
       });
+    } else if (metadata.server_id !== undefined) {
+      // I'm a server document
+      this._server_id = metadata.server_id as string
+      const data = model.data[this._html_mimetype] as string
+      const d = document.createElement('div')
+      d.innerHTML = data
+      const script_attrs: NamedNodeMap = d.children[0].attributes
+      for (const i in script_attrs) {
+        this._script_element.setAttribute(script_attrs[i].name, script_attrs[i].value)
+      }
+      this.node.appendChild(this._script_element)
     }
     return Promise.resolve().then(function() {
       if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
@@ -192,9 +204,14 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   }
 
   _disposePlot(): void {
-    const id = this._document_id;
-    if (id !== null) {
-	  if ((this._manager.comm !== null) && this._dispose) {
+    if (this._server_id) {
+      if ((this._manager.comm !== null) && this._dispose) {
+        this._manager.comm.send({event_type: "server_delete", "id": this._server_id});
+      }
+      this._server_id = null
+    } else if (this._document_id) {
+      const id = this._document_id;
+      if ((this._manager.comm !== null) && this._dispose) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
       if (((window as any).PyViz !== undefined) && ((window as any).PyViz.kernels !== undefined)) {
@@ -209,8 +226,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         }
       }
       this._document_id = null;
+      delete (window as any).PyViz.plot_index[id];
     }
-    delete (window as any).PyViz.plot_index[id];
   }
 
   dispose(): void {
