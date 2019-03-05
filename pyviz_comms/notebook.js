@@ -52,7 +52,7 @@ function handle_add_output(event, handle) {
 function handle_clear_output(event, handle) {
   var id = handle.cell.output_area._hv_plot_id;
   var server_id = handle.cell.output_area._bokeh_server_id;
-  if ((id === undefined) || !(id in PyViz.plot_index) && (server_id !== undefined)) { return; }
+  if (((id === undefined) || !(id in PyViz.plot_index)) && (server_id !== undefined)) { return; }
   var comm = window.PyViz.comm_manager.get_client_comm("hv-extension-comm", "hv-extension-comm", function () {});
   if (server_id !== null) {
     comm.send({event_type: 'server_delete', 'id': server_id});
