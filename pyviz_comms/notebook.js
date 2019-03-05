@@ -34,6 +34,15 @@ function handle_add_output(event, handle) {
     } else {
       window.PyViz.plot_index[id] = null;
     }
+  } else if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
+    var bk_div = document.createElement("div");
+    bk_div.innerHTML = output.data[HTML_MIME_TYPE];
+    var script_attrs = bk_div.children[0].attributes;
+    for (var i = 0; i < script_attrs.length; i++) {
+      toinsert[toinsert.length - 1].childNodes[1].setAttribute(script_attrs[i].name, script_attrs[i].value);
+    }
+    // store reference to server id on output_area
+    output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
   }
 }
 
@@ -42,9 +51,13 @@ function handle_add_output(event, handle) {
  */
 function handle_clear_output(event, handle) {
   var id = handle.cell.output_area._hv_plot_id;
-  if ((id === undefined) || !(id in PyViz.plot_index)) { return; }
+  var server_id = handle.cell.output_area._bokeh_server_id;
+  if ((id === undefined) || !(id in PyViz.plot_index) && (server_id !== undefined)) { return; }
   var comm = window.PyViz.comm_manager.get_client_comm("hv-extension-comm", "hv-extension-comm", function () {});
-  if (comm !== null) {
+  if (server_id !== null) {
+    comm.send({event_type: 'server_delete', 'id': server_id});
+    return;
+  } else if (comm !== null) {
     comm.send({event_type: 'delete', 'id': id});
   }
   delete PyViz.plot_index[id];
