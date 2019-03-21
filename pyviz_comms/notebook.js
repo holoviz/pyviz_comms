@@ -26,8 +26,32 @@ function handle_add_output(event, handle) {
   var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
   if (id !== undefined) {
     var nchildren = toinsert.length;
-    toinsert[nchildren-1].children[0].innerHTML = output.data[HTML_MIME_TYPE];
-    toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
+    var html_node = toinsert[nchildren-1].children[0];
+    html_node.innerHTML = output.data[HTML_MIME_TYPE];
+    var scripts = [];
+    var nodelist = html_node.querySelectorAll("script");
+    for (var i in nodelist) {
+      if (nodelist.hasOwnProperty(i)) {
+        scripts.push(nodelist[i])
+      }
+    }
+
+    scripts.forEach( function (oldScript) {
+      var newScript = document.createElement("script");
+      var attrs = [];
+      var nodemap = oldScript.attributes;
+      for (var j in nodemap) {
+        if (nodemap.hasOwnProperty(j)) {
+          attrs.push(nodemap[j])
+        }
+      }
+      attrs.forEach(function(attr) { newScript.setAttribute(attr.name, attr.value) });
+      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+    if (JS_MIME_TYPE in output.data) {
+      toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
+    }
     output_area._hv_plot_id = id;
     if ((window.Bokeh !== undefined) && (id in Bokeh.index)) {
       window.PyViz.plot_index[id] = Bokeh.index[id];

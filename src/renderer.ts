@@ -132,11 +132,32 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;
+      const scripts = [];
+      const nodelist = this._div_element.querySelectorAll("script");
+      for (const i in nodelist) {
+        if (nodelist.hasOwnProperty(i))
+          scripts.push(nodelist[i])
+      }
+
+      scripts.forEach( (oldScript) => {
+        const newScript = document.createElement("script");
+        const attrs = [];
+        const nodemap = oldScript.attributes;
+        for (const j in nodemap) {
+          if (nodemap.hasOwnProperty(j))
+            attrs.push(nodemap[j])
+        }
+        attrs.forEach( (attr) => newScript.setAttribute(attr.name, attr.value) );
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
       this.node.appendChild(this._div_element);
 
-      let data = model.data[this._js_mimetype] as string;
-      this._script_element.textContent = data;
-      this.node.appendChild(this._script_element);
+      if (this._js_mimetype in model.data) {
+        let data = model.data[this._js_mimetype] as string;
+        this._script_element.textContent = data;
+        this.node.appendChild(this._script_element);
+      }
 
       this._displayed = true;
 
