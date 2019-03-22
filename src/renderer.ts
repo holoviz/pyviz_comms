@@ -125,7 +125,9 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     if (id !== undefined) {
       // I'm a static document
       if ((window as any).PyViz === undefined) {
-        (window as any).PyViz = {kernels: {}};
+        (window as any).PyViz = {kernels: {}, plot_index: {}};
+      } else if ((window as any).PyViz.plot_index === undefined) {
+        (window as any).PyViz.plot_index = {}
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
