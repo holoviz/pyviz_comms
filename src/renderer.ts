@@ -235,8 +235,11 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       if ((this._manager.comm !== null) && this._dispose) {
         this._manager.comm.send({event_type: "delete", "id": id});
       }
-      if (((window as any).PyViz !== undefined) && ((window as any).PyViz.kernels !== undefined)) {
-        delete (window as any).PyViz.kernels[id];
+      if ((window as any).PyViz !== undefined) {
+        if ((window as any).PyViz.kernels !== undefined)
+          delete (window as any).PyViz.kernels[id];
+        if ((window as any).PyViz.plot_index !== undefined)
+          delete (window as any).PyViz.plot_index[id];
       }
       if (((window as any).Bokeh !== undefined) && (id in (window as any).Bokeh.index)) {
         var doc: any = (window as any).Bokeh.index[id].model.document
@@ -247,7 +250,6 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
         }
       }
       this._document_id = null;
-      delete (window as any).PyViz.plot_index[id];
     }
   }
 
