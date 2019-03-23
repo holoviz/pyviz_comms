@@ -1,35 +1,111 @@
-# based on recipe in 
-# https://github.com/jupyterlab/extension-cookiecutter-ts/blob/master/.travis.yml
-language: python
+# We deliberately don't use travis's language=python option because
+# we install miniconda and use conda to get python. Additionally,
+# Travis's auto-install of python doesn't work on osx images (see
+# https://github.com/travis-ci/travis-ci/issues/4729).
+language: generic
 sudo: false
-dist: trusty
+os:
+  - linux
 addons:
   firefox: latest
-cache:
-  directories:
-    - $HOME/.npm
-before_install:
-- wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-linux64.tar.gz
-- mkdir geckodriver
-- tar -xzf geckodriver-v0.11.1-linux64.tar.gz -C geckodriver
-- export PATH=$PATH:$PWD/geckodriver
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start || true
-install:
-- wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- hash -r
-- conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
-- conda info -a
-- conda install nodejs notebook
-- pip install selenium
-- pip install --pre jupyterlab
-script:
-- npm install
-- npm run build
-- jupyter labextension install .
-- jupyter lab clean
-- jupyter labextension link .
-- python -m jupyterlab.selenium_check
+
+env:
+  global:
+    - PYENV_VERSION=3.6
+    - CHANS_DEV="-c pyviz/label/dev"
+    - CHANS="-c pyviz"
+
+stages:
+  - test_pyviz_comms
+  - test_jlab
+  - name: conda_dev_package
+    if: tag =~ ^v(\d+|\.)*[a-z]\d*$
+  - name: pip_dev_package
+    if: tag =~ ^v(\d+|\.)*[a-z]\d*$
+  - name: conda_package
+    if: tag =~ ^v(\d+|\.)*[^a-z]\d*$
+  - name: pip_package
+    if: tag =~ ^v(\d+|\.)*[^a-z]\d*$
+
+jobs:
+  include:
+    ########## DEVELOPER INSTALL ##########
+
+    - &default
+      stage: test_pyviz_comms
+      env: DESC="dev test_flakes"
+      before_install:
+        - pip install pyctdev && doit miniconda_install && pip uninstall -y doit pyctdev
+        - export PATH="$HOME/miniconda/bin:$PATH" && hash -r
+        - conda config --set always_yes True
+        - conda install -c pyviz "pyctdev>=0.5" && doit ecosystem_setup
+      install:
+        - doit env_create $CHANS_DEV --python=$PYENV_VERSION
+        - source activate test-environment
+        - doit develop_install $CHANS_DEV -o all
+        - doit env_capture
+      script: doit test_flakes
+
+    - stage: test_jlab
+      before_install:
+        - wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-linux64.tar.gz
+        - mkdir geckodriver
+        - tar -xzf geckodriver-v0.11.1-linux64.tar.gz -C geckodriver
+        - export PATH=$PATH:$PWD/geckodriver
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start || true
+        - pip install pyctdev && doit miniconda_install && pip uninstall -y doit pyctdev
+        - export PATH="$HOME/miniconda/bin:$PATH" && hash -r
+        - conda config --set always_yes True
+        - conda install -c pyviz "pyctdev>=0.5" && doit ecosystem_setup
+      install:
+        - doit env_create $CHANS_DEV --python=$PYENV_VERSION
+        - source activate test-environment
+        - conda install nodejs notebook selenium jupyterlab
+      script:
+        - npm install
+        - npm run build
+        - jupyter labextension install .
+        - jupyter lab clean
+        - jupyter labextension link .
+        - python -m jupyterlab.selenium_check
+
+    ########## END-USER PACKAGES ##########
+
+    ### CONDA ####
+
+    - <<: *default
+      stage: conda_dev_package
+      env: DESC="" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
+      install:
+        - doit package_build $CHANS_DEV --no-pkg-tests
+      script:
+        - doit package_upload --token=$ANACONDA_TOKEN --label=dev
+
+    - <<: *default
+      stage: conda_package
+      env: DESC="" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
+      install:
+        - doit package_build $CHANS --no-pkg-tests
+      script:
+        - doit package_upload --token=$ANACONDA_TOKEN --label=dev --label=main
+
+    ### PyPI ###
+
+    - <<: *default
+      stage: pip_dev_package
+      env: PYPI="https://test.pypi.org/legacy/" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
+      install:
+        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y pyviz_comms
+        - doit pip_on_conda
+        - doit ecosystem=pip package_build --no-pkg-tests
+      script: doit ecosystem=pip package_upload -u $TPPU -p $TPPP -r ${PYPI}
+
+    - <<: *default
+      stage: pip_package
+      env: PYPI="https://upload.pypi.org/legacy/" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
+      install:
+        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y pyviz_comms
+        - doit pip_on_conda
+        - doit ecosystem=pip package_build --no-pkg-tests
+      script: doit ecosystem=pip package_upload -u $PPU -p $PPP -r ${PYPI}

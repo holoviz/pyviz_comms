@@ -1,9 +1,7 @@
 import os
 import sys
-import json
 import uuid
 import traceback
-
 
 try:
     from StringIO import StringIO

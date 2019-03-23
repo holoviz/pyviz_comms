@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os
+import os
 try:
     from setuptools import setup
 except ImportError:
@@ -26,24 +26,32 @@ def get_setup_version(reponame):
         return json.load(open(version_file_path, 'r'))['version_string']
 
 
+extras_require = {
+    'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
+    'build': ['param >=1.7.0', 'setuptools']
+}
+
+extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
+
 install_requires = ['param']
-setup_args = {}
-setup_args.update(dict(
+setup_args = dict(
     name='pyviz_comms',
     version=get_setup_version("pyviz_comms"),
     install_requires = install_requires,
-    description='Launch jobs, organize the output, and dissect the results.',
+    extras_require=extras_require,
+    tests_require=extras_require['tests'],
+    description='Bidirectional communication for the PyViz ecosystem.',
     long_description=open('README.md').read() if os.path.isfile('README.md') else 'Consult README.md',
     long_description_content_type="text/markdown",
     author= "PyViz developers",
     author_email= "",
     maintainer= "PyViz",
-    maintainer_email= "holoviews@gmail.com",
+    maintainer_email= "developers@pyviz.org",
     platforms=['Windows', 'Mac OS X', 'Linux'],
     license='BSD',
     url='http://pyviz.org',
     packages = ["pyviz_comms"],
-    package_data={'pyviz_comms': ['.version', 'notebook.js']},
+    include_package_data=True,
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",
@@ -56,7 +64,7 @@ setup_args.update(dict(
         "Natural Language :: English",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries"]
-))
+)
 
 
 if __name__=="__main__":
