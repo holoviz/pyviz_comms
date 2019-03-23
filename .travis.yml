@@ -17,7 +17,7 @@ env:
     - CHANS="-c pyviz"
 
 stages:
-  - test_pyviz_commms
+  - test_pyviz_comms
   - test_jlab
   - name: conda_dev_package
     if: tag =~ ^v(\d+|\.)*[a-z]\d*$
@@ -61,6 +61,7 @@ jobs:
         - conda install -c pyviz "pyctdev>=0.5" && doit ecosystem_setup
       install:
         - doit env_create $CHANS_DEV --python=$PYENV_VERSION
+        - source activate test-environment
         - conda install nodejs notebook selenium jupyterlab
       script:
         - npm install
