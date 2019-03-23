@@ -46,7 +46,7 @@ setup_args = dict(
     author= "PyViz developers",
     author_email= "",
     maintainer= "PyViz",
-    maintainer_email= "developer@pyviz.org",
+    maintainer_email= "developers@pyviz.org",
     platforms=['Windows', 'Mac OS X', 'Linux'],
     license='BSD',
     url='http://pyviz.org',
@@ -63,7 +63,7 @@ setup_args = dict(
         "Natural Language :: English",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries"]
-))
+)
 
 
 if __name__=="__main__":
