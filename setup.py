@@ -51,6 +51,7 @@ setup_args = dict(
     license='BSD',
     url='http://pyviz.org',
     packages = ["pyviz_comms"],
+    include_package_data=True,
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",
