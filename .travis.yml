@@ -12,7 +12,6 @@ addons:
 env:
   global:
     - PYENV_VERSION=3.6
-    - PKG_TEST_PYTHON="--test-python=py36 --test-python=py27"
     - CHANS_DEV="-c pyviz/label/dev"
     - CHANS="-c pyviz"
 
@@ -79,7 +78,7 @@ jobs:
       stage: conda_dev_package
       env: DESC="" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
       install:
-        - doit package_build $CHANS_DEV $PKG_TEST_PYTHON --test-group=unit
+        - doit package_build $CHANS_DEV --no-pkg-tests
       script:
         - doit package_upload --token=$ANACONDA_TOKEN --label=dev
 
@@ -87,7 +86,7 @@ jobs:
       stage: conda_package
       env: DESC="" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
       install:
-        - doit package_build $CHANS $PKG_TEST_PYTHON --test-group=unit
+        - doit package_build $CHANS --no-pkg-tests
       script:
         - doit package_upload --token=$ANACONDA_TOKEN --label=dev --label=main
 
@@ -97,16 +96,16 @@ jobs:
       stage: pip_dev_package
       env: PYPI="https://test.pypi.org/legacy/" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
       install:
-        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y hvplot
+        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y pyviz_comms
         - doit pip_on_conda
-        - doit ecosystem=pip package_build --test-python=py36 --test-group=unit
+        - doit ecosystem=pip package_build --no-pkg-tests
       script: doit ecosystem=pip package_upload -u $TPPU -p $TPPP -r ${PYPI}
 
     - <<: *default
       stage: pip_package
       env: PYPI="https://upload.pypi.org/legacy/" TRAVIS_NOCACHE=$TRAVIS_JOB_ID
       install:
-        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y hvplot
+        - doit develop_install $CHANS_DEV -o tests && pip uninstall -y pyviz_comms
         - doit pip_on_conda
-        - doit ecosystem=pip package_build --test-python=py36 --test-group=unit
+        - doit ecosystem=pip package_build --no-pkg-tests
       script: doit ecosystem=pip package_upload -u $PPU -p $PPP -r ${PYPI}
