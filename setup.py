@@ -27,7 +27,7 @@ def get_setup_version(reponame):
 
 
 extras_require = {
-    'tests': ['flake8'],
+    'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
     'build': ['param >=1.7.0', 'setuptools']
 }
 
