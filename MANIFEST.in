@@ -1,4 +1,4 @@
 include README.md
 include LICENSE.txt
 include pyviz_comms/.version
-include notebook.js
+include pyviz_comms/notebook.js
