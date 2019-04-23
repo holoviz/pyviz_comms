@@ -9,7 +9,7 @@ import {
 
 import {
   JupyterFrontEndPlugin,
-  JupyterLab
+  JupyterFrontEnd
 } from '@jupyterlab/application'
 
 import {
@@ -63,7 +63,7 @@ export
   const extension: JupyterFrontEndPlugin<void> = {
     id: 'jupyterlab_holoviews',
     autoStart: true,
-    activate: (app: JupyterLab) => {
+    activate: (app: JupyterFrontEnd) => {
       // this adds the HoloViews widget extension onto Notebooks specifically
       app.docRegistry.addWidgetExtension('Notebook', new NBWidgetExtension());
     }
