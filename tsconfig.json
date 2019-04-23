@@ -6,7 +6,7 @@
     "noUnusedLocals": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES6",
+    "target": "ES5",
     "outDir": "./lib",
     "lib": ["ES6", "ES5", "ES2015.Promise", "DOM"],
     "types": ["jquery"]
