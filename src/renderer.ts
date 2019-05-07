@@ -123,9 +123,8 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     }
     this._dispose = true;
     if (id !== undefined) {
-      // I'm a static document
       if ((window as any).PyViz === undefined) {
-        (window as any).PyViz = {kernels: {}, plot_index: {}};
+        (window as any).PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []};
       } else if ((window as any).PyViz.plot_index === undefined) {
         (window as any).PyViz.plot_index = {}
       }
