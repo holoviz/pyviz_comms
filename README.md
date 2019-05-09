@@ -35,6 +35,7 @@ installation may refer to the below table.
 | 0.33.x        | 0.6.0            |
 | 0.34.x        | 0.6.1-0.6.2      |
 | 0.35.x        | 0.6.3-0.7.1      |
+| 1.0.x         | 0.8.0            |
 
 ## Developing the Jupyterlab extension
 
