@@ -119,6 +119,7 @@ JS_CALLBACK = """
 function unique_events(events) {{
   // Processes the event queue ignoring duplicate events
   // of the same type
+  var event, data;
   var unique = [];
   var unique_events = [];
   for (var i=0; i<events.length; i++) {{
@@ -180,7 +181,11 @@ if (comm_status === undefined) {{
 }}
 
 // Add current event to queue and process queue if not blocked
-event_name = cb_obj.event_name
+var event_name = cb_obj.event_name;
+if (event_name === undefined) {{
+  // we are a widget not an event... fake a key.
+  event_name = Object.keys(data).join(',');
+}}
 data['comm_id'] = "{comm_id}";
 timeout = comm_status.time + {timeout};
 if ((comm_status.blocked && (Date.now() < timeout))) {{
