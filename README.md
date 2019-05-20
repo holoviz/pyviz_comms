@@ -16,6 +16,13 @@ Jupyterlab users will need to install the Jupyterlab pyviz extension:
 jupyter labextension install @pyviz/jupyterlab_pyviz
 ```
 
+If you are already using a JupyterLab 1.0 alpha release you can get
+a compatible version of the extension using:
+
+```bash
+jupyter labextension install @pyviz/jupyterlab_pyviz@next
+```
+
 ## Compatibility
 
 The [PyViz](https://github.com/pyviz/pyviz) libraries are generally version independent of
