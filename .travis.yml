@@ -61,7 +61,8 @@ jobs:
       install:
         - doit env_create $CHANS_DEV --python=$PYENV_VERSION
         - source activate test-environment
-        - conda install nodejs notebook selenium jupyterlab
+        - conda install nodejs notebook selenium
+        - pip install --pre jupyterlab
       script:
         - npm install
         - npm run build
