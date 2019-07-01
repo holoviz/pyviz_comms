@@ -178,7 +178,8 @@ export
         }
         const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
         const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
-          comm.send(data, metadata, buffers, disposeOnDone);
+          if (!comm.isDisposed)
+            comm.send(data, metadata, buffers, disposeOnDone);
         };
         const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void => {
           comm.open(data, metadata, buffers);
