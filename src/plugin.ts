@@ -38,21 +38,21 @@ export
   createNew(nb: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
     let manager = new ContextManager(context);
 
-    nb.rendermime.addFactory({
+    nb.content.rendermime.addFactory({
       safe: false,
       mimeTypes: [HV_LOAD_MIME_TYPE],
       createRenderer: (options) => new HVJSLoad(options)
     }, -1);
 
-    nb.rendermime.addFactory({
+    nb.content.rendermime.addFactory({
       safe: false,
       mimeTypes: [HV_EXEC_MIME_TYPE],
       createRenderer: (options) => new HVJSExec(options, manager)
     }, -1);
 
     return new DisposableDelegate(() => {
-      if (nb.rendermime) {
-        nb.rendermime.removeMimeType(HV_EXEC_MIME_TYPE);
+      if (nb.content.rendermime) {
+        nb.content.rendermime.removeMimeType(HV_EXEC_MIME_TYPE);
       }
       manager.dispose();
     });

@@ -36,7 +36,7 @@ import * as jquery from 'jquery';
 export declare interface CommProxy {
   open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void,
   send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void,
-  onMsg: (msg: KernelMessage.ICommOpenMsg) => void
+  onMsg: (msg: KernelMessage.ICommMsgMsg) => void
 }
 
 export declare interface KernelProxy {
@@ -57,7 +57,7 @@ export const HV_EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json'
  * Load HVJS and CSS into the DOM
  */
 export
-class HVJSLoad extends Widget implements IRenderMime.IRenderer {
+  class HVJSLoad extends Widget implements IRenderMime.IRenderer {
   private _load_mimetype: string = HV_LOAD_MIME_TYPE
   private _script_element: HTMLScriptElement
 
@@ -80,7 +80,7 @@ class HVJSLoad extends Widget implements IRenderMime.IRenderer {
  * Exec HVJS in window
  */
 export
-class HVJSExec extends Widget implements IRenderMime.IRenderer {
+  class HVJSExec extends Widget implements IRenderMime.IRenderer {
   // for classic nb compat reasons, the payload in contained in these mime messages
   private _html_mimetype: string = HTML_MIME_TYPE
   private _js_mimetype: string = JS_MIME_TYPE
@@ -124,7 +124,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
     this._dispose = true;
     if (id !== undefined) {
       if ((window as any).PyViz === undefined) {
-        (window as any).PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []};
+        (window as any).PyViz = { comms: {}, comm_status: {}, kernels: {}, receivers: {}, plot_index: [] };
       } else if ((window as any).PyViz.plot_index === undefined) {
         (window as any).PyViz.plot_index = {}
       }
@@ -140,7 +140,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           scripts.push(nodelist[i])
       }
 
-      scripts.forEach( (oldScript) => {
+      scripts.forEach((oldScript) => {
         const newScript = document.createElement("script");
         const attrs = [];
         const nodemap = oldScript.attributes;
@@ -148,7 +148,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           if (nodemap.hasOwnProperty(j))
             attrs.push(nodemap[j])
         }
-        attrs.forEach( (attr) => newScript.setAttribute(attr.name, attr.value) );
+        attrs.forEach((attr) => newScript.setAttribute(attr.name, attr.value));
         newScript.appendChild(document.createTextNode(oldScript.innerHTML));
         oldScript.parentNode.replaceChild(newScript, oldScript);
       });
@@ -174,7 +174,7 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
       const connectClosure = (targetName: string, commId?: string): any => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not connect to comm target ', targetName);
-          return {open: function (): void {}, send: function (): void {}, onMsg: function (): void {}};
+          return { open: function(): void { }, send: function(): void { }, onMsg: function(): void { } };
         }
         const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
         const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
@@ -184,11 +184,12 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
           comm.open(data, metadata, buffers);
         };
         const comm_proxy: CommProxy = {
-          set onMsg(callback: (msg: KernelMessage.ICommOpenMsg) => void) {
+          set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
             comm.onMsg = callback;
           },
           open: openClosure,
-          send: sendClosure};
+          send: sendClosure
+        };
         return comm_proxy;
       }
       const kernel_proxy: KernelProxy = {
@@ -228,13 +229,13 @@ class HVJSExec extends Widget implements IRenderMime.IRenderer {
   _disposePlot(): void {
     if (this._server_id) {
       if ((this._manager.comm !== null) && this._dispose) {
-        this._manager.comm.send({event_type: "server_delete", "id": this._server_id});
+        this._manager.comm.send({ event_type: "server_delete", "id": this._server_id });
       }
       this._server_id = null
     } else if (this._document_id) {
       const id = this._document_id;
       if ((this._manager.comm !== null) && this._dispose) {
-        this._manager.comm.send({event_type: "delete", "id": id});
+        this._manager.comm.send({ event_type: "delete", "id": id });
       }
       if ((window as any).PyViz !== undefined) {
         if ((window as any).PyViz.kernels !== undefined)
