@@ -41,13 +41,13 @@ export
     nb.content.rendermime.addFactory({
       safe: false,
       mimeTypes: [HV_LOAD_MIME_TYPE],
-      createRenderer: (options) => new HVJSLoad(options)
+      createRenderer: (options: any) => new HVJSLoad(options)
     }, -1);
 
     nb.content.rendermime.addFactory({
       safe: false,
       mimeTypes: [HV_EXEC_MIME_TYPE],
-      createRenderer: (options) => new HVJSExec(options, manager)
+      createRenderer: (options: any) => new HVJSExec(options, manager)
     }, -1);
 
     return new DisposableDelegate(() => {
@@ -61,7 +61,7 @@ export
 
 export
   const extension: JupyterFrontEndPlugin<void> = {
-    id: 'jupyterlab_holoviews',
+    id: '@pyviz/jupyterlab_pyviz',
     autoStart: true,
     activate: (app: JupyterFrontEnd) => {
       // this adds the HoloViews widget extension onto Notebooks specifically
