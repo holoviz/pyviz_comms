@@ -68,20 +68,49 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
 }
 """
 
+ABORT_JS = """
+if (!window.PyViz) {{
+  return;
+}}
+var events = [];
+var receiver = window.PyViz.receivers['{plot_id}'];
+if (receiver &&
+        receiver._partial &&
+        receiver._partial.content &&
+        receiver._partial.content.events) {{
+    events = receiver._partial.content.events;
+}}
+
+var value = cb_obj['{change}'];
+
+{transform}
+
+for (var event of events) {{
+  if ((event.kind === 'ModelChanged') && (event.attr === '{change}') &&
+      (cb_obj.id === event.model.id) &&
+      (JSON.stringify(value) === JSON.stringify(event.new))) {{
+    events.pop(events.indexOf(event))
+    return;
+  }}
+}}
+"""
 
 # Following JS block becomes body of the message handler callback
 bokeh_msg_handler = """
 var plot_id = "{plot_id}";
-if (plot_id in window.PyViz.plot_index) {{
+
+if ((plot_id in window.PyViz.plot_index) && (window.PyViz.plot_index[plot_id] != null)) {{
   var plot = window.PyViz.plot_index[plot_id];
-}} else {{
+}} else if ((Bokeh !== undefined) && (plot_id in Bokeh.index)) {{
   var plot = Bokeh.index[plot_id];
+}}
+
+if (plot == null) {{
+  return
 }}
 
 if (plot_id in window.PyViz.receivers) {{
   var receiver = window.PyViz.receivers[plot_id];
-}} else if (Bokeh.protocol === undefined) {{
-  return;
 }} else {{
   var receiver = new Bokeh.protocol.Receiver();
   window.PyViz.receivers[plot_id] = receiver;
@@ -119,7 +148,6 @@ JS_CALLBACK = """
 function unique_events(events) {{
   // Processes the event queue ignoring duplicate events
   // of the same type
-  var event, data;
   var unique = [];
   var unique_events = [];
   for (var i=0; i<events.length; i++) {{
@@ -249,11 +277,13 @@ class Comm(param.Parameterized):
 
     js_template = ''
 
-    def __init__(self, id=None, on_msg=None):
+    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None):
         """
         Initializes a Comms object
         """
         self._on_msg = on_msg
+        self._on_error = on_error
+        self._on_stdout = on_stdout
         self._comm = None
         super(Comm, self).__init__(id = id if id else uuid.uuid4().hex)
 
@@ -306,7 +336,16 @@ class Comm(param.Parameterized):
                 # it and then send it to the frontend
                 with StandardOutput() as stdout:
                     self._on_msg(msg)
+                if stdout:
+                    try:
+                        self._on_stdout(stdout)
+                    except:
+                        pass
         except Exception as e:
+            try:
+                self._on_error(e)
+            except:
+                pass
             error = '\n'
             frames = traceback.extract_tb(sys.exc_info()[2])
             for frame in frames[-10:]:
@@ -411,12 +450,12 @@ class JupyterCommJS(JupyterComm):
     </script>
     """
 
-    def __init__(self, id=None, on_msg=None):
+    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None):
         """
         Initializes a Comms object
         """
         from IPython import get_ipython
-        super(JupyterCommJS, self).__init__(id, on_msg)
+        super(JupyterCommJS, self).__init__(id, on_msg, on_error, on_stdout)
         self.manager = get_ipython().kernel.comm_manager
         self.manager.register_target(self.id, self._handle_open)
 
@@ -473,14 +512,14 @@ class CommManager(object):
     client_comm = Comm
 
     @classmethod
-    def get_server_comm(cls, on_msg=None, id=None):
-        comm = cls.server_comm(id, on_msg)
+    def get_server_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None):
+        comm = cls.server_comm(id, on_msg, on_error, on_stdout)
         cls._comms[comm.id] = comm
         return comm
 
     @classmethod
-    def get_client_comm(cls, on_msg=None, id=None):
-        comm = cls.client_comm(id, on_msg)
+    def get_client_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None):
+        comm = cls.client_comm(id, on_msg, on_error, on_stdout)
         cls._comms[comm.id] = comm
         return comm
 
