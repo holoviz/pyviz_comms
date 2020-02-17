@@ -196,7 +196,7 @@ function on_msg(msg) {{
 
 // Initialize Comm
 if ((window.PyViz == undefined) || (window.PyViz.comm_manager == undefined)) {{ return }}
-comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
+var comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
 if (!comm) {{
   return
 }}
@@ -215,7 +215,7 @@ if (event_name === undefined) {{
   event_name = Object.keys(data).join(',');
 }}
 data['comm_id'] = "{comm_id}";
-timeout = comm_status.time + {timeout};
+var timeout = comm_status.time + {timeout};
 if ((comm_status.blocked && (Date.now() < timeout))) {{
   comm_status.event_buffer.unshift([event_name, data]);
 }} else {{
@@ -445,7 +445,7 @@ class JupyterCommJS(JupyterComm):
         var buffers = msg.buffers
         {msg_handler}
       }}
-      comm = window.PyViz.comm_manager.get_client_comm("{comm_id}");
+      var comm = window.PyViz.comm_manager.get_client_comm("{comm_id}");
       comm.on_msg(msg_handler);
     </script>
     """
