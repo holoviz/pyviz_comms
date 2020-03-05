@@ -13,7 +13,7 @@ import param
 try:
     __version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
                                             reponame="pyviz_comms"))
-except:
+except Exception:
     __version__ = "0.0.0+unknown"
 
 
