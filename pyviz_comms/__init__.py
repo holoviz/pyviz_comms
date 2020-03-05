@@ -10,8 +10,11 @@ except:
 
 import param
 
-__version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
-                                        reponame="pyviz_comms"))
+try:
+    __version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
+                                            reponame="pyviz_comms"))
+except:
+    __version__ = "0.0.0+unknown"
 
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
