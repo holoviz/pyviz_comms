@@ -58,13 +58,7 @@ class extension(param.ParameterizedFunction):
 
 PYVIZ_PROXY = """
 if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
-   if ((window.HoloViews === undefined) || (window.HoloViews instanceof HTMLElement)) {
-     var PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
-   } else {
-     var PyViz = window.HoloViews;
-   }
-   window.PyViz = PyViz;
-   window.HoloViews = PyViz;  // TEMPORARY HACK TILL NEXT NPM RELEASE
+  window.PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
 }
 """
 
@@ -89,7 +83,6 @@ for (var event of events) {{
   if ((event.kind === 'ModelChanged') && (event.attr === '{change}') &&
       (cb_obj.id === event.model.id) &&
       (JSON.stringify(value) === JSON.stringify(event.new))) {{
-    events.pop(events.indexOf(event))
     return;
   }}
 }}
@@ -125,22 +118,6 @@ if ((buffers != undefined) && (buffers.length > 0)) {{
 const comm_msg = receiver.message;
 if ((comm_msg != null) && (Object.keys(comm_msg.content).length > 0)) {{
   plot.model.document.apply_json_patch(comm_msg.content, comm_msg.buffers)
-}}
-"""
-
-embed_js = """
-// Ugly hack - see HoloViews #2574 for more information
-if (!(document.getElementById('{plot_id}')) && !(document.getElementById('_anim_img{widget_id}'))) {{
-  console.log("Creating DOM nodes dynamically for assumed nbconvert export. To generate clean HTML output set HV_DOC_HTML as an environment variable.")
-  var htmlObject = document.createElement('div');
-  htmlObject.innerHTML = `{html}`;
-  var scriptTags = document.getElementsByTagName('script');
-  var parentTag = scriptTags[scriptTags.length-1].parentNode;
-  if (parentTag.attributes.length && (parentTag.attributes[0].name == 'data-shell-mode')) {{
-    alert('Displaying PyViz objects in JupyterLab requires the jupyterlab_pyviz extension to be installed, install it with:\\n\\n\\tjupyter labextension install @pyviz/jupyterlab_pyviz');
-  }} else {{
-    parentTag.append(htmlObject)
-  }}
 }}
 """
 
@@ -196,7 +173,7 @@ function on_msg(msg) {{
 
 // Initialize Comm
 if ((window.PyViz == undefined) || (window.PyViz.comm_manager == undefined)) {{ return }}
-comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
+var comm = window.PyViz.comm_manager.get_client_comm("{plot_id}", "{comm_id}", on_msg);
 if (!comm) {{
   return
 }}
@@ -215,7 +192,7 @@ if (event_name === undefined) {{
   event_name = Object.keys(data).join(',');
 }}
 data['comm_id'] = "{comm_id}";
-timeout = comm_status.time + {timeout};
+var timeout = comm_status.time + {timeout};
 if ((comm_status.blocked && (Date.now() < timeout))) {{
   comm_status.event_buffer.unshift([event_name, data]);
 }} else {{
@@ -445,7 +422,7 @@ class JupyterCommJS(JupyterComm):
         var buffers = msg.buffers
         {msg_handler}
       }}
-      comm = window.PyViz.comm_manager.get_client_comm("{comm_id}");
+      var comm = window.PyViz.comm_manager.get_client_comm("{comm_id}");
       comm.on_msg(msg_handler);
     </script>
     """
