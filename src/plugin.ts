@@ -15,7 +15,7 @@ import {
 import {
   IDisposable,
   DisposableDelegate
-} from '@phosphor/disposable'
+} from '@lumino/disposable'
 
 import {
   ContextManager
