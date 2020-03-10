@@ -1,6 +1,6 @@
 import {
   IDisposable
-} from '@phosphor/disposable';
+} from '@lumino/disposable';
 
 import {
   DocumentRegistry
@@ -29,8 +29,8 @@ class ContextManager implements IDisposable {
   }
 
   get comm() {
-    if ((this._comm === null) && (this._context.session.kernel !== null)) {
-      this._comm = this._context.session.kernel.connectToComm("hv-extension-comm");
+    if ((this._comm === null) && (this._context.sessionContext.session?.kernel !== null)) {
+      this._comm = this._context.sessionContext.session?.kernel.createComm("hv-extension-comm");
       this._comm.open();
     }
     return this._comm;

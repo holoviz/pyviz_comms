@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ from 'jquery';
 import * as noUiSlider from 'nouislider';
 
 function update_widget(widget: any, values: any) {

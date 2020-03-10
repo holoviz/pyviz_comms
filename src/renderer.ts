@@ -8,20 +8,16 @@ import {
 } from '@jupyterlab/services'
 
 import {
-  IClientSession
-} from '@jupyterlab/apputils';
-
-import {
   ReadonlyJSONObject
-} from '@phosphor/coreutils'
+} from '@lumino/coreutils'
 
 import {
   JSONObject, JSONValue
-} from '@phosphor/coreutils';
+} from '@lumino/coreutils';
 
 import {
   Widget
-} from '@phosphor/widgets'
+} from '@lumino/widgets'
 
 import {
   ContextManager
@@ -163,7 +159,7 @@ export
       this._displayed = true;
 
       const manager = this._manager;
-      const kernel = manager.context.session.kernel;
+      const kernel = manager!.context.sessionContext.session?.kernel;
       const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
         if (kernel == undefined) {
           console.log('Kernel not found, could not register comm target ', targetName);
@@ -176,7 +172,7 @@ export
           console.log('Kernel not found, could not connect to comm target ', targetName);
           return { open: function(): void { }, send: function(): void { }, onMsg: function(): void { } };
         }
-        const comm: Kernel.IComm = kernel.connectToComm(targetName, commId);
+        const comm: Kernel.IComm = kernel.createComm(targetName, commId);
         const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
           if (!comm.isDisposed)
             comm.send(data, metadata, buffers, disposeOnDone);
@@ -199,13 +195,13 @@ export
       };
       (window as any).PyViz.kernels[id] = kernel_proxy;
       this._document_id = id;
-      manager.context.session.statusChanged.connect((session: IClientSession, status: Kernel.Status) => {
+      manager.context.sessionContext.statusChanged.connect((session, status) => {
         if (status == "restarting" || status === "dead") {
           delete (window as any).PyViz.kernels[id];
           this._dispose = false;
           manager.comm = null;
         }
-      });
+      }, this);
     } else if (metadata.server_id !== undefined) {
       // I'm a server document
       this._server_id = metadata.server_id as string
