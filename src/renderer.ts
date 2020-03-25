@@ -27,8 +27,6 @@ import {
   init_slider, init_dropdown
 } from './widgets';
 
-import * as jquery from 'jquery';
-
 export declare interface CommProxy {
   open(data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void,
   send(data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void,
@@ -60,8 +58,6 @@ export
   constructor(options: IRenderMime.IRendererOptions) {
     super();
     this._script_element = document.createElement("script");
-    (window as any).jQuery = jquery;
-    (window as any).$ = jquery;
   }
 
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
