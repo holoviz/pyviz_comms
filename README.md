@@ -1,8 +1,9 @@
 # pyviz_comms
 
-Offers a simple bidirectional communication architecture for HoloViz tools
-including support for Jupyter comms in both the classic notebook and
-Jupyterlab.
+Offers a simple bidirectional communication architecture between Python and JavaScript, 
+with support for Jupyter comms in both the classic notebook and Jupyterlab.
+Available for use by any [PyViz](https://pyviz.org) tool, but currently primarily used by
+[HoloViz](https://holoviz.org) tools.
 
 There are two installable components in this repository: a Python
 component used by various HoloViz tools and an extension to enable
