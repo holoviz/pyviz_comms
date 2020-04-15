@@ -150,10 +150,11 @@ function init_dropdown(id: string, plot_id: string, dim: string, vals: any,
   widget.data("next_vals", next_vals);
   widget.val(value);
   widget.on('change', function(event: any, ui: any) {
+    const value = (this as any).value
     if (dynamic) {
-      var dim_val: any = parseInt(this.value);
+      var dim_val: any = parseInt(value);
     } else {
-      var dim_val: any = $.data(this, 'values')[this.value];
+      var dim_val: any = $.data(this, 'values')[value];
     }
     var next_vals = $.data(this, "next_vals");
     if (Object.keys(next_vals).length > 0) {

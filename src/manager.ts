@@ -22,6 +22,11 @@ class ContextManager implements IDisposable {
   constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>) {
     this._context = context;
     this._comm = null;
+    context.sessionContext.statusChanged.connect((session: any, status: any) => {
+      if (status == "restarting" || status === "dead") {
+        this._comm = null
+      }
+    }, this)
   }
 
   get context() {
