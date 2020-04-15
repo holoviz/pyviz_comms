@@ -41,7 +41,7 @@ export
     nb.content.rendermime.addFactory({
       safe: false,
       mimeTypes: [HV_LOAD_MIME_TYPE],
-      createRenderer: (options: any) => new HVJSLoad(options)
+      createRenderer: (options: any) => new HVJSLoad(options, manager)
     }, -1);
 
     nb.content.rendermime.addFactory({

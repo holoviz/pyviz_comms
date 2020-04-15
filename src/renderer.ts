@@ -52,20 +52,23 @@ export const HV_EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json'
  */
 export
   class HVJSLoad extends Widget implements IRenderMime.IRenderer {
-  private _load_mimetype: string = HV_LOAD_MIME_TYPE
-  private _script_element: HTMLScriptElement
+    private _load_mimetype: string = HV_LOAD_MIME_TYPE
+    private _script_element: HTMLScriptElement
+    private _manager: ContextManager;
 
-  constructor(options: IRenderMime.IRendererOptions) {
-    super();
-    this._script_element = document.createElement("script");
-  }
+    constructor(options: IRenderMime.IRendererOptions, manager: ContextManager) {
+      super();
+      this._script_element = document.createElement("script");
+      this._manager = manager
+    }
 
-  renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-    let data = model.data[this._load_mimetype] as string
-    this._script_element.textContent = data;
-    this.node.appendChild(this._script_element)
-    return Promise.resolve()
-  }
+    renderModel(model: IRenderMime.IMimeModel): Promise<void> {
+      let data = model.data[this._load_mimetype] as string
+      this._script_element.textContent = data;
+      this.node.appendChild(this._script_element)
+      this._manager.comm // Initialize the comm
+      return Promise.resolve()
+    }
 }
 
 /**
@@ -195,7 +198,6 @@ export
         if (status == "restarting" || status === "dead") {
           delete (window as any).PyViz.kernels[id];
           this._dispose = false;
-          manager.comm = null;
         }
       }, this);
     } else if (metadata.server_id !== undefined) {
