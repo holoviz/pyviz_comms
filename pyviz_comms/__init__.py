@@ -254,13 +254,14 @@ class Comm(param.Parameterized):
 
     js_template = ''
 
-    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None):
+    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
         """
         Initializes a Comms object
         """
         self._on_msg = on_msg
         self._on_error = on_error
         self._on_stdout = on_stdout
+        self._on_open = on_open
         self._comm = None
         super(Comm, self).__init__(id = id if id else uuid.uuid4().hex)
 
@@ -379,6 +380,8 @@ class JupyterComm(Comm):
             return
         self._comm = IPyComm(target_name=self.id, data={})
         self._comm.on_msg(self._handle_msg)
+        if self._on_open:
+            self._on_open({})
 
 
     @classmethod
@@ -427,15 +430,14 @@ class JupyterCommJS(JupyterComm):
     </script>
     """
 
-    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None):
+    def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
         """
         Initializes a Comms object
         """
         from IPython import get_ipython
-        super(JupyterCommJS, self).__init__(id, on_msg, on_error, on_stdout)
+        super(JupyterCommJS, self).__init__(id, on_msg, on_error, on_stdout, on_open)
         self.manager = get_ipython().kernel.comm_manager
         self.manager.register_target(self.id, self._handle_open)
-
 
     def close(self):
         """
@@ -449,11 +451,11 @@ class JupyterCommJS(JupyterComm):
             else:
                 raise AssertionError('JupyterCommJS %s is already closed' % self.id)
 
-
     def _handle_open(self, comm, msg):
         self._comm = comm
         self._comm.on_msg(self._handle_msg)
-
+        if self._on_open:
+            self._on_open(msg)
 
     def send(self, data=None, metadata=None, buffers=[]):
         """
@@ -489,14 +491,14 @@ class CommManager(object):
     client_comm = Comm
 
     @classmethod
-    def get_server_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None):
-        comm = cls.server_comm(id, on_msg, on_error, on_stdout)
+    def get_server_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None, on_open=None):
+        comm = cls.server_comm(id, on_msg, on_error, on_stdout, on_open)
         cls._comms[comm.id] = comm
         return comm
 
     @classmethod
-    def get_client_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None):
-        comm = cls.client_comm(id, on_msg, on_error, on_stdout)
+    def get_client_comm(cls, on_msg=None, id=None, on_error=None, on_stdout=None, on_open=None):
+        comm = cls.client_comm(id, on_msg, on_error, on_stdout, on_open)
         cls._comms[comm.id] = comm
         return comm
 
