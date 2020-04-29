@@ -1,11 +1,12 @@
 # pyviz_comms
 
-Offers a simple bidirectional communication architecture for PyViz tools
-including support for Jupyter comms in both the classic notebook and
-Jupyterlab.
+Offers a simple bidirectional communication architecture between Python and JavaScript, 
+with support for Jupyter comms in both the classic notebook and Jupyterlab.
+Available for use by any [PyViz](https://pyviz.org) tool, but currently primarily used by
+[HoloViz](https://holoviz.org) tools.
 
 There are two installable components in this repository: a Python
-component used by various PyViz tools and an extension to enable
+component used by various HoloViz tools and an extension to enable
 Jupyterlab support.
 
 ## Installing the Jupyterlab extension
@@ -18,7 +19,7 @@ jupyter labextension install @pyviz/jupyterlab_pyviz
 
 ## Compatibility
 
-The [PyViz](https://github.com/pyviz/pyviz) libraries are generally version independent of
+The [Holoviz](https://github.com/holoviz/holoviz) libraries are generally version independent of
 [JupyterLab](https://github.com/jupyterlab/jupyterlab) and the ``jupyterlab_pyviz`` extension
 has been supported since holoviews 1.10.0 and the first release of ``pyviz_comms``.
 
@@ -56,5 +57,5 @@ jupyter lab build
 
 ## The ``pyviz_comms`` Python package
 
-The ``pyviz_comms`` Python package is used by pyviz projects and can be
+The ``pyviz_comms`` Python package is used by holoviz projects and can be
 pip and conda installed.
