@@ -3,7 +3,6 @@
   "version": "1.0.1",
   "description": "A JupyterLab extension for rendering PyViz content",
   "author": "Philipp Rudiger <prudiger@anaconda.org>",
-  "main": "lib/index.js",
   "license": "BSD-3-Clause",
   "keywords": [
     "jupyter",
@@ -20,8 +19,9 @@
     "prepublishOnly": "npm run build",
     "watch": "tsc -b --watch"
   },
+  "main": "lib/index.js",
   "files": [
-    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}"
+    "{dist,lib}/**/*.{js,js.map,d.ts}"
   ],
   "jupyterlab": {
     "extension": true

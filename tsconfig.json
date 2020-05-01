@@ -16,9 +16,10 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "target": "ES2015",
-    "outDir": "./lib",
     "lib": ["ES6", "ES5", "ES2015.Promise", "DOM"],
-    "types": ["jquery"]
+    "types": ["jquery"],
+    "baseUrl": ".",
+    "outDir": "./lib"
   },
-  "include": ["src/*"]
+  "include": ["./src/**/*.ts"]
 }

@@ -36,7 +36,8 @@ class ContextManager implements IDisposable {
   get comm() {
     if ((this._comm === null) && (this._context.sessionContext.session?.kernel !== null)) {
       this._comm = this._context.sessionContext.session?.kernel.createComm("hv-extension-comm");
-      this._comm.open();
+      if (this._comm != null)
+        this._comm.open()
     }
     return this._comm;
   }
