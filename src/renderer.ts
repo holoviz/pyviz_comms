@@ -125,6 +125,7 @@ export
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
+      (window as any).PyViz.widget_manager = this._manager._wManager
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;

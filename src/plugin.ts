@@ -4,7 +4,7 @@ import {
 
 import {
   INotebookModel,
-  NotebookPanel
+  NotebookPanel,
 } from '@jupyterlab/notebook'
 
 import {
@@ -16,6 +16,14 @@ import {
   IDisposable,
   DisposableDelegate
 } from '@lumino/disposable'
+
+import { IDocumentManager } from "@jupyterlab/docmanager";
+
+import { Context } from "@jupyterlab/docregistry";
+
+import {
+  registerWidgetManager
+} from '@jupyter-widgets/jupyterlab-manager'
 
 import {
   ContextManager
@@ -34,9 +42,17 @@ export
 
 
 export
-  class NBWidgetExtension implements INBWidgetExtension {
+class NBWidgetExtension implements INBWidgetExtension {
+  _docmanager: IDocumentManager
+
   createNew(nb: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
-    let manager = new ContextManager(context);
+    const doc_context = (this._docmanager as any)._findContext(context.path, "notebook")
+
+    // Hack to get access to the widget manager
+    const renderer: any = {manager: null}
+    registerWidgetManager((doc_context as any), nb.content.rendermime, ([renderer] as any));
+
+    let manager = new ContextManager(context, renderer.manager);
 
     nb.content.rendermime.addFactory({
       safe: false,
@@ -59,12 +75,17 @@ export
   }
 }
 
+
 export
   const extension: JupyterFrontEndPlugin<void> = {
     id: '@pyviz/jupyterlab_pyviz',
     autoStart: true,
-    activate: (app: JupyterFrontEnd) => {
-      // this adds the HoloViews widget extension onto Notebooks specifically
-      app.docRegistry.addWidgetExtension('Notebook', new NBWidgetExtension());
+    requires: [
+      IDocumentManager
+    ],
+    activate: (app: JupyterFrontEnd, docmanager: IDocumentManager) => {
+      const extension = new NBWidgetExtension()
+      extension._docmanager = docmanager
+      app.docRegistry.addWidgetExtension('Notebook', extension);
     }
   }
