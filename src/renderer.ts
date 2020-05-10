@@ -20,6 +20,10 @@ import {
 } from '@lumino/widgets'
 
 import {
+  WidgetModel
+} from '@jupyter-widgets/base';
+
+import {
   ContextManager
 } from './manager';
 
@@ -37,6 +41,11 @@ export declare interface KernelProxy {
   // copied from https://github.com/jupyterlab/jupyterlab/blob/master/packages/services/src/kernel/default.ts#L605
   registerCommTarget(targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void,
   connectToComm(targetName: string, commId?: string): CommProxy,
+}
+
+export declare interface WidgetManagerProxy {
+  create_view(model: WidgetModel): any,
+  set_state(state: any): Promise<WidgetModel[]>
 }
 
 /**
@@ -125,7 +134,14 @@ export
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
-      (window as any).PyViz.widget_manager = this._manager._wManager
+      const set_state = (state: any): Promise<WidgetModel[]> => {
+        return this._manager._wManager.set_state(state)
+	  }
+      const create_view = (model: any, options?: any): any => {
+        return this._manager._wManager.create_view(model, options)
+      }
+      const widget_manager: WidgetManagerProxy = {create_view, set_state};
+	  (window as any).PyViz.widget_manager = widget_manager
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;
