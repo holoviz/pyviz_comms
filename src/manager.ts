@@ -14,21 +14,16 @@ import {
   IRenderMimeRegistry
 } from "@jupyterlab/rendermime";
 
-import {
-  WidgetManager,
-} from '@jupyter-widgets/jupyterlab-manager'
-
-
 /**
  * A micro manager that contains the document context
  */
 export
 class ContextManager implements IDisposable {
-  _wManager: WidgetManager
+  _wManager: any
   private _context: DocumentRegistry.IContext<DocumentRegistry.IModel>;
   private _comm: Kernel.IComm | null;
 
-  constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>, manager: WidgetManager) {
+  constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>, manager: any) {
     this._context = context;
     this._wManager = manager;
 

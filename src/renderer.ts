@@ -20,10 +20,6 @@ import {
 } from '@lumino/widgets'
 
 import {
-  WidgetModel
-} from '@jupyter-widgets/base';
-
-import {
   ContextManager
 } from './manager';
 
@@ -44,8 +40,8 @@ export declare interface KernelProxy {
 }
 
 export declare interface WidgetManagerProxy {
-  create_view(model: WidgetModel): any,
-  set_state(state: any): Promise<WidgetModel[]>
+  create_view(model: any): any,
+  set_state(state: any): Promise<any[]>
 }
 
 /**
@@ -134,7 +130,7 @@ export
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
-      const set_state = (state: any): Promise<WidgetModel[]> => {
+      const set_state = (state: any): Promise<any[]> => {
         return this._manager._wManager.set_state(state)
 	  }
       const create_view = (model: any, options?: any): any => {

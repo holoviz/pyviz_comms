@@ -22,10 +22,6 @@ import { IDocumentManager } from "@jupyterlab/docmanager";
 import { Context } from "@jupyterlab/docregistry";
 
 import {
-  registerWidgetManager
-} from '@jupyter-widgets/jupyterlab-manager'
-
-import {
   ContextManager
 } from './manager'
 
@@ -41,6 +37,14 @@ export
   type INBWidgetExtension = DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>;
 
 
+let registerWidgetManager: any = null;
+try {
+  const jlm = require('@jupyter-widgets/jupyterlab-manager');
+  registerWidgetManager = jlm.registerWidgetManager;
+} catch(e) {
+  console.log(e);
+}
+
 export
 class NBWidgetExtension implements INBWidgetExtension {
   _docmanager: IDocumentManager
@@ -50,7 +54,8 @@ class NBWidgetExtension implements INBWidgetExtension {
 
     // Hack to get access to the widget manager
     const renderer: any = {manager: null}
-    registerWidgetManager((doc_context as any), nb.content.rendermime, ([renderer] as any));
+    if (registerWidgetManager != null)
+      registerWidgetManager((doc_context as any), nb.content.rendermime, ([renderer] as any));
 
     let manager = new ContextManager(context, renderer.manager);
 
