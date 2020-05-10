@@ -1,6 +1,6 @@
 {
   "name": "@pyviz/jupyterlab_pyviz",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A JupyterLab extension for rendering PyViz content",
   "author": "Philipp Rudiger <prudiger@anaconda.org>",
   "license": "BSD-3-Clause",
