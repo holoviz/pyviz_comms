@@ -60,9 +60,12 @@ jobs:
       script:
         - npm install
         - npm run build
+        - jupyter labextension install @jupyter-widgets/jupyterlab-manager
         - jupyter labextension install --no-build
-        - NODE_OPTIONS=--max-old-space-size=16000 jupyter lab build
+        - NODE_OPTIONS=--max-old-space-size=16000 jupyter lab build --minimize=False
         - python -m jupyterlab.browser_check
+      after_failure:
+        - cat /tmp/jupyterlab-debug-*.log
 
     ########## END-USER PACKAGES ##########
 

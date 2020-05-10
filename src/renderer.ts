@@ -39,6 +39,11 @@ export declare interface KernelProxy {
   connectToComm(targetName: string, commId?: string): CommProxy,
 }
 
+export declare interface WidgetManagerProxy {
+  create_view(model: any): any,
+  set_state(state: any): Promise<any[]>
+}
+
 /**
  * The MIME types for PyViz
  */
@@ -125,6 +130,14 @@ export
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
+      const set_state = (state: any): Promise<any[]> => {
+        return this._manager._wManager.set_state(state)
+	  }
+      const create_view = (model: any, options?: any): any => {
+        return this._manager._wManager.create_view(model, options)
+      }
+      const widget_manager: WidgetManagerProxy = {create_view, set_state};
+      (window as any).PyViz.widget_manager = widget_manager
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;

@@ -10,17 +10,23 @@ import {
   Kernel
 } from '@jupyterlab/services'
 
+import {
+  IRenderMimeRegistry
+} from "@jupyterlab/rendermime";
 
 /**
  * A micro manager that contains the document context
  */
 export
 class ContextManager implements IDisposable {
+  _wManager: any
   private _context: DocumentRegistry.IContext<DocumentRegistry.IModel>;
   private _comm: Kernel.IComm | null;
 
-  constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>) {
+  constructor(context: DocumentRegistry.IContext<DocumentRegistry.IModel>, manager: any) {
     this._context = context;
+    this._wManager = manager;
+
     this._comm = null;
     context.sessionContext.statusChanged.connect((session: any, status: any) => {
       if (status == "restarting" || status === "dead") {

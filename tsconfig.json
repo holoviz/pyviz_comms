@@ -17,7 +17,7 @@
     "esModuleInterop": true,
     "target": "ES2015",
     "lib": ["ES6", "ES5", "ES2015.Promise", "DOM"],
-    "types": ["jquery"],
+    "types": ["jquery", "node"],
     "baseUrl": ".",
     "outDir": "./lib"
   },
