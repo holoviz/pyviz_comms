@@ -141,7 +141,7 @@ export
         return this._manager._wManager.create_view(model, options)
       }
       const widget_manager: WidgetManagerProxy = {create_view, set_state};
-	  (window as any).PyViz.widget_manager = widget_manager
+      (window as any).PyViz.widget_manager = widget_manager
 
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;

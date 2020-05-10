@@ -63,6 +63,8 @@ jobs:
         - jupyter labextension install --no-build
         - NODE_OPTIONS=--max-old-space-size=16000 jupyter lab build --minimize=False
         - python -m jupyterlab.browser_check
+      after_failure:
+        - cat /tmp/jupyterlab-debug-*.log
 
     ########## END-USER PACKAGES ##########
 
