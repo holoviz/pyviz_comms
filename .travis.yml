@@ -61,7 +61,7 @@ jobs:
         - npm install
         - npm run build
         - jupyter labextension install --no-build
-        - NODE_OPTIONS=--max-old-space-size=16000 jupyter lab build
+        - NODE_OPTIONS=--max-old-space-size=16000 jupyter lab build --minimize=False
         - python -m jupyterlab.browser_check
 
     ########## END-USER PACKAGES ##########
