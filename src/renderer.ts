@@ -112,6 +112,61 @@ export
     return this._manager === null;
   }
 
+  _registerKernel(id: string): void {
+    const set_state = (state: any): Promise<any[]> => {
+      return this._manager._wManager.set_state(state)  
+    }
+    const create_view = (model: any, options?: any): any => {
+      return this._manager._wManager.create_view(model, options)
+    }
+    const widget_manager: WidgetManagerProxy = {create_view, set_state};
+    (window as any).PyViz.widget_manager = widget_manager
+
+    const manager = this._manager;
+    const kernel = manager!.context.sessionContext.session?.kernel;
+    const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
+      if (kernel == undefined) {
+        console.log('Kernel not found, could not register comm target ', targetName);
+        return;
+      }
+      return kernel.registerCommTarget(targetName, callback);
+    };
+    const connectClosure = (targetName: string, commId?: string): any => {
+      if (kernel == undefined) {
+        console.log('Kernel not found, could not connect to comm target ', targetName);
+        return { open: function(): void { }, send: function(): void { }, onMsg: function(): void { } };
+      }
+      const comm: Kernel.IComm = kernel.createComm(targetName, commId);
+      const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
+        if (!comm.isDisposed)
+          comm.send(data, metadata, buffers, disposeOnDone);
+      };
+      const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void => {
+        comm.open(data, metadata, buffers);
+      };
+      const comm_proxy: CommProxy = {
+        set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
+          comm.onMsg = callback;
+        },
+        open: openClosure,
+        send: sendClosure
+      };
+      return comm_proxy;
+    }
+    const kernel_proxy: KernelProxy = {
+      connectToComm: connectClosure,
+      registerCommTarget: registerClosure
+    };
+    (window as any).PyViz.kernels[id] = kernel_proxy;
+
+    this._manager.context.sessionContext.statusChanged.connect((session, status) => {
+      if (status == "restarting" || status === "dead") {
+        delete (window as any).PyViz.kernels[id];
+        this._dispose = false;
+      }
+    }, this);
+  }
+
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     let metadata = model.metadata[this._exec_mimetype] as ReadonlyJSONObject
     const id = metadata.id as string;
@@ -130,15 +185,7 @@ export
       }
       (window as any).PyViz.init_slider = init_slider;
       (window as any).PyViz.init_dropdown = init_dropdown;
-      const set_state = (state: any): Promise<any[]> => {
-        return this._manager._wManager.set_state(state)
-	  }
-      const create_view = (model: any, options?: any): any => {
-        return this._manager._wManager.create_view(model, options)
-      }
-      const widget_manager: WidgetManagerProxy = {create_view, set_state};
-      (window as any).PyViz.widget_manager = widget_manager
-
+      
       const html_data = model.data[this._html_mimetype] as string;
       this._div_element.innerHTML = html_data;
       const scripts = [];
@@ -168,61 +215,24 @@ export
         this.node.appendChild(this._script_element);
       }
 
+      this._registerKernel(id)
       this._displayed = true;
-
-      const manager = this._manager;
-      const kernel = manager!.context.sessionContext.session?.kernel;
-      const registerClosure = (targetName: string, callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void): void => {
-        if (kernel == undefined) {
-          console.log('Kernel not found, could not register comm target ', targetName);
-          return;
-        }
-        return kernel.registerCommTarget(targetName, callback);
-      };
-      const connectClosure = (targetName: string, commId?: string): any => {
-        if (kernel == undefined) {
-          console.log('Kernel not found, could not connect to comm target ', targetName);
-          return { open: function(): void { }, send: function(): void { }, onMsg: function(): void { } };
-        }
-        const comm: Kernel.IComm = kernel.createComm(targetName, commId);
-        const sendClosure = (data: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[], disposeOnDone?: boolean): void => {
-          if (!comm.isDisposed)
-            comm.send(data, metadata, buffers, disposeOnDone);
-        };
-        const openClosure = (data?: JSONValue, metadata?: JSONObject, buffers?: (ArrayBuffer | ArrayBufferView)[]): void => {
-          comm.open(data, metadata, buffers);
-        };
-        const comm_proxy: CommProxy = {
-          set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
-            comm.onMsg = callback;
-          },
-          open: openClosure,
-          send: sendClosure
-        };
-        return comm_proxy;
-      }
-      const kernel_proxy: KernelProxy = {
-        connectToComm: connectClosure,
-        registerCommTarget: registerClosure
-      };
-      (window as any).PyViz.kernels[id] = kernel_proxy;
       this._document_id = id;
-      manager.context.sessionContext.statusChanged.connect((session, status) => {
-        if (status == "restarting" || status === "dead") {
-          delete (window as any).PyViz.kernels[id];
-          this._dispose = false;
-        }
-      }, this);
     } else if (metadata.server_id !== undefined) {
       // I'm a server document
       this._server_id = metadata.server_id as string
       const data = model.data[this._html_mimetype] as string
       const d = document.createElement('div')
       d.innerHTML = data
-      const script_attrs: NamedNodeMap = d.children[0].attributes
-      for (const i in script_attrs) {
-        this._script_element.setAttribute(script_attrs[i].name, script_attrs[i].value)
+      const script = d.children[0]
+      const attrs = [];
+      const nodemap = script.attributes;
+      for (const j in nodemap) {
+        if (nodemap.hasOwnProperty(j))
+          attrs.push(nodemap[j])
       }
+      attrs.forEach((attr) => this._script_element.setAttribute(attr.name, attr.value));
+      this._script_element.appendChild(document.createTextNode(script.innerHTML));
       this.node.appendChild(this._script_element)
     }
     return Promise.resolve().then(function() {
