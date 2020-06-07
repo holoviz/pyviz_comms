@@ -534,7 +534,7 @@ class JupyterCommManager(CommManager):
         });
       } else if (typeof google != 'undefined' && google.colab.kernel != null) {
         google.colab.kernel.comms.registerTarget(comm_id, (comm) => {
-          const messages = comm.messages[Symbol.asyncIterator]();
+          var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
             console.log(message)
