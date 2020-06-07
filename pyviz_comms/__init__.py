@@ -533,18 +533,22 @@ class JupyterCommManager(CommManager):
           comm.onMsg = msg_handler;
         });
       } else if (typeof google != 'undefined' && google.colab.kernel != null) {
-        google.colab.kernel.comms.registerTarget(comm_id, async (comm) => {
-          for await (const message of comm.messages) {
-            var content = {data: message.data};
+        google.colab.kernel.comms.registerTarget(comm_id, (comm) => {
+          const messages = comm.messages[Symbol.asyncIterator]();
+          function processIteratorResult(result) {
+            var message = result.value;
+            console.log(message)
+            var content = {data: message.data, comm_id};
             var buffers = []
-            for (var buffer of (message.buffers ? message.buffers: [])) {
+            for (var buffer of message.buffers ?? []) {
               buffers.push(new DataView(buffer))
             }
-            var metadata = message.metadata ? message.metadata: {};
-            msg = {content, buffers, metadata}
-            console.log(window.PyViz, msg)
+            var metadata = message.metadata ?? {};
+            var msg = {content, buffers, metadata}
             msg_handler(msg);
+            return messages.next().then(processIteratorResult);
           }
+          return messages.next().then(processIteratorResult);
         })
       }
     }
@@ -566,13 +570,19 @@ class JupyterCommManager(CommManager):
         }
       } else if (typeof google != 'undefined' && google.colab.kernel != null) {
         var comm_promise = google.colab.kernel.comms.open(comm_id)
-        comm_promise.then(async (comm) => {
+        comm_promise.then((comm) => {
           window.PyViz.comms[comm_id] = comm;
           if (msg_handler) {
-            for await (const message of comm.messages) {
-              const metadata = message.metadata ? message.metadata: {comm_id};
-              msg_handler({content: {data: message.data}, metadata: metadata});
+            var messages = comm.messages[Symbol.asyncIterator]();
+            function processIteratorResult(result) {
+              var message = result.value;
+              var content = {data: message.data};
+              var metadata = message.metadata ?? {comm_id};
+              var msg = {content, metadata}
+              msg_handler(msg);
+              return messages.next().then(processIteratorResult);
             }
+            return messages.next().then(processIteratorResult);
           }
         }) 
         var sendClosure = (data, metadata, buffers, disposeOnDone) => {
