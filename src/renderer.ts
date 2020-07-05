@@ -246,13 +246,13 @@ export
 
   _disposePlot(): void {
     if (this._server_id) {
-      if ((this._manager.comm !== null) && this._dispose) {
+      if ((this._manager.comm != null) && this._dispose) {
         this._manager.comm.send({ event_type: "server_delete", "id": this._server_id });
       }
       this._server_id = null
     } else if (this._document_id) {
       const id = this._document_id;
-      if ((this._manager.comm !== null) && this._dispose) {
+      if ((this._manager.comm != null) && this._dispose) {
         this._manager.comm.send({ event_type: "delete", "id": id });
       }
       if ((window as any).PyViz !== undefined) {
