@@ -326,7 +326,7 @@ class Comm(param.Parameterized):
                 pass
             error = '\n'
             frames = traceback.extract_tb(sys.exc_info()[2])
-            for frame in frames[-10:]:
+            for frame in frames[-20:]:
                 fname,lineno,fn,text = frame
                 error_kwargs = dict(fn=fn, fname=fname, line=lineno)
                 error += '{fname} {fn} L{line}\n'.format(**error_kwargs)
@@ -540,10 +540,10 @@ class JupyterCommManager(CommManager):
             console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
-            for (var buffer of message.buffers ?? []) {
+            for (var buffer of message.buffers || []) {
               buffers.push(new DataView(buffer))
             }
-            var metadata = message.metadata ?? {};
+            var metadata = message.metadata || {};
             var msg = {content, buffers, metadata}
             msg_handler(msg);
             return messages.next().then(processIteratorResult);
@@ -577,7 +577,7 @@ class JupyterCommManager(CommManager):
             function processIteratorResult(result) {
               var message = result.value;
               var content = {data: message.data};
-              var metadata = message.metadata ?? {comm_id};
+              var metadata = message.metadata || {comm_id};
               var msg = {content, metadata}
               msg_handler(msg);
               return messages.next().then(processIteratorResult);
