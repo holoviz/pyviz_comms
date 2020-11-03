@@ -11,7 +11,7 @@ addons:
 
 env:
   global:
-    - PYENV_VERSION=3.7
+    - PYTHON_VERSION=3.7
     - CHANS_DEV="-c pyviz/label/dev"
     - CHANS="-c pyviz"
 
@@ -40,7 +40,7 @@ jobs:
         - conda config --set always_yes True
         - conda install -c pyviz "pyctdev>=0.5" && doit ecosystem_setup
       install:
-        - doit env_create $CHANS_DEV --python=$PYENV_VERSION
+        - doit env_create $CHANS_DEV --python=$PYTHON_VERSION
         - source activate test-environment
         - doit develop_install $CHANS_DEV -o all
         - doit env_capture
@@ -53,7 +53,7 @@ jobs:
         - conda config --set always_yes True
         - conda install -c pyviz "pyctdev>=0.5" && doit ecosystem_setup
       install:
-        - doit env_create $CHANS_DEV --python=$PYENV_VERSION
+        - doit env_create $CHANS_DEV --python=$PYTHON_VERSION
         - source activate test-environment
         - conda install nodejs notebook
         - pip install jupyterlab
