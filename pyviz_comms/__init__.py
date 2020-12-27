@@ -2,6 +2,7 @@ import os
 import sys
 import uuid
 import traceback
+import json
 
 try:
     from StringIO import StringIO
@@ -10,9 +11,18 @@ except:
 
 import param
 
-__version__ = str(param.version.Version(fpath=__file__, archive_commit="$Format:%h$",
-                                        reponame="pyviz_comms"))
+from ._version import __version__
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(HERE, 'labextension', 'package.json')) as fid:
+    data = json.load(fid)
+
+def _jupyter_labextension_paths():
+    return [{
+        'src': 'labextension',
+        'dest': data['name']
+    }]
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))

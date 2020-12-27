@@ -1,25 +1,24 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "strictBindCallApply": false,
-    "strictFunctionTypes": false,
-    "strictPropertyInitialization": false,
-    "alwaysStrict": true,
-    "noErrorTruncation": true,
-    "noEmitOnError": false,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
     "declaration": true,
-    "sourceMap": false,
-    "importHelpers": true,
-    "experimentalDecorators": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
     "esModuleInterop": true,
-    "target": "ES2015",
-    "lib": ["ES6", "ES5", "ES2015.Promise", "DOM"],
-    "types": ["jquery", "node"],
-    "baseUrl": ".",
-    "outDir": "./lib"
+    "incremental": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "preserveWatchOutput": true,
+    "resolveJsonModule": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
+    "strictNullChecks": false,
+    "target": "es2017",
+    "types": ["node"]
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["src/*"]
 }
