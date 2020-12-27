@@ -9,6 +9,8 @@ try:
 except:
     from io import StringIO
 
+import param
+
 from ._version import __version__
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -26,7 +28,6 @@ def _jupyter_labextension_paths():
 comm_path = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(comm_path, 'notebook.js')) as f:
     nb_mime_js = '\n\n' + f.read()
-
 
 
 class extension(param.ParameterizedFunction):
