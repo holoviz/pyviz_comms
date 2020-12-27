@@ -46,19 +46,16 @@ jobs:
           doit ecosystem_setup
       - name: install build deps
         run: |
-          eval "$(conda shell.bash hook)"
           pip install "jupyter_packaging~=0.7.9" "jupyterlab~=3.0"
       - name: npm setup
         run: |
           npm install @jupyter-widgets/jupyterlab-manager
       - name: build extension
         run: |
-          eval "$(conda shell.bash hook)"
           jlpm
           jlpm run eslint:check
       - name: conda build
         run: |
-          eval "$(conda shell.bash hook)"
           doit package_build $CHANS_DEV $PKG_TEST_PYTHON
       - name: dev deploy
         if: (contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc'))
@@ -108,13 +105,15 @@ jobs:
         run: |
           eval "$(conda shell.bash hook)"
           conda activate test-environment
-          doit develop_install $CHANS_DEV -o build
           pip uninstall -y pyviz_comms
           doit pip_on_conda
+      - name: install build deps
+        run: |
+          eval "$(conda shell.bash hook)"
+          pip install "jupyter_packaging~=0.7.9" "jupyterlab~=3.0"
       - name: npm setup
         run: |
           eval "$(conda shell.bash hook)"
-          conda install -c conda-forge nodejs
           npm install @jupyter-widgets/jupyterlab-manager
       - name: build extension
         run: |
