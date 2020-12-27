@@ -9,8 +9,6 @@ try:
 except:
     from io import StringIO
 
-import param
-
 from ._version import __version__
 
 HERE = os.path.abspath(os.path.dirname(__file__))

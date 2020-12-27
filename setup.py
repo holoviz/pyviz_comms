@@ -61,8 +61,7 @@ else:
 
 extras_require = {
     'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
-    'build': ['param >=1.7.0', 'setuptools', 'jupyter_packaging ~=0.7.9',
-              'jupyterlab~=3.0']
+    'build': ['setuptools', 'jupyterlab~=3.0']
 }
 
 extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
@@ -70,7 +69,7 @@ extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-install_requires = ['param']
+install_requires = []
 
 setup_args = dict(
     name=name,

@@ -1,7 +1,5 @@
 [build-system]
 requires = [
-    "param >=1.7.0",
-    "pyct >=0.4.4",
     "jupyter_packaging~=0.7.9",
 	"jupyterlab~=3.0",
 	"setuptools>=40.8.0",

@@ -44,6 +44,10 @@ jobs:
           conda config --set always_yes True
           conda install -c pyviz "pyctdev>=0.5"
           doit ecosystem_setup
+      - name: install build deps
+        run: |
+          eval "$(conda shell.bash hook)"
+          pip install "jupyter_packaging~=0.7.9" "jupyterlab~=3.0"
       - name: npm setup
         run: |
           npm install @jupyter-widgets/jupyterlab-manager
