@@ -1,6 +1,6 @@
 # pyviz_comms
 
-![Github Actions Status](https://github.com/holoviz/holoviz_jlab/workflows/Build/badge.svg)
+![Github Actions Status](https://github.com/holoviz/pyviz_comms/workflows/test/badge.svg)
 
 Offers a simple bidirectional communication architecture between Python and JavaScript, 
 with support for Jupyter comms in both the classic notebook and Jupyterlab.
