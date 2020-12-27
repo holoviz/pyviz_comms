@@ -73,7 +73,7 @@ extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-install_requires = []
+install_requires = ['param']
 
 setup_args = dict(
     name=name,

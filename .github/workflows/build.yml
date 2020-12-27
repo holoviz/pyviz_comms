@@ -64,7 +64,7 @@ jobs:
         run: |
           eval "$(conda shell.bash hook)"
           conda activate test-environment
-          doit package_build $CHANS_DEV $PKG_TEST_PYTHON
+          doit package_build $CHANS_DEV $PKG_TEST_PYTHON --test-group=browser
       - name: dev deploy
         if: (contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc'))
         run: |
@@ -129,7 +129,7 @@ jobs:
         run: |
           eval "$(conda shell.bash hook)"
           conda activate test-environment
-          doit ecosystem=pip package_build $PKG_TEST_PYTHON
+          doit ecosystem=pip package_build $PKG_TEST_PYTHON  --test-group=browser
       - name: pip upload
         run: |
           eval "$(conda shell.bash hook)"
