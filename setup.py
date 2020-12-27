@@ -8,11 +8,6 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from jupyter_packaging import (
-    create_cmdclass, install_npm, ensure_targets,
-    combine_commands, skip_if_exists
-)
-
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # The name of the project
@@ -42,22 +37,31 @@ data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, HERE, "install.json"),
 ]
 
-cmdclass = create_cmdclass("jsdeps",
-    package_data_spec=package_data_spec,
-    data_files_spec=data_files_spec
-)
+try:
+    from jupyter_packaging import (
+        create_cmdclass, install_npm, ensure_targets,
+        combine_commands, skip_if_exists
+    )
 
-js_command = combine_commands(
-    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
-    ensure_targets(jstargets),
-)
 
-is_repo = os.path.exists(os.path.join(HERE, ".git"))
-if is_repo:
-    cmdclass["jsdeps"] = js_command
-else:
-    cmdclass["jsdeps"] = skip_if_exists(jstargets, js_command)
+    cmdclass = create_cmdclass(
+        "jsdeps",
+        package_data_spec=package_data_spec,
+        data_files_spec=data_files_spec
+    )
 
+    js_command = combine_commands(
+        install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
+        ensure_targets(jstargets),
+    )
+
+    is_repo = os.path.exists(os.path.join(HERE, ".git"))
+    if is_repo:
+        cmdclass["jsdeps"] = js_command
+    else:
+        cmdclass["jsdeps"] = skip_if_exists(jstargets, js_command)
+except:
+    cmdclass = {}
 
 extras_require = {
     'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
@@ -80,6 +84,7 @@ setup_args = dict(
     description='Bidirectional communication for the HoloViz ecosystem.',
     long_description=long_description,
     long_description_content_type="text/markdown",
+    cmdclass=cmdclass,
     author="Philipp Rudiger",
     author_email= "philipp.jfr@gmail.com",
     maintainer= "HoloViz",
