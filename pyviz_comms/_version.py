@@ -10,10 +10,10 @@ def _fetchVersion():
         try:
             with open(os.path.join(d, 'package.json')) as f:
                 return json.load(f)['version']
-        except FileNotFoundError:
+        except IOError:
             pass
 
-    raise FileNotFoundError('Could not find package.json under dir {}'.format(HERE))
+    raise IOError('Could not find package.json under dir {}'.format(HERE))
 
 __version__ = _fetchVersion()
 
