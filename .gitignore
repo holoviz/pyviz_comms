@@ -4,3 +4,8 @@ node_modules/
 *.egg-info/
 __pycache__
 .version
+.ipynb_checkpoints
+.DS_STORE
+.doit.db
+tsconfig.tsbuildinfo
+
