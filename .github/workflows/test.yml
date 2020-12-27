@@ -35,5 +35,5 @@ jobs:
         python -m pip install .
     - name: Check extension
       run: |
-        jupyter labextension list 2>&1 | grep -ie "@pyviz/jupyterlab_pyviz.*OK"
+        jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"
         python -m jupyterlab.browser_check
