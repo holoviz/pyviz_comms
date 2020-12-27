@@ -33,8 +33,6 @@ jobs:
         jlpm
         jlpm run eslint:check
         python -m pip install .
-    - name: List extensions
-      run: jupyter labextension list
     - name: Check extension
       run: |
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"

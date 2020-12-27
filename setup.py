@@ -65,7 +65,7 @@ except:
 
 extras_require = {
     'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
-    'build': ['setuptools', 'jupyterlab~=3.0']
+    'build': ['setuptools', 'jupyterlab ~=3.0', 'jupyter-packaging ~=0.7.9']
 }
 
 extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
@@ -107,7 +107,6 @@ setup_args = dict(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries"]
 )
-
 
 if __name__=="__main__":
     setup(**setup_args)
