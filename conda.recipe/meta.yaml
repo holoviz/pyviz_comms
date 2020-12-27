@@ -10,11 +10,14 @@ source:
 build:
   noarch: python
   number: 0
+  script: $PYTHON setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
   host:
     - jupyter-packaging
+    - jupyterlab
   build:
+    - notebook
     - python
     - setuptools
     - param
