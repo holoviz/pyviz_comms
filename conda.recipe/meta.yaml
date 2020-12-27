@@ -10,17 +10,21 @@ source:
 build:
   noarch: python
   number: 0
-  script: python setup.py --quiet install --single-version-externally-managed --record record.txt
-
+  script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
   build:
+    - jupyter-packaging
+    - jupyterlab
+    - notebook
     - python
     - setuptools
     - param
   run:
     - python
     - param
+  run_constrained:
+    - jupyterlab >=3.0.0,<4
 
 test:
   imports:

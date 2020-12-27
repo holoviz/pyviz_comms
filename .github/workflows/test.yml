@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install node
+      uses: actions/setup-node@v1
+      with:
+       node-version: '10.x'
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install "jupyterlab~=3.0" "jupyter_packaging~=0.7.9" "wheel"
+    - name: Add peer dependency
+      run: |
+        npm install @jupyter-widgets/jupyterlab-manager
+    - name: Build the extension
+      run: |
+        jlpm
+        jlpm run eslint:check
+        python -m pip install . --no-build-isolation
+    - name: Check extension
+      run: |
+        jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"
+        python -m jupyterlab.browser_check
