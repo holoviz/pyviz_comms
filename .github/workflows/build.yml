@@ -56,6 +56,8 @@ jobs:
           npm install @jupyter-widgets/jupyterlab-manager
       - name: build extension
         run: |
+          eval "$(conda shell.bash hook)"
+          conda activate test-environment
           jlpm
           jlpm run eslint:check
       - name: conda build
@@ -119,6 +121,8 @@ jobs:
           npm install @jupyter-widgets/jupyterlab-manager
       - name: build extension
         run: |
+          eval "$(conda shell.bash hook)"
+          conda activate test-environment
           jlpm
           jlpm run eslint:check
       - name: pip build
