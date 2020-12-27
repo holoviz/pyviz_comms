@@ -32,7 +32,7 @@ jobs:
       run: |
         jlpm
         jlpm run eslint:check
-        python -m pip install .
+        python -m pip install . --no-build-isolation
     - name: Check extension
       run: |
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"
