@@ -19,7 +19,6 @@ jobs:
       CHANS_DEV: "-c pyviz/label/dev -c conda-forge"
       PKG_TEST_PYTHON: "--test-python=py37"
       PYTHON_VERSION: "3.7"
-      MPLBACKEND: "Agg"
       CONDA_UPLOAD_TOKEN: ${{ secrets.CONDA_UPLOAD_TOKEN }}
     steps:
       - uses: actions/checkout@v2
@@ -54,8 +53,9 @@ jobs:
           jlpm
           jlpm run eslint:check
       - name: conda build
-        eval "$(conda shell.bash hook)"
-        run: doit package_build $CHANS_DEV $PKG_TEST_PYTHON --test-group=unit_deploy
+        run: |
+          eval "$(conda shell.bash hook)"
+          doit package_build $CHANS_DEV $PKG_TEST_PYTHON
       - name: dev deploy
         if: (contains(steps.vars.outputs.tag, 'a') || contains(steps.vars.outputs.tag, 'b') || contains(steps.vars.outputs.tag, 'rc'))
         run: |
@@ -71,11 +71,10 @@ jobs:
       run:
         shell: bash -l {0}
     env:
-      CHANS_DEV: "-c pyviz/label/dev -c bokeh -c conda-forge"
-      PKG_TEST_PYTHON: "--test-python=py37 --test-python=py27"
+      CHANS_DEV: "-c pyviz/label/dev -c conda-forge"
+      PKG_TEST_PYTHON: "--test-python=py37"
       PYTHON_VERSION: "3.7"
       CHANS: "-c pyviz"
-      MPLBACKEND: "Agg"
       PPU: ${{ secrets.PPU }}
       PPP: ${{ secrets.PPP }}
       PYPI: "https://upload.pypi.org/legacy/"
