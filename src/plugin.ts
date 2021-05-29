@@ -1,17 +1,46 @@
-import { DocumentRegistry } from '@jupyterlab/docregistry';
-
-import { INotebookModel, NotebookPanel } from '@jupyterlab/notebook';
+import {
+  INotebookTracker,
+  NotebookPanel,
+  INotebookModel
+} from '@jupyterlab/notebook';
 
 import {
   JupyterFrontEndPlugin,
-  JupyterFrontEnd
+  JupyterFrontEnd,
+  ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { IDisposable, DisposableDelegate } from '@lumino/disposable';
+import {
+  ICommandPalette,
+  WidgetTracker,
+  ToolbarButton
+} from '@jupyterlab/apputils';
+
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+
+import { PageConfig } from '@jupyterlab/coreutils';
+
+import { DocumentRegistry } from '@jupyterlab/docregistry';
+
+import { IMainMenu } from '@jupyterlab/mainmenu';
 
 import { IDocumentManager } from '@jupyterlab/docmanager';
 
+import { CommandRegistry } from '@lumino/commands';
+
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+
+import { IDisposable, DisposableDelegate } from '@lumino/disposable';
+
+import { panelIcon } from './icons';
+
 import { ContextManager } from './manager';
+
+import {
+  PanelPreview,
+  IPanelPreviewTracker,
+  PanelPreviewFactory
+} from './preview';
 
 import {
   HVJSExec,
@@ -31,6 +60,47 @@ try {
   registerWidgetManager = jlm.registerWidgetManager;
 } catch (_) {
   console.log('Could not load ipywidgets support for @pyviz/jupyterlab_pyviz');
+}
+
+/**
+ * The command IDs used by the plugin.
+ */
+export namespace CommandIDs {
+  export const panelRender = 'notebook:render-with-panel';
+
+  export const panelOpen = 'notebook:open-with-panel';
+}
+
+/**
+ * A notebook widget extension that adds a panel preview button to the toolbar.
+ */
+class PanelRenderButton
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  /**
+   * Instantiate a new PanelRenderButton.
+   * @param commands The command registry.
+   */
+  constructor(commands: CommandRegistry) {
+    this._commands = commands;
+  }
+
+  /**
+   * Create a new extension object.
+   */
+  createNew(panel: NotebookPanel): IDisposable {
+    const button = new ToolbarButton({
+      className: 'panelRender',
+      tooltip: 'Render with Panel',
+      icon: panelIcon,
+      onClick: () => {
+        this._commands.execute(CommandIDs.panelRender);
+      }
+    });
+    panel.toolbar.insertAfter('cellType', 'panelRender', button);
+    return button;
+  }
+
+  private _commands: CommandRegistry;
 }
 
 export class NBWidgetExtension implements INBWidgetExtension {
@@ -82,13 +152,160 @@ export class NBWidgetExtension implements INBWidgetExtension {
   }
 }
 
-export const extension: JupyterFrontEndPlugin<void> = {
+export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
   id: '@pyviz/jupyterlab_pyviz',
   autoStart: true,
-  requires: [IDocumentManager],
-  activate: (app: JupyterFrontEnd, docmanager: IDocumentManager) => {
-    const extension = new NBWidgetExtension();
-    extension._docmanager = docmanager;
-    app.docRegistry.addWidgetExtension('Notebook', extension);
+  requires: [IDocumentManager, INotebookTracker],
+  optional: [ICommandPalette, ILayoutRestorer, IMainMenu, ISettingRegistry],
+  provides: IPanelPreviewTracker,
+  activate: (
+    app: JupyterFrontEnd,
+    docmanager: IDocumentManager,
+    notebooks: INotebookTracker,
+    palette: ICommandPalette | null,
+    restorer: ILayoutRestorer | null,
+    menu: IMainMenu | null,
+    settingRegistry: ISettingRegistry | null
+  ) => {
+    const nb_extension = new NBWidgetExtension();
+    nb_extension._docmanager = docmanager;
+    app.docRegistry.addWidgetExtension('Notebook', nb_extension);
+
+    // Create a widget tracker for Panel Previews.
+    const tracker = new WidgetTracker<PanelPreview>({
+      namespace: 'panel-preview'
+    });
+
+    if (restorer) {
+      restorer.restore(tracker, {
+        command: 'docmanager:open',
+        args: panel => ({
+          path: panel.context.path,
+          factory: factory.name
+        }),
+        name: panel => panel.context.path,
+        when: app.serviceManager.ready
+      });
+    }
+
+    function getCurrent(args: ReadonlyPartialJSONObject): NotebookPanel | null {
+      const widget = notebooks.currentWidget;
+      const activate = args['activate'] !== false;
+
+      if (activate && widget) {
+        app.shell.activateById(widget.id);
+      }
+
+      return widget;
+    }
+
+    function isEnabled(): boolean {
+      return (
+        notebooks.currentWidget !== null &&
+        notebooks.currentWidget === app.shell.currentWidget
+      );
+    }
+
+    function getPanelUrl(path: string): string {
+      const baseUrl = PageConfig.getBaseUrl();
+      return `${baseUrl}panel-preview/render/${path}`;
+    }
+
+    const factory = new PanelPreviewFactory(getPanelUrl, {
+      name: 'Panel-preview',
+      fileTypes: ['notebook'],
+      modelName: 'notebook'
+    });
+
+    factory.widgetCreated.connect((sender, widget) => {
+      // Notify the widget tracker if restore data needs to update.
+      widget.context.pathChanged.connect(() => {
+        void tracker.save(widget);
+      });
+      // Add the notebook panel to the tracker.
+      void tracker.add(widget);
+    });
+
+    const updateSettings = (settings: ISettingRegistry.ISettings): void => {
+      factory.defaultRenderOnSave = settings.get('renderOnSave')
+        .composite as boolean;
+    };
+
+    if (settingRegistry) {
+      Promise.all([settingRegistry.load(extension.id), app.restored])
+        .then(([settings]) => {
+          updateSettings(settings);
+          settings.changed.connect(updateSettings);
+        })
+        .catch((reason: Error) => {
+          console.error(reason.message);
+        });
+    }
+
+    app.docRegistry.addWidgetFactory(factory);
+
+    const { commands, docRegistry } = app;
+
+    commands.addCommand(CommandIDs.panelRender, {
+      label: 'Render Notebook with Panel',
+      execute: async args => {
+        const current = getCurrent(args);
+        let context: DocumentRegistry.IContext<INotebookModel>;
+        if (current) {
+          context = current.context;
+          await context.save();
+
+          commands.execute('docmanager:open', {
+            path: context.path,
+            factory: 'Panel-preview',
+            options: {
+              mode: 'split-right'
+            }
+          });
+        }
+      },
+      isEnabled
+    });
+
+    commands.addCommand(CommandIDs.panelOpen, {
+      label: 'Open with Panel in New Browser Tab',
+      execute: async args => {
+        const current = getCurrent(args);
+        if (!current) {
+          return;
+        }
+        await current.context.save();
+        const panelUrl = getPanelUrl(current.context.path);
+        window.open(panelUrl);
+      },
+      isEnabled
+    });
+
+    if (palette) {
+      const category = 'Notebook Operations';
+      [CommandIDs.panelRender, CommandIDs.panelOpen].forEach(command => {
+        palette.addItem({ command, category });
+      });
+    }
+
+    if (menu) {
+      menu.viewMenu.addGroup(
+        [
+          {
+            command: CommandIDs.panelRender
+          },
+          {
+            command: CommandIDs.panelOpen
+          }
+        ],
+        1000
+      );
+    }
+
+    const panelButton = new PanelRenderButton(commands);
+    docRegistry.addWidgetExtension('Notebook', panelButton);
+
+    return tracker;
   }
 };
+
