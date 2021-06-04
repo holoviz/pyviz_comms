@@ -35,6 +35,8 @@ export class ContextManager implements IDisposable {
   }
 
   get comm(): any {
+    if (this._context.sessionContext == null)
+      return null
     if (
       this._comm === null &&
       this._context.sessionContext.session?.kernel !== null

@@ -11,8 +11,6 @@ import {
   DocumentWidget
 } from '@jupyterlab/docregistry';
 
-import { INotebookModel } from '@jupyterlab/notebook';
-
 import { refreshIcon } from '@jupyterlab/ui-components';
 
 import { Token } from '@lumino/coreutils';
@@ -38,7 +36,7 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
 /**
  * A DocumentWidget that shows a Panel preview in an IFrame.
  */
-export class PanelPreview extends DocumentWidget<IFrame, INotebookModel> {
+export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeModel> {
   /**
    * Instantiate a new PanelPreview.
    * @param options The PanelPreview instantiation options.
@@ -169,7 +167,7 @@ export namespace PanelPreview {
    * Instantiation options for `PanelPreview`.
    */
   export interface IOptions
-    extends DocumentWidget.IOptionsOptionalContent<IFrame, INotebookModel> {
+    extends DocumentWidget.IOptionsOptionalContent<IFrame, DocumentRegistry.ICodeModel> {
     /**
      * The Panel URL function.
      */
@@ -184,7 +182,7 @@ export namespace PanelPreview {
 
 export class PanelPreviewFactory extends ABCWidgetFactory<
   PanelPreview,
-  INotebookModel
+  DocumentRegistry.ICodeModel
 > {
   defaultRenderOnSave = false;
 
@@ -193,10 +191,12 @@ export class PanelPreviewFactory extends ABCWidgetFactory<
     options: DocumentRegistry.IWidgetFactoryOptions<PanelPreview>
   ) {
     super(options);
+    console.log(options)
+    
   }
 
   protected createNewWidget(
-    context: DocumentRegistry.IContext<INotebookModel>
+    context: DocumentRegistry.IContext<DocumentRegistry.ICodeModel>
   ): PanelPreview {
     return new PanelPreview({
       context,

@@ -69,6 +69,10 @@ export namespace CommandIDs {
   export const panelRender = 'notebook:render-with-panel';
 
   export const panelOpen = 'notebook:open-with-panel';
+
+  export const lumenRender = 'notebook:render-with-lumen';
+
+  export const lumenOpen = 'notebook:open-with-lumen';
 }
 
 /**
@@ -96,12 +100,48 @@ class PanelRenderButton
         this._commands.execute(CommandIDs.panelRender);
       }
     });
+
     panel.toolbar.insertAfter('cellType', 'panelRender', button);
     return button;
   }
 
   private _commands: CommandRegistry;
 }
+
+
+/**
+ * A notebook widget extension that adds a panel preview button to the toolbar.
+ */
+class LumenRenderButton
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  /**
+   * Instantiate a new PanelRenderButton.
+   * @param commands The command registry.
+   */
+  constructor(commands: CommandRegistry) {
+    this._commands = commands;
+  }
+
+  /**
+   * Create a new extension object.
+   */
+  createNew(panel: NotebookPanel): IDisposable {
+    const button = new ToolbarButton({
+      className: 'lumenRender',
+      tooltip: 'Render with Lumen',
+      icon: panelIcon,
+      onClick: () => {
+	this._commands.execute(CommandIDs.lumenRender);
+      }
+    });
+
+    panel.toolbar.addItem('lumenRender', button);
+    return button;
+  }
+
+  private _commands: CommandRegistry;
+}
+
 
 export class NBWidgetExtension implements INBWidgetExtension {
   _docmanager: IDocumentManager;
@@ -153,7 +193,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
 }
 
 export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
-  id: '@pyviz/jupyterlab_pyviz',
+  id: '@pyviz/jupyterlab_pyviz:plugin',
   autoStart: true,
   requires: [IDocumentManager, INotebookTracker],
   optional: [ICommandPalette, ILayoutRestorer, IMainMenu, ISettingRegistry],
@@ -199,10 +239,17 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
       return widget;
     }
 
+    function getCurrentYaml(args: ReadonlyPartialJSONObject): NotebookPanel | null {
+      return app.shell.currentWidget as any;
+    }
+
     function isEnabled(): boolean {
+      const widget: any = app.shell.currentWidget;
+      if (widget == null || widget.context == undefined)
+	return false
       return (
-        notebooks.currentWidget !== null &&
-        notebooks.currentWidget === app.shell.currentWidget
+	(widget.context.path.endsWith('.yaml') || widget.context.path.endsWith('.yml')) || 
+        (notebooks.currentWidget !== null && notebooks.currentWidget === widget)
       );
     }
 
@@ -217,11 +264,22 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
       modelName: 'notebook'
     });
 
+    const lumenFactory = new PanelPreviewFactory(getPanelUrl, {
+      name: 'Lumen-preview',
+      fileTypes: ['yaml', 'yml', 'text', 'py'],
+      modelName: 'text'
+    });
+
     factory.widgetCreated.connect((sender, widget) => {
       // Notify the widget tracker if restore data needs to update.
       widget.context.pathChanged.connect(() => {
         void tracker.save(widget);
       });
+      // Add the notebook panel to the tracker.
+      void tracker.add(widget);
+    });
+
+    lumenFactory.widgetCreated.connect((sender, widget) => {
       // Add the notebook panel to the tracker.
       void tracker.add(widget);
     });
@@ -243,6 +301,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
     }
 
     app.docRegistry.addWidgetFactory(factory);
+    app.docRegistry.addWidgetFactory(lumenFactory);
 
     const { commands, docRegistry } = app;
 
@@ -258,6 +317,27 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
           commands.execute('docmanager:open', {
             path: context.path,
             factory: 'Panel-preview',
+            options: {
+              mode: 'split-right'
+            }
+          });
+        }
+      },
+      isEnabled
+    });
+
+    commands.addCommand(CommandIDs.lumenRender, {
+      label: 'Render Yaml with Lumen',
+      execute: async args => {
+        const current = getCurrentYaml(args);
+        let context: DocumentRegistry.IContext<INotebookModel>;
+        if (current) {
+          context = current.context;
+          await context.save();
+
+	  commands.execute('docmanager:open', {
+            path: context.path,
+            factory: 'Lumen-preview',
             options: {
               mode: 'split-right'
             }
@@ -303,9 +383,13 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
     }
 
     const panelButton = new PanelRenderButton(commands);
+
     docRegistry.addWidgetExtension('Notebook', panelButton);
+
+    const lumenButton = new LumenRenderButton(commands);
+
+    docRegistry.addWidgetExtension('Editor', lumenButton);
 
     return tracker;
   }
 };
-
