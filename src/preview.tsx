@@ -191,8 +191,6 @@ export class PanelPreviewFactory extends ABCWidgetFactory<
     options: DocumentRegistry.IWidgetFactoryOptions<PanelPreview>
   ) {
     super(options);
-    console.log(options)
-    
   }
 
   protected createNewWidget(
