@@ -65,7 +65,14 @@ except:
 
 extras_require = {
     'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
-    'build': ['setuptools', 'jupyterlab ~=3.0', 'jupyter-packaging ~=0.7.9']
+    'build': [
+        'setuptools',
+        'jupyterlab ~=3.0',
+        'jupyter-packaging ~=0.7.9',
+        'twine',
+        'rfc3986',
+        'keyring'
+    ]
 }
 
 extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
