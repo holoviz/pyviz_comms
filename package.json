@@ -1,6 +1,6 @@
 {
   "name": "@pyviz/jupyterlab_pyviz",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "A JupyterLab extension for rendering HoloViz content.",
   "keywords": [
     "jupyter",
@@ -15,7 +15,8 @@
   "author": "Philipp Rudiger",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,.js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    "style/**/*.{css,.js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+    "schema/*.json"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -44,8 +45,18 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^3.0.0",
+    "@jupyterlab/apputils": "^3.0.0",
+    "@jupyterlab/coreutils": "^5.0.0",
     "@jupyterlab/docregistry": "^3.0.0",
-    "@jupyterlab/notebook": "^3.0.0"
+    "@jupyterlab/fileeditor": "^3.0.0",
+    "@jupyterlab/mainmenu": "^3.0.0",
+    "@jupyterlab/notebook": "^3.0.0",
+    "@jupyterlab/settingregistry": "^3.0.0",
+    "@jupyterlab/ui-components": "^3.0.0",
+    "@lumino/coreutils": "^1.5.3",
+    "@lumino/signaling": "^1.4.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "peerDependencies": {
     "@jupyter-widgets/jupyterlab-manager": "^3.0.0"
@@ -55,6 +66,8 @@
     "@jupyterlab/builder": "^3.0.0",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/node": "^14.14.16",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "eslint": "^7.5.0",
