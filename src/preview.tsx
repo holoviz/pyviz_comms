@@ -24,7 +24,7 @@ import { panelIcon } from './icons';
 /**
  * A class that tracks Panel Preview widgets.
  */
-export interface IPanelPreviewTracker extends IWidgetTracker<PanelPreview> {}
+export type IPanelPreviewTracker = IWidgetTracker<PanelPreview>;
 
 /**
  * The Panel Preview tracker token.
@@ -36,7 +36,10 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
 /**
  * A DocumentWidget that shows a Panel preview in an IFrame.
  */
-export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeModel> {
+export class PanelPreview extends DocumentWidget<
+  IFrame,
+  DocumentRegistry.ICodeModel
+> {
   /**
    * Instantiate a new PanelPreview.
    * @param options The PanelPreview instantiation options.
@@ -49,7 +52,7 @@ export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeM
       })
     });
 
-    window.onmessage = (event: any) => {
+    window.onmessage = (event: any): void => {
       switch (event.data?.level) {
         case 'debug':
           console.debug(...event.data?.msg);
@@ -87,7 +90,7 @@ export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeM
     const reloadButton = new ToolbarButton({
       icon: refreshIcon,
       tooltip: 'Reload Preview',
-      onClick: () => {
+      onClick: (): void => {
         this.reload();
       }
     });
@@ -99,7 +102,7 @@ export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeM
           name="renderOnSave"
           type="checkbox"
           defaultChecked={renderOnSave}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
             this._renderOnSave = event.target.checked;
           }}
         />
@@ -137,7 +140,7 @@ export class PanelPreview extends DocumentWidget<IFrame, DocumentRegistry.ICodeM
    */
   reload(): void {
     const iframe = this.content.node.querySelector('iframe')!;
-    if (iframe.contentWindow) {
+    if (iframe.contentWindow != null) {
       iframe.contentWindow.location.reload();
     }
   }
@@ -167,7 +170,10 @@ export namespace PanelPreview {
    * Instantiation options for `PanelPreview`.
    */
   export interface IOptions
-    extends DocumentWidget.IOptionsOptionalContent<IFrame, DocumentRegistry.ICodeModel> {
+    extends DocumentWidget.IOptionsOptionalContent<
+      IFrame,
+      DocumentRegistry.ICodeModel
+    > {
     /**
      * The Panel URL function.
      */

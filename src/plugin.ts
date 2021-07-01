@@ -96,7 +96,7 @@ class PanelRenderButton
       className: 'panelRender',
       tooltip: 'Render with Panel',
       icon: panelIcon,
-      onClick: () => {
+      onClick: (): void => {
         this._commands.execute(CommandIDs.panelRender);
       }
     });
@@ -107,7 +107,6 @@ class PanelRenderButton
 
   private _commands: CommandRegistry;
 }
-
 
 /**
  * A notebook widget extension that adds a panel preview button to the toolbar.
@@ -131,7 +130,7 @@ class LumenRenderButton
       tooltip: 'Render with Lumen',
       icon: panelIcon,
       onClick: () => {
-	this._commands.execute(CommandIDs.lumenRender);
+        this._commands.execute(CommandIDs.lumenRender);
       }
     });
 
@@ -141,7 +140,6 @@ class LumenRenderButton
 
   private _commands: CommandRegistry;
 }
-
 
 export class NBWidgetExtension implements INBWidgetExtension {
   _docmanager: IDocumentManager;
@@ -239,16 +237,20 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
       return widget;
     }
 
-    function getCurrentYaml(args: ReadonlyPartialJSONObject): NotebookPanel | null {
+    function getCurrentYaml(
+      args: ReadonlyPartialJSONObject
+    ): NotebookPanel | null {
       return app.shell.currentWidget as any;
     }
 
     function isEnabled(): boolean {
       const widget: any = app.shell.currentWidget;
-      if (widget == null || widget.context == undefined)
-	return false
+      if (widget == null || widget.context == undefined) {
+        return false;
+      }
       return (
-	(widget.context.path.endsWith('.yaml') || widget.context.path.endsWith('.yml')) || 
+        widget.context.path.endsWith('.yaml') ||
+        widget.context.path.endsWith('.yml') ||
         (notebooks.currentWidget !== null && notebooks.currentWidget === widget)
       );
     }
@@ -335,7 +337,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
           context = current.context;
           await context.save();
 
-	  commands.execute('docmanager:open', {
+          commands.execute('docmanager:open', {
             path: context.path,
             factory: 'Lumen-preview',
             options: {
