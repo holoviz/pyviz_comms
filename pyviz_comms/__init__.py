@@ -42,6 +42,19 @@ class extension(param.ParameterizedFunction):
     # A registry of actions to perform when a server delete event is received
     _server_delete_actions = []
 
+    # Records the execution_count at each execution of an extension
+    _last_execution_count = None
+    _repeat_execution = False
+
+    def __new__(cls, *args, **kwargs):
+        try:
+            exec_count = get_ipython().execution_count
+            cls._repeat_execution = (exec_count == cls._last_execution_count)
+            cls._last_execution_count = exec_count
+        except Exception:
+            pass
+        return param.ParameterizedFunction.__new__(cls, *args, **kwargs)
+
     @classmethod
     def add_delete_action(cls, action):
         cls._delete_actions.append(action)
