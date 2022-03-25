@@ -44,12 +44,12 @@ class extension(param.ParameterizedFunction):
 
     # Records the execution_count at each execution of an extension
     _last_execution_count = None
-    _repeat_execution = False
+    _repeat_execution_in_cell = False
 
     def __new__(cls, *args, **kwargs):
         try:
             exec_count = get_ipython().execution_count
-            cls._repeat_execution = (exec_count == cls._last_execution_count)
+            cls._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
             cls._last_execution_count = exec_count
         except Exception:
             pass
