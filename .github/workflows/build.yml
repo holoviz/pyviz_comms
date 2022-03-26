@@ -95,7 +95,7 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v1
         with:
-          node-version: '10.x'
+          node-version: '12.x'
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
