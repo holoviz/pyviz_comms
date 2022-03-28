@@ -66,7 +66,7 @@ except:
 extras_require = {
     'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
     'build': [
-        'setuptools',
+        'setuptools>=40.8.0,<61',
         'jupyterlab ~=3.0',
         'jupyter-packaging ~=0.7.9',
         'twine',
