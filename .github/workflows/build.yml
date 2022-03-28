@@ -49,7 +49,7 @@ jobs:
         run: |
           eval "$(conda shell.bash hook)"
           conda activate test
-          doit develop_install $CHANS_DEV -o build -o test
+          doit develop_install $CHANS_DEV -o build -o tests
           pip uninstall -y pyviz_comms
       - name: npm setup
         run: |
@@ -111,7 +111,7 @@ jobs:
         run: |
           eval "$(conda shell.bash hook)"
           conda activate test-environment
-          doit develop_install $CHANS_DEV -o build -o test
+          doit develop_install $CHANS_DEV -o build -o tests
           pip uninstall -y pyviz_comms
           doit pip_on_conda
       - name: npm setup
