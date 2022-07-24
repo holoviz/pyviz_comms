@@ -50,7 +50,9 @@ class extension(param.ParameterizedFunction):
         try:
             exec_count = get_ipython().execution_count
             cls._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
-            cls._last_execution_count = exec_count
+            # Update the last count on this base class only so that every new instance
+            # creation obtains the updated count.
+            extension._last_execution_count = exec_count
         except Exception:
             pass
         return param.ParameterizedFunction.__new__(cls, *args, **kwargs)
