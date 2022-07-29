@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -42,8 +42,11 @@ jobs:
       run: |
         jlpm
         jlpm run eslint:check
-        python -m pip install . --no-build-isolation
+        python -m pip install .[tests] --no-build-isolation
     - name: Check extension
       run: |
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"
         python -m jupyterlab.browser_check
+    - name: Run tests
+      run: |
+        python -m pytest pyviz_comms

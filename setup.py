@@ -64,7 +64,7 @@ except:
     cmdclass = {}
 
 extras_require = {
-    'tests': ['flake8', 'nose'], # nose required due to pip_on_conda
+    'tests': ['flake8', 'pytest'],
     'build': [
         'setuptools>=40.8.0,<61',
         'jupyterlab ~=3.0',
@@ -85,6 +85,7 @@ install_requires = ['param']
 setup_args = dict(
     name=name,
     version=version,
+    python_requires=">=3.6",
     install_requires=install_requires,
     extras_require=extras_require,
     tests_require=extras_require['tests'],
@@ -95,7 +96,7 @@ setup_args = dict(
     author="Philipp Rudiger",
     author_email= "philipp.jfr@gmail.com",
     maintainer= "HoloViz",
-    maintainer_email= "developers@pyviz.org",
+    maintainer_email= "developers@holoviz.org",
     platforms=['Windows', 'Mac OS X', 'Linux'],
     license='BSD',
     url='https://holoviz.org',
@@ -104,9 +105,11 @@ setup_args = dict(
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
