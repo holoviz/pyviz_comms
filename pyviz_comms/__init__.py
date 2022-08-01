@@ -24,6 +24,12 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
+# Required only to monkeypatch get_ipython in the test suite
+try:
+  get_ipython()
+except NameError:
+  get_ipython = None
+
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(comm_path, 'notebook.js')) as f:
@@ -49,7 +55,7 @@ class extension(param.ParameterizedFunction):
     def __new__(cls, *args, **kwargs):
         try:
             exec_count = get_ipython().execution_count
-            cls._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
+            extension._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
             # Update the last count on this base class only so that every new instance
             # creation obtains the updated count.
             extension._last_execution_count = exec_count
