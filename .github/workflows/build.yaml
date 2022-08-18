@@ -18,8 +18,7 @@ on:
         required: true
         default: dryrun
   schedule:
-    # Every first sunday of the month at 9am
-    - cron: '0 9 1-7 * SUN'
+    - cron: '0 7 * * SUN'
 
 jobs:
   conda_build:
