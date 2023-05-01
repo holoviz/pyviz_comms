@@ -66,7 +66,7 @@ except:
 extras_require = {
     'tests': ['flake8', 'pytest'],
     'build': [
-        'setuptools>=40.8.0,<61',
+        'setuptools>=40.8.0',
         'jupyterlab ~=3.0',
         'jupyter-packaging ~=0.7.9',
         'twine',
