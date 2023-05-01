@@ -8,6 +8,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from setuptools import find_packages
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # The name of the project
@@ -100,7 +102,7 @@ setup_args = dict(
     platforms=['Windows', 'Mac OS X', 'Linux'],
     license='BSD',
     url='https://holoviz.org',
-    packages = ["pyviz_comms"],
+    packages = find_packages(),
     include_package_data=True,
     classifiers = [
         "License :: OSI Approved :: BSD License",
