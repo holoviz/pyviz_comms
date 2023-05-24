@@ -18,14 +18,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Install node
       uses: actions/setup-node@v3
       with:
-       node-version: 14
+       node-version: 16
     - name: Install Python
       uses: actions/setup-python@v4
       with:
@@ -37,7 +37,7 @@ jobs:
         python -m pip install "jupyterlab~=3.0" "jupyter_packaging~=0.7.9" "wheel"
     - name: Add peer dependency
       run: |
-        npm install @jupyter-widgets/jupyterlab-manager
+        npm install --legacy-peer-deps @jupyter-widgets/jupyterlab-manager 
     - name: Build the extension
       run: |
         jlpm

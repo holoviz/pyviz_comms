@@ -8,6 +8,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from setuptools import find_packages
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # The name of the project
@@ -66,7 +68,7 @@ except:
 extras_require = {
     'tests': ['flake8', 'pytest'],
     'build': [
-        'setuptools>=40.8.0,<61',
+        'setuptools>=40.8.0',
         'jupyterlab ~=3.0',
         'jupyter-packaging ~=0.7.9',
         'twine',
@@ -85,7 +87,7 @@ install_requires = ['param']
 setup_args = dict(
     name=name,
     version=version,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=install_requires,
     extras_require=extras_require,
     tests_require=extras_require['tests'],
@@ -100,16 +102,16 @@ setup_args = dict(
     platforms=['Windows', 'Mac OS X', 'Linux'],
     license='BSD',
     url='https://holoviz.org',
-    packages = ["pyviz_comms"],
+    packages = find_packages(),
     include_package_data=True,
     classifiers = [
         "License :: OSI Approved :: BSD License",
         "Development Status :: 5 - Production/Stable",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
