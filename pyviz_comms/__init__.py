@@ -452,10 +452,10 @@ class JupyterCommJS(JupyterComm):
 
     @classmethod
     def decode(cls, msg):
-        msg = dict(msg['content']['data'])
+        decoded = dict(msg['content']['data'])
         if 'buffers' in msg:
-            msg['_buffers'] = {i: v for i, v in enumerate(msg['buffers'])}
-        return msg
+            decoded['_buffers'] = {i: v for i, v in enumerate(msg['buffers'])}
+        return decoded
 
     def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
         """
