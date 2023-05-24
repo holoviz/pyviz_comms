@@ -58,9 +58,6 @@ jobs:
           conda activate test
           doit develop_install $CHANS_DEV -o build -o tests
           pip uninstall -y pyviz_comms
-      - name: npm setup
-        run: |
-          npm install --legacy-peer-deps @jupyter-widgets/jupyterlab-manager 
       - name: build extension
         run: |
           conda activate test
@@ -115,9 +112,6 @@ jobs:
           doit develop_install $CHANS_DEV -o build -o tests
           pip uninstall -y pyviz_comms
           doit pip_on_conda
-      - name: npm setup
-        run: |
-          npm install --legacy-peer-deps @jupyter-widgets/jupyterlab-manager 
       - name: build extension
         run: |
           conda activate test-environment

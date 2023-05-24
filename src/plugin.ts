@@ -16,15 +16,17 @@ import {
   ToolbarButton
 } from '@jupyterlab/apputils';
 
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
-
 import { PageConfig } from '@jupyterlab/coreutils';
+
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 import { DocumentRegistry } from '@jupyterlab/docregistry';
 
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+
 import { IMainMenu } from '@jupyterlab/mainmenu';
 
-import { IDocumentManager } from '@jupyterlab/docmanager';
+import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 
 import { CommandRegistry } from '@lumino/commands';
 
@@ -167,7 +169,11 @@ export class NBWidgetExtension implements INBWidgetExtension {
       {
         safe: false,
         mimeTypes: [HV_LOAD_MIME_TYPE],
-        createRenderer: (options: any) => new HVJSLoad(options, manager)
+        createRenderer: (
+          options: IRenderMime.IRendererOptions
+        ): IRenderMime.IRenderer => {
+          return new HVJSLoad(options, manager);
+        }
       },
       -1
     );
@@ -176,7 +182,11 @@ export class NBWidgetExtension implements INBWidgetExtension {
       {
         safe: false,
         mimeTypes: [HV_EXEC_MIME_TYPE],
-        createRenderer: (options: any) => new HVJSExec(options, manager)
+        createRenderer: (
+          options: IRenderMime.IRendererOptions
+        ): IRenderMime.IRenderer => {
+          return new HVJSExec(options, manager);
+        }
       },
       -1
     );
