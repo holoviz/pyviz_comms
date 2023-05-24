@@ -36,6 +36,7 @@ export declare interface IKernelProxy {
 
 export declare interface IWidgetManagerProxy {
   create_view(model: any): any;
+  display_view(view: any, el: any): any;
   set_state(state: any): Promise<any[]>;
 }
 
@@ -108,7 +109,10 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     const create_view = (model: any, options?: any): any => {
       return this._manager._wManager.create_view(model, options);
     };
-    const widget_manager: IWidgetManagerProxy = { create_view, set_state };
+    const display_view = (view: any, el: any): any => {
+      return this._manager._wManager.display_view(view, el);
+    };
+    const widget_manager: IWidgetManagerProxy = { create_view, set_state, display_view };
     (window as any).PyViz.widget_manager = widget_manager;
 
     const manager = this._manager;

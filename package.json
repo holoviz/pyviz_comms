@@ -1,6 +1,6 @@
 {
   "name": "@pyviz/jupyterlab_pyviz",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "A JupyterLab extension for rendering HoloViz content.",
   "keywords": [
     "jupyter",
@@ -59,18 +59,20 @@
     "react-dom": "^17.0.1"
   },
   "peerDependencies": {
-    "@jupyter-widgets/jupyterlab-manager": "^3.0.0"
+    "@jupyter-widgets/base": "^2 || ^3 || ^4 || ^5 || ^6",
+    "@jupyter-widgets/jupyterlab-manager": "^5.0.4"
   },
   "devDependencies": {
-    "@jupyter-widgets/jupyterlab-manager": "^3.0.0",
+    "@jupyter-widgets/base": "^2 || ^3 || ^4 || ^5 || ^6",
+    "@jupyter-widgets/jupyterlab-manager": "^5.0.4",
     "@jupyterlab/builder": "^3.0.0",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/node": "^14.14.16",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "eslint": "^7.5.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "eslint": "^6.0.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
     "npm-run-all": "^4.1.5",
@@ -89,6 +91,10 @@
     "schemaDir": "schema",
     "sharedPackages": {
       "@jupyter-widgets/jupyterlab-manager": {
+        "bundled": false,
+        "singleton": true
+      },
+      "@jupyter-widgets/base": {
         "bundled": false,
         "singleton": true
       }
