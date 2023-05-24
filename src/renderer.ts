@@ -112,7 +112,11 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     const display_view = (view: any, el: any): any => {
       return this._manager._wManager.display_view(view, el);
     };
-    const widget_manager: IWidgetManagerProxy = { create_view, set_state, display_view };
+    const widget_manager: IWidgetManagerProxy = {
+      create_view,
+      set_state,
+      display_view
+    };
     (window as any).PyViz.widget_manager = widget_manager;
 
     const manager = this._manager;
