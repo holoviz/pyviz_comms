@@ -295,24 +295,20 @@ class Comm(param.Parameterized):
         self._comm = None
         super(Comm, self).__init__(id = id if id else uuid.uuid4().hex)
 
-
     def init(self, on_msg=None):
         """
         Initializes comms channel.
         """
-
 
     def close(self):
         """
         Closes the comm connection
         """
 
-
     def send(self, data=None, metadata=None, buffers=[]):
         """
         Sends data to the frontend
         """
-
 
     @classmethod
     def decode(cls, msg):
@@ -321,13 +317,11 @@ class Comm(param.Parameterized):
         """
         return msg
 
-
     @property
     def comm(self):
         if not self._comm:
             raise ValueError('Comm has not been initialized')
         return self._comm
-
 
     def _handle_msg(self, msg):
         """
@@ -413,7 +407,6 @@ class JupyterComm(Comm):
         if self._on_open:
             self._on_open({})
 
-
     @classmethod
     def decode(cls, msg):
         """
@@ -422,14 +415,12 @@ class JupyterComm(Comm):
         """
         return msg['content']['data']
 
-
     def close(self):
         """
         Closes the comm connection
         """
         if self._comm:
             self._comm.close()
-
 
     def send(self, data=None, metadata=None, buffers=[]):
         """
@@ -438,7 +429,6 @@ class JupyterComm(Comm):
         if not self._comm:
             self.init()
         self.comm.send(data, metadata=metadata, buffers=buffers)
-
 
 
 class JupyterCommJS(JupyterComm):
@@ -459,6 +449,13 @@ class JupyterCommJS(JupyterComm):
       comm.on_msg(msg_handler);
     </script>
     """
+
+    @classmethod
+    def decode(cls, msg):
+        msg = dict(msg['content']['data'])
+        if 'buffers' in msg:
+            msg['_buffers'] = {i: v for i, v in enumerate(msg['buffers'])}
+        return msg
 
     def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
         """
