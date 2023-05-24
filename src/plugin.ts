@@ -169,7 +169,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
       {
         safe: false,
         mimeTypes: [HV_LOAD_MIME_TYPE],
-        createRenderer: (options: IRenderMime.IRendererOptions) => {
+        createRenderer: (options: IRenderMime.IRendererOptions): IRenderer => {
           new HVJSLoad(options, manager)
         }
       },
@@ -180,7 +180,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
       {
         safe: false,
         mimeTypes: [HV_EXEC_MIME_TYPE],
-        createRenderer: (options: IRenderMime.IRendererOptions) => {
+        createRenderer: (options: IRenderMime.IRendererOptions): IRenderer => {
           new HVJSExec(options, manager)
         }
       },
