@@ -21,6 +21,8 @@ import * as React from 'react';
 
 import { panelIcon } from './icons';
 
+import panelSvgStr from '../style/panel.svg';
+
 /**
  * A class that tracks Panel Preview widgets.
  */
@@ -33,11 +35,90 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
   '@pyviz/jupyterlab_pyviz:IPanelPreviewTracker'
 );
 
+export interface IOptions extends IFrame.IOptions {
+  srcdoc? : string
+}
+
+export class CustomIFrame extends IFrame {
+  constructor(options: IOptions = {}) {
+    super(options)
+    this.srcdoc = options.srcdoc || null;
+  }
+
+  get srcdoc() {
+    return this._srcdoc;
+  }
+
+  set srcdoc(value: string) {
+    this._srcdoc = value;
+    const iframe = this.node.querySelector('iframe')!;
+    if (value != null) { 
+      iframe.setAttribute('srcdoc', value);
+      iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
+    }
+  }
+
+  private _srcdoc: string;
+}
+
+
+const CUSTOM_LOADER = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jupyter Kernel Starting</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #f7f7f7;
+      font-family: Arial, sans-serif;
+    }
+
+    .loading-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .loading-indicator {
+      width: 100px;
+      height: 100px;
+      border: 8px solid rgb(48, 112, 146);
+      border-top-color: #666;
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  ${panelSvgStr}
+  <h1>Panel Preview Launching...</h1>
+  <div class="loading-container">
+    <div class="loading-indicator"></div>
+  </div>
+</body>
+</html>
+`;
+
 /**
  * A DocumentWidget that shows a Panel preview in an IFrame.
  */
 export class PanelPreview extends DocumentWidget<
-  IFrame,
+  CustomIFrame,
   DocumentRegistry.ICodeModel
 > {
   /**
@@ -47,7 +128,8 @@ export class PanelPreview extends DocumentWidget<
   constructor(options: PanelPreview.IOptions) {
     super({
       ...options,
-      content: new IFrame({
+      content: new CustomIFrame({
+	srcdoc: CUSTOM_LOADER,
         sandbox: ['allow-same-origin', 'allow-scripts', 'allow-downloads']
       })
     });
@@ -98,7 +180,6 @@ export class PanelPreview extends DocumentWidget<
     const renderOnSaveCheckbox = ReactWidget.create(
       <label className="jp-PanelPreview-renderOnSave">
         <input
-          style={{ verticalAlign: 'middle' }}
           name="renderOnSave"
           type="checkbox"
           defaultChecked={renderOnSave}
@@ -106,7 +187,7 @@ export class PanelPreview extends DocumentWidget<
             this._renderOnSave = event.target.checked;
           }}
         />
-        Render on Save
+        <span>Render on Save</span>
       </label>
     );
 
@@ -141,7 +222,11 @@ export class PanelPreview extends DocumentWidget<
   reload(): void {
     const iframe = this.content.node.querySelector('iframe')!;
     if (iframe.contentWindow != null) {
+      iframe.parentElement.classList.add('jp-PanelPreview-loading');
       iframe.contentWindow.location.reload();
+      iframe.addEventListener('load', () => {
+	iframe.parentElement.classList.remove('jp-PanelPreview-loading');
+      });
     }
   }
 
