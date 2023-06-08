@@ -19,7 +19,7 @@
   width: 80px;
   height: 80px;
   border: 8px solid rgb(48, 112, 146);
-  border-left-color: #666;
+  border-left-color: #f3f3f3;
   border-radius: 50%;
   animation: spin 1s infinite linear;
   z-index: 9999;

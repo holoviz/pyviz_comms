@@ -75,7 +75,7 @@ const CUSTOM_LOADER = `
       flex-direction: column;
       height: 100vh;
       background-color: #f7f7f7;
-      font-family: Arial, sans-serif;
+      font-family: Futura;
     }
 
     .loading-container {
@@ -89,7 +89,7 @@ const CUSTOM_LOADER = `
       width: 100px;
       height: 100px;
       border: 8px solid rgb(48, 112, 146);
-      border-top-color: #666;
+      border-top-color: #f7f7f7;
       border-radius: 50%;
       animation: spin 1s infinite linear;
     }
