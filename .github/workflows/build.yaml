@@ -52,6 +52,8 @@ jobs:
         run: |
           conda install -c pyviz "pyctdev>=0.5"
           doit ecosystem_setup
+          # See: https://github.com/holoviz/panel/pull/4979
+          conda install -c conda-forge "urllib3<2.0.0" "conda-build==3.24"
           doit env_create --name test $CHANS_DEV --python=$PYTHON_VERSION
       - name: env setup
         run: |
