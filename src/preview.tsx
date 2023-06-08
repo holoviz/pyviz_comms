@@ -36,12 +36,12 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
 );
 
 export interface IOptions extends IFrame.IOptions {
-  srcdoc? : string
+  srcdoc?: string;
 }
 
 export class CustomIFrame extends IFrame {
   constructor(options: IOptions = {}) {
-    super(options)
+    super(options);
     this.srcdoc = options.srcdoc || null;
   }
 
@@ -52,7 +52,7 @@ export class CustomIFrame extends IFrame {
   set srcdoc(value: string) {
     this._srcdoc = value;
     const iframe = this.node.querySelector('iframe')!;
-    if (value != null) { 
+    if (value != null) {
       iframe.setAttribute('srcdoc', value);
       iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
     }
@@ -60,7 +60,6 @@ export class CustomIFrame extends IFrame {
 
   private _srcdoc: string;
 }
-
 
 const CUSTOM_LOADER = `
 <!DOCTYPE html>
@@ -129,7 +128,7 @@ export class PanelPreview extends DocumentWidget<
     super({
       ...options,
       content: new CustomIFrame({
-	srcdoc: CUSTOM_LOADER,
+        srcdoc: CUSTOM_LOADER,
         sandbox: ['allow-same-origin', 'allow-scripts', 'allow-downloads']
       })
     });
@@ -225,7 +224,7 @@ export class PanelPreview extends DocumentWidget<
       iframe.parentElement.classList.add('jp-PanelPreview-loading');
       iframe.contentWindow.location.reload();
       iframe.addEventListener('load', () => {
-	iframe.parentElement.classList.remove('jp-PanelPreview-loading');
+        iframe.parentElement.classList.remove('jp-PanelPreview-loading');
       });
     }
   }
