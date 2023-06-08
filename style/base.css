@@ -1,0 +1,35 @@
+.jp-PanelPreview-renderOnSave {
+  display: flex;
+  align-items: center;
+}
+
+.jp-PanelPreview-loading {
+  background: rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  position: relative;
+}
+
+.jp-PanelPreview-loading::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgb(48, 112, 146);
+  border-left-color: #f3f3f3;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+  z-index: 9999;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
