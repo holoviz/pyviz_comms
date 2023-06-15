@@ -87,7 +87,7 @@ const TOOLTIP_CONTENT = `
 <span>
   <b>Note:</b> Your notebook must publish Panel contents with .servable().
 <span>
-`
+`;
 
 /**
  * A notebook widget extension that adds a panel preview button to the toolbar.
