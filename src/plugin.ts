@@ -54,7 +54,7 @@ import {
 export type INBWidgetExtension = DocumentRegistry.IWidgetExtension<
   NotebookPanel,
   INotebookModel
-  >;
+>;
 
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css'; // optional for styling
@@ -107,11 +107,11 @@ class PanelRenderButton
 
     setTimeout(() => {
       requestAnimationFrame(() => {
-	tippy(button.node, {
-	  arrow: true,
-	  content: 'Preview with Panel',
-	  placement: 'bottom'
-	});
+        tippy(button.node, {
+          arrow: true,
+          content: 'Preview with Panel',
+          placement: 'bottom'
+        });
       });
     }, 0);
 
@@ -149,11 +149,11 @@ class LumenRenderButton
 
     setTimeout(() => {
       requestAnimationFrame(() => {
-	tippy(button.node, {
-	  arrow: true,
-	  content: 'Preview with Lumen',
-	  placement: 'bottom'
-	});
+        tippy(button.node, {
+          arrow: true,
+          content: 'Preview with Lumen',
+          placement: 'bottom'
+        });
       });
     }, 0);
 

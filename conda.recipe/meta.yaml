@@ -15,7 +15,7 @@ build:
 requirements:
   build:
     - jupyter-packaging
-    - jupyterlab
+    - jupyterlab <4
     - notebook
     - python
     - setuptools
