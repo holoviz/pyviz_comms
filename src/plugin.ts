@@ -54,7 +54,10 @@ import {
 export type INBWidgetExtension = DocumentRegistry.IWidgetExtension<
   NotebookPanel,
   INotebookModel
->;
+  >;
+
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css'; // optional for styling
 
 let registerWidgetManager: any = null;
 try {
@@ -96,12 +99,21 @@ class PanelRenderButton
   createNew(panel: NotebookPanel): IDisposable {
     const button = new ToolbarButton({
       className: 'panelRender',
-      tooltip: 'Render with Panel',
       icon: panelIcon,
       onClick: (): void => {
         this._commands.execute(CommandIDs.panelRender);
       }
     });
+
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+	tippy(button.node, {
+	  arrow: true,
+	  content: 'Preview with Panel',
+	  placement: 'bottom'
+	});
+      });
+    }, 0);
 
     panel.toolbar.insertAfter('cellType', 'panelRender', button);
     return button;
@@ -129,12 +141,21 @@ class LumenRenderButton
   createNew(panel: NotebookPanel): IDisposable {
     const button = new ToolbarButton({
       className: 'lumenRender',
-      tooltip: 'Render with Lumen',
       icon: panelIcon,
       onClick: () => {
         this._commands.execute(CommandIDs.lumenRender);
       }
     });
+
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+	tippy(button.node, {
+	  arrow: true,
+	  content: 'Preview with Lumen',
+	  placement: 'bottom'
+	});
+      });
+    }, 0);
 
     panel.toolbar.addItem('lumenRender', button);
     return button;
@@ -318,7 +339,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
     const { commands, docRegistry } = app;
 
     commands.addCommand(CommandIDs.panelRender, {
-      label: 'Render Notebook with Panel',
+      label: 'Preview Notebook with Panel',
       execute: async args => {
         const current = getCurrent(args);
         let context: DocumentRegistry.IContext<INotebookModel>;
