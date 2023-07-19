@@ -59,6 +59,7 @@
   },
   "resolutions": {
     "@lumino/widgets": "^1.37.2",
+    "**/@jupyterlab/services": "^6.6.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
