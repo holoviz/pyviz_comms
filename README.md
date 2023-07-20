@@ -9,12 +9,12 @@ Available for use by any [PyViz](https://pyviz.org) tool, but currently primaril
 
 There are two installable components in this repository: a Python
 component used by various HoloViz tools and an extension to enable
-Jupyterlab support. For JupyterLab 3.0 the extension is automatically
+Jupyterlab support. For JupyterLab 3.0 and above the extension is automatically
 bundled with the `pyviz_comms` Python package.
 
 ## Installing the Jupyterlab extension
 
-Jupyterlab users will need to install the Jupyterlab pyviz extension. Starting with JupyterLab 3.0 the extension will be automatically installed when installing `pyviz_comms` with `pip` using:
+Jupyterlab users will need to install the Jupyterlab pyviz extension. Starting with JupyterLab 3.0 and above the extension will be automatically installed when installing `pyviz_comms` with `pip` using:
 
 ```bash
 pip install pyviz_comms
@@ -54,6 +54,7 @@ installation may refer to the below table.
 | 1.0.x         | 0.8.0            |
 | 2.0.x         | 0.9.0-1.0.3      |
 | 3.x           | 2.0              |
+| 4.x           | 3.0              |
 
 ## Developing the Jupyterlab extension
 
