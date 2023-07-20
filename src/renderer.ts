@@ -80,11 +80,11 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
   private _js_mimetype: string = JS_MIME_TYPE;
   // the metadata is stored here
   private _dispose: boolean;
-  private _document_id: string;
-  private _server_id: string;
+  private _document_id: string | null;
+  private _server_id: string | null;
   private _exec_mimetype: string = HV_EXEC_MIME_TYPE;
-  private _script_element: HTMLScriptElement;
-  private _div_element: HTMLDivElement;
+  private _script_element!: HTMLScriptElement;
+  private _div_element!: HTMLDivElement;
   private _manager: ContextManager;
   private _displayed: boolean;
 
@@ -94,6 +94,8 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     this._manager = manager;
     this._displayed = false;
     this._dispose = true;
+    this._document_id = null;
+    this._server_id = null;
   }
 
   _createNodes(): void {
@@ -234,7 +236,7 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
         }
         attrs.forEach(attr => newScript.setAttribute(attr.name, attr.value));
         newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode.replaceChild(newScript, oldScript);
+        oldScript.parentNode?.replaceChild(newScript, oldScript);
       });
       this.node.appendChild(this._div_element);
 
@@ -324,6 +326,5 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     }
     super.dispose();
     this._disposePlot();
-    this._manager = null;
   }
 }

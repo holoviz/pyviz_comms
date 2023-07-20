@@ -175,7 +175,7 @@ class LumenRenderButton
 }
 
 export class NBWidgetExtension implements INBWidgetExtension {
-  _docmanager: IDocumentManager;
+  _docmanager!: IDocumentManager;
 
   createNew(
     nb: NotebookPanel,
