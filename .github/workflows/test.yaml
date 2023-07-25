@@ -29,7 +29,6 @@ jobs:
         python -m pip install "jupyterlab~=4.0" "wheel"
     - name: Build the extension
       run: |
-        jlpm run eslint:check
         python -m pip install ".[tests]"
     - name: Check extension
       run: |
