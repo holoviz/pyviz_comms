@@ -29,9 +29,8 @@ jobs:
         python -m pip install "jupyterlab~=4.0" "wheel"
     - name: Build the extension
       run: |
-        jlpm
         jlpm run eslint:check
-        python -m pip install .[tests] --no-build-isolation
+        python -m pip install ".[tests]"
     - name: Check extension
       run: |
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_pyviz.*OK"

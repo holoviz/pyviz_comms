@@ -64,7 +64,7 @@ exclude = [".github", "binder"]
 path = "pyviz_comms/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
-dependencies = ["hatch-jupyter-builder>=0.5"]
+dependencies = ["hatch-jupyter-builder>=0.8.2"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "pyviz_comms/labextension/static/style.js",
@@ -89,9 +89,10 @@ version_cmd = "hatch version"
 before-build-npm = [
     "python -m pip install 'jupyterlab>=4.0.0,<5'",
     "jlpm",
+    "jlpm:clean"
     "jlpm build:prod"
 ]
 before-build-python = ["jlpm clean:all"]
 
 [tool.check-wheel-contents]
-ignore = ["W002"]
+ignore = ["W002", "W004"]
