@@ -143,9 +143,9 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
           targetName
         );
         return {
-          open: function(): void {},
-          send: function(): void {},
-          onMsg: function(): void {}
+          open: function (): void {},
+          send: function (): void {},
+          onMsg: function (): void {}
         };
       }
       const comm: Kernel.IComm = kernel.createComm(targetName, commId);

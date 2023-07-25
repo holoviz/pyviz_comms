@@ -42,9 +42,10 @@ export class ContextManager implements IDisposable {
       this._comm === null &&
       this._context?.sessionContext.session?.kernel !== null
     ) {
-      this._comm = this._context?.sessionContext.session?.kernel.createComm(
-        'hv-extension-comm'
-      );
+      this._comm =
+        this._context?.sessionContext.session?.kernel.createComm(
+          'hv-extension-comm'
+        );
       if (this._comm != null) {
         this._comm.open();
       }

@@ -1,12 +1,12 @@
-const fs = require("fs")
-const path = require("path")
+const fs = require('fs');
+const path = require('path');
 
-const {name, version} = require("./package.json")
+const { name, version } = require('./package.json');
 
-const metadata = JSON.stringify({name, version})
-fs.writeFileSync("./lib/metadata.js", `Object.assign(exports, ${metadata})`)
+const metadata = JSON.stringify({ name, version });
+fs.writeFileSync('./lib/metadata.js', `Object.assign(exports, ${metadata})`);
 
-const externals = [/^@jupyterlab\/.+$/, /^@jupyter-widgets\/.+$/]
+const externals = [/^@jupyterlab\/.+$/, /^@jupyter-widgets\/.+$/];
 
 module.exports = [
   /**
@@ -20,16 +20,16 @@ module.exports = [
    * the custom widget embedder.
    */
   {
-    entry: "./lib/index.js",
+    entry: './lib/index.js',
     output: {
-      filename: "index.js",
-      path: path.resolve(__dirname, "dist"),
-      libraryTarget: "amd",
+      filename: 'index.js',
+      path: path.resolve(__dirname, 'dist'),
+      libraryTarget: 'amd',
       library: name,
-      publicPath: `https://unpkg.com/${name}@${version}/dist/`,
+      publicPath: `https://unpkg.com/${name}@${version}/dist/`
     },
     externals,
-    devtool: "source-map",
-    performance: {hints: false},
-  },
-]
+    devtool: 'source-map',
+    performance: { hints: false }
+  }
+];
