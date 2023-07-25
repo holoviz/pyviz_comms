@@ -190,7 +190,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
 
     // Hack to get access to the widget manager
     const renderer: any = { manager: null };
-    if (registerWidgetManager != null) {
+    if (registerWidgetManager !== null) {
       registerWidgetManager(doc_context as any, nb.content.rendermime, [
         renderer
       ] as any);
@@ -288,7 +288,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
 
     function isEnabled(): boolean {
       const widget: any = app.shell.currentWidget;
-      if (widget == null || widget.context == undefined) {
+      if (widget === null || widget.context === undefined) {
         return false;
       }
       return (
