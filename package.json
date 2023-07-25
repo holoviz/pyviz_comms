@@ -28,6 +28,11 @@
     "type": "git",
     "url": "https://github.com/holoviz/pyviz_comms.git"
   },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:labextension": "jupyter labextension build .",
