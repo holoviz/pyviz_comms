@@ -57,6 +57,9 @@ fields = ["description", "authors", "urls"]
 artifacts = ["pyviz_comms/labextension"]
 exclude = [".github", "binder"]
 
+[tool.hatch.build.targets.wheel]
+artifacts = ["pyviz_comms/labextension"]
+
 [tool.hatch.build.targets.wheel.shared-data]
 "pyviz_comms/labextension" = "share/jupyter/labextensions/@pyviz/jupyterlab_pyviz"
 "install.json" = "share/jupyter/labextensions/@pyviz/jupyterlab_pyviz/install.json"
