@@ -1,5 +1,0 @@
-{
-  "packageManager": "python",
-  "packageName": "pyviz_comms",
-  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package pyviz_comms."
-}

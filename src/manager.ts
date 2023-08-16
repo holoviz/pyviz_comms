@@ -9,8 +9,8 @@ import { Kernel } from '@jupyterlab/services';
  */
 export class ContextManager implements IDisposable {
   _wManager: any;
-  private _context: DocumentRegistry.IContext<DocumentRegistry.IModel>;
-  private _comm: Kernel.IComm | null;
+  private _context: DocumentRegistry.IContext<DocumentRegistry.IModel> | null;
+  private _comm: Kernel.IComm | undefined;
 
   constructor(
     context: DocumentRegistry.IContext<DocumentRegistry.IModel>,
@@ -19,11 +19,11 @@ export class ContextManager implements IDisposable {
     this._context = context;
     this._wManager = manager;
 
-    this._comm = null;
+    this._comm = undefined;
     context.sessionContext.statusChanged.connect(
       (session: any, status: any) => {
         if (status === 'restarting' || status === 'dead') {
-          this._comm = null;
+          this._comm = undefined;
         }
       },
       this
@@ -35,17 +35,18 @@ export class ContextManager implements IDisposable {
   }
 
   get comm(): any {
-    if (this._context.sessionContext == null) {
+    if (this._context?.sessionContext === null) {
       return null;
     }
     if (
       this._comm === null &&
-      this._context.sessionContext.session?.kernel !== null
+      this._context?.sessionContext.session?.kernel !== null
     ) {
-      this._comm = this._context.sessionContext.session?.kernel.createComm(
-        'hv-extension-comm'
-      );
-      if (this._comm != null) {
+      this._comm =
+        this._context?.sessionContext.session?.kernel.createComm(
+          'hv-extension-comm'
+        );
+      if (this._comm) {
         this._comm.open();
       }
     }
@@ -65,6 +66,6 @@ export class ContextManager implements IDisposable {
       return;
     }
     this._context = null;
-    this._comm = null;
+    this._comm = undefined;
   }
 }

@@ -36,7 +36,7 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
 );
 
 export interface IOptions extends IFrame.IOptions {
-  srcdoc?: string;
+  srcdoc?: string | null;
 }
 
 export class CustomIFrame extends IFrame {
@@ -49,16 +49,16 @@ export class CustomIFrame extends IFrame {
     return this._srcdoc;
   }
 
-  set srcdoc(value: string) {
+  set srcdoc(value: string | null) {
     this._srcdoc = value;
     const iframe = this.node.querySelector('iframe')!;
-    if (value != null) {
+    if (value !== null) {
       iframe.setAttribute('srcdoc', value);
       iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
     }
   }
 
-  private _srcdoc: string;
+  private _srcdoc!: string | null;
 }
 
 const CUSTOM_LOADER = `
@@ -136,19 +136,19 @@ export class PanelPreview extends DocumentWidget<
     window.onmessage = (event: any): void => {
       switch (event.data?.level) {
         case 'debug':
-          console.debug(...event.data?.msg);
+          console.debug(...(event.data?.msg || event));
           break;
 
         case 'info':
-          console.info(...event.data?.msg);
+          console.info(...(event.data?.msg || event));
           break;
 
         case 'warn':
-          console.warn(...event.data?.msg);
+          console.warn(...(event.data?.msg || event));
           break;
 
         case 'error':
-          console.error(...event.data?.msg);
+          console.error(...(event.data?.msg || event));
           break;
 
         default:
@@ -220,11 +220,11 @@ export class PanelPreview extends DocumentWidget<
    */
   reload(): void {
     const iframe = this.content.node.querySelector('iframe')!;
-    if (iframe.contentWindow != null) {
-      iframe.parentElement.classList.add('jp-PanelPreview-loading');
+    if (iframe.contentWindow !== null) {
+      iframe.parentElement?.classList.add('jp-PanelPreview-loading');
       iframe.contentWindow.location.reload();
       iframe.addEventListener('load', () => {
-        iframe.parentElement.classList.remove('jp-PanelPreview-loading');
+        iframe.parentElement?.classList.remove('jp-PanelPreview-loading');
       });
     }
   }

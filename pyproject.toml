@@ -1,7 +1,99 @@
 [build-system]
-requires = [
-    "param",
-	"setuptools>=40.8.0",
-	"wheel"
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyviz_comms"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries"
 ]
-build-backend = "setuptools.build_meta"
+maintainers = [
+    { name="HoloViz", email="developers@holoviz.org" }
+]
+dependencies = [
+    "param"
+]
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+[project.optional-dependencies]
+tests = ['flake8', 'pytest']
+build = [
+    'setuptools>=40.8.0',
+    'jupyterlab ~=4.0',
+    'twine',
+    'rfc3986',
+    'keyring'
+]
+all = ["pyviz_comms[tests]", "pyviz_comms[build]"]
+
+[tool.hatch.version]
+source = "nodejs"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["pyviz_comms/labextension"]
+exclude = [".github", "binder"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"pyviz_comms/labextension" = "share/jupyter/labextensions/@pyviz/jupyterlab_pyviz"
+"install.json" = "share/jupyter/labextensions/@pyviz/jupyterlab_pyviz/install.json"
+
+[tool.hatch.build.hooks.version]
+path = "pyviz_comms/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.8.2"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "pyviz_comms/labextension/static/style.js",
+    "pyviz_comms/labextension/package.json",
+]
+skip-if-exists = ["pyviz_comms/labextension/static/style.js"]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "pyviz_comms/labextension"
+
+[tool.jupyter-releaser.options]
+version_cmd = "hatch version"
+
+[tool.jupyter-releaser.hooks]
+before-build-npm = [
+    "python -m pip install 'jupyterlab>=4.0.0,<5'",
+    "jlpm",
+    "jlpm clean",
+    "jlpm build:prod"
+]
+before-build-python = ["jlpm clean:all"]
+
+[tool.check-wheel-contents]
+ignore = ["W002", "W004"]

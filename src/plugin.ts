@@ -93,7 +93,8 @@ const TOOLTIP_CONTENT = `
  * A notebook widget extension that adds a panel preview button to the toolbar.
  */
 class PanelRenderButton
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
+{
   /**
    * Instantiate a new PanelRenderButton.
    * @param commands The command registry.
@@ -136,7 +137,8 @@ class PanelRenderButton
  * A notebook widget extension that adds a panel preview button to the toolbar.
  */
 class LumenRenderButton
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
+{
   /**
    * Instantiate a new PanelRenderButton.
    * @param commands The command registry.
@@ -175,7 +177,7 @@ class LumenRenderButton
 }
 
 export class NBWidgetExtension implements INBWidgetExtension {
-  _docmanager: IDocumentManager;
+  _docmanager!: IDocumentManager;
 
   createNew(
     nb: NotebookPanel,
@@ -188,7 +190,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
 
     // Hack to get access to the widget manager
     const renderer: any = { manager: null };
-    if (registerWidgetManager != null) {
+    if (registerWidgetManager !== null) {
       registerWidgetManager(doc_context as any, nb.content.rendermime, [
         renderer
       ] as any);
@@ -286,7 +288,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
 
     function isEnabled(): boolean {
       const widget: any = app.shell.currentWidget;
-      if (widget == null || widget.context == undefined) {
+      if (widget === null || widget.context === undefined) {
         return false;
       }
       return (
