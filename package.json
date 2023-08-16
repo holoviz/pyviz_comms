@@ -1,6 +1,6 @@
 {
     "name": "@pyviz/jupyterlab_pyviz",
-    "version": "3.0.0-a1",
+    "version": "3.0.0-a2",
     "description": "A JupyterLab extension for rendering HoloViz content.",
     "keywords": [
         "jupyter",
