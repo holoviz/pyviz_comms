@@ -294,7 +294,7 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
       this._server_id = null;
     } else if (this._document_id) {
       const id = this._document_id;
-      if (this._manager.comm !== null && this._dispose) {
+      if (this._manager.comm != null && this._dispose) {
         this._manager.comm.send({ event_type: 'delete', id: id });
       }
       if ((window as any).PyViz !== undefined) {
@@ -324,7 +324,7 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     if (this.isDisposed) {
       return;
     }
-    super.dispose();
     this._disposePlot();
+    super.dispose();
   }
 }
