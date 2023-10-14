@@ -13,24 +13,29 @@ build:
   script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
-  build:
-    - jupyter-packaging
-    - jupyterlab <4
-    - notebook
-    - python
-    - setuptools
+  host:
+    - python >=3.6
     - param
+    - pip
+    - jupyter-packaging >=0.7.9,<0.8
+    - jupyterlab >=4.0,<5
+    - notebook
+    - hatchling
+    - hatch-nodejs-version
+    - hatch-jupyter-builder
   run:
-    - python
+    - python >=3.6
     - param
   run_constrained:
-    - jupyterlab >=3.0.0,<4
+    - jupyterlab >=4.0,<5
 
 test:
   imports:
     - pyviz_comms
 
 about:
-  home: www.pyviz.org
+  home: https://www.holoviz.org
   summary: Bidirectional communication for PyViz
-  license: BSD 3-Clause
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.txt
