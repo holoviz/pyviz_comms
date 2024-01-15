@@ -44,7 +44,7 @@ export class ContextManager implements IDisposable {
         this._app.serviceManager.serverSettings
       );
       if (response.status !== 200) {
-	return;
+        return;
       }
       const layout = await response.json();
       let changed = false;
