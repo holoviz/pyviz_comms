@@ -34,16 +34,18 @@ export class ContextManager implements IDisposable {
 
     this._comm = undefined;
     context.saveState.connect(async (context: any, status: string) => {
-      if (status != 'started') {
+      if (status !== 'started') {
         return;
       }
       const layout_path = URLExt.join(API_LAYOUT, context.path);
-      let response = await fetch(
+      const response = await fetch(
         layout_path,
         { method: 'GET' },
         this._app.serviceManager.serverSettings
       );
-      if (response.status !== 200) return;
+      if (response.status !== 200) {
+	return;
+      }
       const layout = await response.json();
       let changed = false;
       for (const cell of context.model.cells) {
