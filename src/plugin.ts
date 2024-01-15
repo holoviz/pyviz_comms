@@ -181,7 +181,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
   _app: JupyterFrontEnd;
 
   constructor(app: JupyterFrontEnd) {
-    this._app = app
+    this._app = app;
   }
 
   createNew(

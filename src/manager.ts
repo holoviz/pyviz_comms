@@ -1,10 +1,7 @@
 import { IDisposable } from '@lumino/disposable';
 import { JSONExt } from '@lumino/coreutils';
 
-import {
-  URLExt,
-  PageConfig,
-} from '@jupyterlab/coreutils';
+import { URLExt, PageConfig } from '@jupyterlab/coreutils';
 
 import { DocumentRegistry } from '@jupyterlab/docregistry';
 
@@ -36,35 +33,36 @@ export class ContextManager implements IDisposable {
     this._wManager = manager;
 
     this._comm = undefined;
-    context.saveState.connect(
-      async (context: any, status: string) => {
-	if (status != 'started') {
-	  return
-	}
-	const layout_path = URLExt.join(API_LAYOUT, context.path)
-	let response = await fetch(layout_path, {method: 'GET'}, this._app.serviceManager.serverSettings)
-	if (response.status !== 200)
-	  return
-	const layout = await response.json()
-	let changed = false;
-	for (const cell of context.model.cells) {
-	  const cell_layout = layout.cells[cell.id]
-	  const cell_meta = cell.getMetadata()
-	  if (!JSONExt.deepEqual(cell_meta['panel-layout'], cell_layout)) {
-	    cell.setMetadata('panel-layout', cell_layout)
-	    changed = true
-	  }
-	}
-	const nb_meta = context.model.getMetadata()
-	if (!JSONExt.deepEqual(nb_meta['panel-cell-order'], layout.order)) {
-	  context.model.setMetadata('panel-cell-order', layout.order)
-	  changed = true
-	}
-	if (changed) {
-	  context.save()
-	}
+    context.saveState.connect(async (context: any, status: string) => {
+      if (status != 'started') {
+        return;
       }
-    )
+      const layout_path = URLExt.join(API_LAYOUT, context.path);
+      let response = await fetch(
+        layout_path,
+        { method: 'GET' },
+        this._app.serviceManager.serverSettings
+      );
+      if (response.status !== 200) return;
+      const layout = await response.json();
+      let changed = false;
+      for (const cell of context.model.cells) {
+        const cell_layout = layout.cells[cell.id];
+        const cell_meta = cell.getMetadata();
+        if (!JSONExt.deepEqual(cell_meta['panel-layout'], cell_layout)) {
+          cell.setMetadata('panel-layout', cell_layout);
+          changed = true;
+        }
+      }
+      const nb_meta = context.model.getMetadata();
+      if (!JSONExt.deepEqual(nb_meta['panel-cell-order'], layout.order)) {
+        context.model.setMetadata('panel-cell-order', layout.order);
+        changed = true;
+      }
+      if (changed) {
+        context.save();
+      }
+    });
     context.sessionContext.statusChanged.connect(
       (session: any, status: string) => {
         if (status === 'restarting' || status === 'dead') {
