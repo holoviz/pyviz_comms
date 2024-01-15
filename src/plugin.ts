@@ -178,6 +178,11 @@ class LumenRenderButton
 
 export class NBWidgetExtension implements INBWidgetExtension {
   _docmanager!: IDocumentManager;
+  _app: JupyterFrontEnd;
+
+  constructor(app: JupyterFrontEnd) {
+    this._app = app;
+  }
 
   createNew(
     nb: NotebookPanel,
@@ -196,7 +201,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
       ] as any);
     }
 
-    const manager = new ContextManager(context, renderer.manager);
+    const manager = new ContextManager(this._app, context, renderer.manager);
 
     nb.content.rendermime.addFactory(
       {
@@ -248,7 +253,7 @@ export const extension: JupyterFrontEndPlugin<IPanelPreviewTracker> = {
     menu: IMainMenu | null,
     settingRegistry: ISettingRegistry | null
   ) => {
-    const nb_extension = new NBWidgetExtension();
+    const nb_extension = new NBWidgetExtension(app);
     nb_extension._docmanager = docmanager;
     app.docRegistry.addWidgetExtension('Notebook', nb_extension);
 
