@@ -66,6 +66,7 @@ const CUSTOM_LOADER = `
 <html>
 <head>
   <title>Jupyter Kernel Starting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@900&display=swap" rel="stylesheet">
   <style>
     body {
       display: flex;
@@ -74,7 +75,11 @@ const CUSTOM_LOADER = `
       flex-direction: column;
       height: 100vh;
       background-color: #f7f7f7;
-      font-family: Futura;
+      font-family: "Kumbh Sans", "Segoe UI", Arial, Helvetica, sans-serif;
+    }
+
+    h1 {
+      font-weight: 900;
     }
 
     .loading-container {
