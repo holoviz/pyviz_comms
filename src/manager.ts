@@ -48,21 +48,30 @@ export class ContextManager implements IDisposable {
       }
       let layout;
       try {
-	layout = await response.json();
+        layout = await response.json();
       } catch {
-	return
+        return;
+      }
+      if (!layout) {
+        return;
       }
       let changed = false;
       for (const cell of context.model.cells) {
         const cell_layout = layout.cells[cell.id];
         const cell_meta = cell.getMetadata();
-        if ((!('panel-layout' in cell_meta) && (cell_layout != null)) || (!JSONExt.deepEqual(cell_meta['panel-layout'], cell_layout))) {
+        if (
+          (!('panel-layout' in cell_meta) && cell_layout) ||
+          !JSONExt.deepEqual(cell_meta['panel-layout'], cell_layout)
+        ) {
           cell.setMetadata('panel-layout', cell_layout);
           changed = true;
         }
       }
       const nb_meta = context.model.getMetadata();
-      if ((!('panel-cell-order' in nb_meta) && (layout.order != null)) || !JSONExt.deepEqual(nb_meta['panel-cell-order'], layout.order)) {
+      if (
+        (!('panel-cell-order' in nb_meta) && layout.order) ||
+        !JSONExt.deepEqual(nb_meta['panel-cell-order'], layout.order)
+      ) {
         context.model.setMetadata('panel-cell-order', layout.order);
         changed = true;
       }
