@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.2
+
+([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.1...ec9873fba879d232ea7072d0bead9c6f48686296))
+
+### Merged PRs
+
+- Ensure save handler gracefully handles undefined layout data [#121](https://github.com/holoviz/pyviz_comms/pull/121) ([@philippjfr](https://github.com/philippjfr))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-01-15&to=2024-03-21&type=c))
+
+[@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2024-01-15..2024-03-21&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.1
 
 ([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.0...e7ed26085532186997707a5debc4ddd6a9be6685))
@@ -16,8 +32,6 @@
 ([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2023-08-16&to=2024-01-15&type=c))
 
 [@maximlt](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Amaximlt+updated%3A2023-08-16..2024-01-15&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2023-08-16..2024-01-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0
 
