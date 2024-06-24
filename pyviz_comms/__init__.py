@@ -24,6 +24,9 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
+# Setting this so we can check the launched jupyter has pyviz_comms installed
+os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
+
 # Required only to monkeypatch get_ipython in the test suite
 try:
   get_ipython()
