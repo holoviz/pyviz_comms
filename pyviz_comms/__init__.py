@@ -25,7 +25,8 @@ def _jupyter_labextension_paths():
     }]
 
 # Setting this so we can check the launched jupyter has pyviz_comms installed
-os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
+if not sys.argv[0].endswith('ipykernel_launcher.py'):
+    os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
 
 # Required only to monkeypatch get_ipython in the test suite
 try:
@@ -614,7 +615,7 @@ class JupyterCommManager(CommManager):
             }
             return messages.next().then(processIteratorResult);
           }
-        }) 
+        })
         var sendClosure = (data, metadata, buffers, disposeOnDone) => {
           return comm_promise.then((comm) => {
             comm.send(data, metadata, buffers, disposeOnDone);
