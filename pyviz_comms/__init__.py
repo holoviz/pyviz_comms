@@ -24,15 +24,15 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
-# Setting this so we can check the launched jupyter has pyviz_comms installed
-if not sys.argv[0].endswith('ipykernel_launcher.py'):
-    os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
-
 # Required only to monkeypatch get_ipython in the test suite
 try:
   get_ipython()
 except NameError:
   get_ipython = None
+
+# Setting this so we can check the launched jupyter has pyviz_comms installed
+if not (get_ipython and sys.argv[0].endswith('ipykernel_launcher.py')):
+    os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))
