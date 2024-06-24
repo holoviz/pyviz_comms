@@ -24,7 +24,6 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
-# Required only to monkeypatch get_ipython in the test suite
 try:
   get_ipython()
 except NameError:
