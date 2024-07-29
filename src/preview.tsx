@@ -5,6 +5,10 @@ import {
   IWidgetTracker
 } from '@jupyterlab/apputils';
 
+import { PageConfig } from '@jupyterlab/coreutils';
+
+import { ServerConnection } from '@jupyterlab/services';
+
 import {
   ABCWidgetFactory,
   DocumentRegistry,
@@ -37,11 +41,13 @@ export const IPanelPreviewTracker = new Token<IPanelPreviewTracker>(
 
 export interface IOptions extends IFrame.IOptions {
   srcdoc?: string | null;
+  clearSrcDocOnLoad?: boolean;
 }
 
 export class CustomIFrame extends IFrame {
   constructor(options: IOptions = {}) {
     super(options);
+    this._clearSrcDocOnLoad = options.clearSrcDocOnLoad || false;
     this.srcdoc = options.srcdoc || null;
   }
 
@@ -54,11 +60,24 @@ export class CustomIFrame extends IFrame {
     const iframe = this.node.querySelector('iframe')!;
     if (value !== null) {
       iframe.setAttribute('srcdoc', value);
-      iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
+      if (this._clearSrcDocOnLoad) {
+        iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
+      }
     }
   }
 
+  get absoluteUrl() {
+    const iframe = this.node.querySelector('iframe')!;
+    return iframe.dataset.absoluteUrl ?? '';
+  }
+
+  set absoluteUrl(value: string) {
+    const iframe = this.node.querySelector('iframe')!;
+    iframe.dataset.absoluteUrl = value;
+  }
+
   private _srcdoc!: string | null;
+  private _clearSrcDocOnLoad: boolean;
 }
 
 const CUSTOM_LOADER = `
@@ -130,11 +149,13 @@ export class PanelPreview extends DocumentWidget<
    * @param options The PanelPreview instantiation options.
    */
   constructor(options: PanelPreview.IOptions) {
+    const isJupyterHub = PageConfig.getOption('hubPrefix') !== '';
     super({
       ...options,
       content: new CustomIFrame({
         srcdoc: CUSTOM_LOADER,
-        sandbox: ['allow-same-origin', 'allow-scripts', 'allow-downloads']
+        sandbox: ['allow-same-origin', 'allow-scripts', 'allow-downloads'],
+        clearSrcDocOnLoad: !isJupyterHub
       })
     });
 
@@ -164,13 +185,37 @@ export class PanelPreview extends DocumentWidget<
 
     const { getPanelUrl, context, renderOnSave } = options;
 
-    this.content.url = getPanelUrl(context.path);
+    const settings = ServerConnection.makeSettings();
+
+    const populateIframe = async (path: string) => {
+      const panelUrl = getPanelUrl(path);
+      if (isJupyterHub && panelUrl.startsWith(settings.baseUrl)) {
+        // if running on JupyterHub and the panel preview is served
+        // from the same domain as JupyterHub, the CSP will forbid
+        // embedding the page handled by JupyterHub in the iframe,
+        // thus we need to set the content via the `srcdoc` attribute.
+        const response = await ServerConnection.makeRequest(
+          panelUrl,
+          {},
+          settings
+        );
+        this.content.srcdoc = await response.text();
+        // Bokeh needs to know the absolute URL to determine the appropriate
+        // protocol and URL for the websocket; this is set as a data attribute.
+        this.content.absoluteUrl = panelUrl;
+      } else {
+        // this won't work in JupyterHub 4.1+ without relaxing CSP
+        this.content.url = panelUrl;
+      }
+    };
+
+    void populateIframe(context.path);
     this.content.title.icon = panelIcon;
 
     this._renderOnSave = renderOnSave ?? false;
 
-    context.pathChanged.connect(() => {
-      this.content.url = getPanelUrl(context.path);
+    context.pathChanged.connect(async () => {
+      await populateIframe(context.path);
     });
 
     const reloadButton = new ToolbarButton({
