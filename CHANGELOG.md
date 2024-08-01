@@ -2,6 +2,23 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.3
+
+([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.2...0149ff082df9cf0f600cf14563c45f83c1894366))
+
+### Merged PRs
+
+- Reformat `package.json` to 2-space indent [#128](https://github.com/holoviz/pyviz_comms/pull/128) ([@krassowski](https://github.com/krassowski))
+- Fix panel preview rendering on JupyterHub 4.1+ [#125](https://github.com/holoviz/pyviz_comms/pull/125) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-03-22&to=2024-08-01&type=c))
+
+[@krassowski](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Akrassowski+updated%3A2024-03-22..2024-08-01&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.2
 
 ([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.1...ec9873fba879d232ea7072d0bead9c6f48686296))
@@ -15,8 +32,6 @@
 ([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-01-15&to=2024-03-21&type=c))
 
 [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2024-01-15..2024-03-21&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.1
 
