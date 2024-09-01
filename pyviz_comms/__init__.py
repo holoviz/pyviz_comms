@@ -3,6 +3,7 @@ import sys
 import uuid
 import traceback
 import json
+import builtins
 
 try:
     from StringIO import StringIO
@@ -24,13 +25,10 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
-try:
-  get_ipython()
-except NameError:
-  get_ipython = None
+_in_ipython = hasattr(builtins, '__IPYTHON__')
 
 # Setting this so we can check the launched jupyter has pyviz_comms installed
-if not (get_ipython and sys.argv[0].endswith('ipykernel_launcher.py')):
+if not (_in_ipython and sys.argv[0].endswith('ipykernel_launcher.py')):
     os.environ['_PYVIZ_COMMS_INSTALLED'] = '1'
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
@@ -56,14 +54,12 @@ class extension(param.ParameterizedFunction):
     _repeat_execution_in_cell = False
 
     def __new__(cls, *args, **kwargs):
-        try:
-            exec_count = get_ipython().execution_count
+        if _in_ipython:
+            exec_count = get_ipython().execution_count  # noqa: F821
             extension._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
             # Update the last count on this base class only so that every new instance
             # creation obtains the updated count.
             extension._last_execution_count = exec_count
-        except Exception:
-            pass
         return param.ParameterizedFunction.__new__(cls, *args, **kwargs)
 
     @classmethod
