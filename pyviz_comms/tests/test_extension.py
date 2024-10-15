@@ -1,7 +1,9 @@
+import builtins
+
 import pytest
+
 import pyviz_comms
 from pyviz_comms import extension
-
 
 # Store the default values to reset them in the get_ipython fixture
 LAST_EXECUTION_COUNT = extension._last_execution_count
@@ -23,17 +25,18 @@ def get_ipython():
 
     def _get_ipython():
         return ExecutionCount
-    
+
+    builtins.get_ipython = _get_ipython
+    pyviz_comms._in_ipython = True
+
     yield _get_ipython
 
     extension._last_execution_count = LAST_EXECUTION_COUNT
     extension._repeat_execution_in_cell = REPEAT_EXECUTION_IN_CELL
 
 
-def test_get_ipython_fixture(monkeypatch, get_ipython):
+def test_get_ipython_fixture(get_ipython):
     # Test the get_ipython fixture
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
 
     class sub_extension(extension):
         def __call__(self, *args, **params):
@@ -60,9 +63,7 @@ def test_get_ipython_fixture_reset(get_ipython):
     assert extension._repeat_execution_in_cell == REPEAT_EXECUTION_IN_CELL
 
 
-def test_extension_count_one_cell_one_extension(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_one_cell_one_extension(get_ipython):
 
     class sub_extension(extension):
         def __call__(self, *args, **params):
@@ -84,9 +85,7 @@ def test_extension_count_one_cell_one_extension(monkeypatch, get_ipython):
     assert sub_extension._repeat_execution_in_cell == extension._repeat_execution_in_cell
 
 
-def test_extension_count_one_cell_extensions_branched(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_one_cell_extensions_branched(get_ipython):
 
     class sub_extension1(extension):
         def __call__(self, *args, **params):
@@ -107,9 +106,7 @@ def test_extension_count_one_cell_extensions_branched(monkeypatch, get_ipython):
     assert sub_extension1._repeat_execution_in_cell == extension._repeat_execution_in_cell
 
 
-def test_extension_count_one_cell_parent_first(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_one_cell_parent_first(get_ipython):
 
     class parent_extension(extension):
         def __call__(self, *args, **params):
@@ -132,9 +129,7 @@ def test_extension_count_one_cell_parent_first(monkeypatch, get_ipython):
     assert parent_extension._repeat_execution_in_cell is True
 
 
-def test_extension_count_one_cell_subclass_first(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_one_cell_subclass_first(get_ipython):
 
     class parent_extension(extension):
         def __call__(self, *args, **params):
@@ -153,9 +148,7 @@ def test_extension_count_one_cell_subclass_first(monkeypatch, get_ipython):
     assert parent_extension._repeat_execution_in_cell is True
 
 
-def test_extension_count_two_cells_one_extension(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_two_cells_one_extension(get_ipython):
 
     class sub_extension(extension):
         def __call__(self, *args, **params):
@@ -183,9 +176,8 @@ def test_extension_count_two_cells_one_extension(monkeypatch, get_ipython):
     assert sub_extension._repeat_execution_in_cell == extension._repeat_execution_in_cell
 
 
-def test_extension_count_two_cells_extensions_branched(monkeypatch, get_ipython):
+def test_extension_count_two_cells_extensions_branched(get_ipython):
 
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
 
     class sub_extension1(extension):
         def __call__(self, *args, **params):
@@ -228,9 +220,7 @@ def test_extension_count_two_cells_extensions_branched(monkeypatch, get_ipython)
     assert sub_extension1._repeat_execution_in_cell == extension._repeat_execution_in_cell
 
 
-def test_extension_count_two_cells_parent_first(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_two_cells_parent_first(get_ipython):
 
     class parent_extension(extension):
         def __call__(self, *args, **params):
@@ -271,9 +261,7 @@ def test_extension_count_two_cells_parent_first(monkeypatch, get_ipython):
     assert sub_extension._repeat_execution_in_cell == extension._repeat_execution_in_cell
 
 
-def test_extension_count_two_cells_subclass_first(monkeypatch, get_ipython):
-
-    monkeypatch.setattr(pyviz_comms, 'get_ipython', get_ipython)
+def test_extension_count_two_cells_subclass_first(get_ipython):
 
     class parent_extension(extension):
         def __call__(self, *args, **params):
