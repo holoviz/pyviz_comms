@@ -2,6 +2,23 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.4
+
+([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.3...2000a5eda8720cf0088ccc496ca0a0362cd8bee0))
+
+### Merged PRs
+
+- Ensure Widget Manager can be defined asynchronously [#130](https://github.com/holoviz/pyviz_comms/pull/130) ([@philippjfr](https://github.com/philippjfr))
+- Add environment variable at startup [#123](https://github.com/holoviz/pyviz_comms/pull/123) ([@hoxbro](https://github.com/hoxbro))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-08-01&to=2025-01-14&type=c))
+
+[@hoxbro](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Ahoxbro+updated%3A2024-08-01..2025-01-14&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2024-08-01..2025-01-14&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.3
 
 ([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.2...0149ff082df9cf0f600cf14563c45f83c1894366))
@@ -16,8 +33,6 @@
 ([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-03-22&to=2024-08-01&type=c))
 
 [@krassowski](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Akrassowski+updated%3A2024-03-22..2024-08-01&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.2
 
