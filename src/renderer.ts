@@ -106,13 +106,25 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
 
   _registerKernel(id: string): void {
     const set_state = (state: any): Promise<any[]> => {
-      return this._manager._wManager.set_state(state);
+      return new Promise((resolve, reject) => {
+	const startTime = Date.now();
+	const checkVariable = async () => {
+	  if (this._manager._widget_renderer.manager !== null) {
+            resolve(await this._manager._widget_renderer.manager.set_state(state));
+	  } else if (Date.now() - startTime >= 5000) {
+            reject(new Error("Initialization of widget manager timed out after 5 seconds."));
+	  } else {
+            setTimeout(checkVariable, 100);
+	  }
+	};
+	checkVariable()
+      })
     };
     const create_view = (model: any, options?: any): any => {
-      return this._manager._wManager.create_view(model, options);
+      return this._manager._widget_renderer.manager.create_view(model, options);
     };
     const display_view = (view: any, el: any): any => {
-      return this._manager._wManager.display_view(view, el);
+      return this._manager._widget_renderer.manager.display_view(view, el);
     };
     const widget_manager: IWidgetManagerProxy = {
       create_view,

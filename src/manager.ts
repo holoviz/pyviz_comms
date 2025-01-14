@@ -18,7 +18,7 @@ const API_LAYOUT = URLExt.join(API_ROOT, '/layout/');
  * A micro manager that contains the document context
  */
 export class ContextManager implements IDisposable {
-  _wManager: any;
+  _widget_renderer: any;
   private _app: JupyterFrontEnd;
   private _context: DocumentRegistry.IContext<DocumentRegistry.IModel> | null;
   private _comm: Kernel.IComm | undefined;
@@ -26,11 +26,11 @@ export class ContextManager implements IDisposable {
   constructor(
     app: JupyterFrontEnd,
     context: DocumentRegistry.IContext<DocumentRegistry.IModel>,
-    manager: any
+    renderer: any
   ) {
     this._app = app;
     this._context = context;
-    this._wManager = manager;
+    this._widget_renderer = renderer;
 
     this._comm = undefined;
     context.saveState.connect(async (context: any, status: string) => {
