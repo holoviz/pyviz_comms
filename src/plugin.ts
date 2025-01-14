@@ -201,7 +201,7 @@ export class NBWidgetExtension implements INBWidgetExtension {
       ] as any);
     }
 
-    const manager = new ContextManager(this._app, context, renderer.manager);
+    const manager = new ContextManager(this._app, context, renderer);
 
     nb.content.rendermime.addFactory(
       {
