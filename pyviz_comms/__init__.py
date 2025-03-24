@@ -25,7 +25,7 @@ def _jupyter_labextension_paths():
         'dest': data['name']
     }]
 
-_in_ipython = hasattr(builtins, '__IPYTHON__')
+_in_ipython = hasattr(builtins, 'get_ipython')
 
 # Setting this so we can check the launched jupyter has pyviz_comms installed
 if not (_in_ipython and sys.argv[0].endswith('ipykernel_launcher.py')):
