@@ -55,6 +55,8 @@ class extension(param.ParameterizedFunction):
 
     def __new__(cls, *args, **kwargs):
         if _in_ipython:
+            from IPython import get_ipython
+
             exec_count = get_ipython().execution_count  # noqa: F821
             extension._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
             # Update the last count on this base class only so that every new instance
