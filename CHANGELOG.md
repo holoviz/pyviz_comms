@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.5
+
+([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.4...f122bf716c61db4ae38a1247a6d4bc745516f94e))
+
+### Merged PRs
+
+- Ensure comms can reconnect on page reload [#136](https://github.com/holoviz/pyviz_comms/pull/136) ([@philippjfr](https://github.com/philippjfr))
+- ci: Update Github Actions version number [#135](https://github.com/holoviz/pyviz_comms/pull/135) ([@hoxbro](https://github.com/hoxbro))
+- fix: Use get_ipython for \_in_ipython check [#134](https://github.com/holoviz/pyviz_comms/pull/134) ([@hoxbro](https://github.com/hoxbro))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2025-01-14&to=2025-06-13&type=c))
+
+[@hoxbro](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Ahoxbro+updated%3A2025-01-14..2025-06-13&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2025-01-14..2025-06-13&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.4
 
 ([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.3...2000a5eda8720cf0088ccc496ca0a0362cd8bee0))
@@ -16,8 +34,6 @@
 ([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2024-08-01&to=2025-01-14&type=c))
 
 [@hoxbro](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Ahoxbro+updated%3A2024-08-01..2025-01-14&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2024-08-01..2025-01-14&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.3
 
