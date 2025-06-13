@@ -140,11 +140,11 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     (window as any).PyViz.widget_manager = widget_manager;
 
     const manager = this._manager;
-    const kernel = manager!.context.sessionContext.session?.kernel;
     const registerClosure = (
       targetName: string,
       callback: (comm: Kernel.IComm, msg: KernelMessage.ICommOpenMsg) => void
     ): void => {
+      const kernel = manager!.context.sessionContext.session?.kernel;
       if (kernel === undefined) {
         console.log(
           'Kernel not found, could not register comm target ',
@@ -155,6 +155,7 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
       return kernel.registerCommTarget(targetName, callback);
     };
     const connectClosure = (targetName: string, commId?: string): any => {
+      const kernel = manager!.context.sessionContext.session?.kernel;
       if (kernel === undefined) {
         console.log(
           'Kernel not found, could not connect to comm target ',
