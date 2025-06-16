@@ -23,8 +23,8 @@ export declare interface ICommProxy {
     disposeOnDone?: boolean
   ): void;
   onMsg: (msg: KernelMessage.ICommMsgMsg) => void;
-  connected: boolean,
-  active: boolean,
+  connected: boolean;
+  active: boolean;
 }
 
 export declare interface IKernelProxy {
@@ -148,7 +148,7 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     ): void => {
       const kernel = manager!.context.sessionContext.session?.kernel;
       if (kernel === undefined) {
-        let retries = 0
+        let retries = 0;
         const retry_cb = () => {
           const kernel = manager!.context.sessionContext.session?.kernel;
           if (kernel) {
@@ -157,14 +157,14 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
             console.log(
               'Kernel not found, could not register comm target ',
               targetName
-            )
+            );
           } else {
-            retries += 1
-            setTimeout(retry_cb, 500)
+            retries += 1;
+            setTimeout(retry_cb, 500);
           }
-        }
-        setTimeout(retry_cb, 500)
-        return
+        };
+        setTimeout(retry_cb, 500);
+        return;
       }
       return kernel.registerCommTarget(targetName, callback);
     };
@@ -201,10 +201,10 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
           send: sendClosure,
           connected: false,
           active: true
-        }
+        };
       };
 
-      let msg_callback: any = null
+      let msg_callback: any = null;
       if (kernel === undefined) {
         comm_proxy = {
           set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
@@ -223,17 +223,17 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
             comm_proxy.open = new_comm.open;
             comm_proxy.send = new_comm.send;
             comm.onMsg = msg_callback;
-	    comm_proxy.active = true;
+            comm_proxy.active = true;
           } else if (retries > 3) {
             console.warn(
               'Kernel not found, could not connect to comm target ',
               targetName
-            )
+            );
           } else {
-            retries += 1
-            setTimeout(retry_cb, 500)
+            retries += 1;
+            setTimeout(retry_cb, 500);
           }
-        }
+        };
         setTimeout(retry_cb, 500);
       } else {
         comm_proxy = createCommProxy(kernel);
