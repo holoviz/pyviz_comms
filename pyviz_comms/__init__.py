@@ -399,8 +399,6 @@ class JupyterComm(Comm):
 
     def init(self):
         from ipykernel.comm import Comm as IPyComm
-        if self._comm:
-            return
         self._comm = IPyComm(target_name=self.id, data={})
         self._comm.on_msg(self._handle_msg)
         if self._on_open:
