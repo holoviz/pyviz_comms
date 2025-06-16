@@ -23,6 +23,8 @@ export declare interface ICommProxy {
     disposeOnDone?: boolean
   ): void;
   onMsg: (msg: KernelMessage.ICommMsgMsg) => void;
+  connected: boolean,
+  active: boolean,
 }
 
 export declare interface IKernelProxy {
@@ -146,52 +148,96 @@ export class HVJSExec extends Widget implements IRenderMime.IRenderer {
     ): void => {
       const kernel = manager!.context.sessionContext.session?.kernel;
       if (kernel === undefined) {
-        console.log(
-          'Kernel not found, could not register comm target ',
-          targetName
-        );
-        return;
+        let retries = 0
+        const retry_cb = () => {
+          const kernel = manager!.context.sessionContext.session?.kernel;
+          if (kernel) {
+            kernel.registerCommTarget(targetName, callback);
+          } else if (retries > 3) {
+            console.log(
+              'Kernel not found, could not register comm target ',
+              targetName
+            )
+          } else {
+            retries += 1
+            setTimeout(retry_cb, 500)
+          }
+        }
+        setTimeout(retry_cb, 500)
+        return
       }
       return kernel.registerCommTarget(targetName, callback);
     };
     const connectClosure = (targetName: string, commId?: string): any => {
       const kernel = manager!.context.sessionContext.session?.kernel;
-      if (kernel === undefined) {
-        console.log(
-          'Kernel not found, could not connect to comm target ',
-          targetName
-        );
-        return {
-          open: function (): void {},
-          send: function (): void {},
-          onMsg: function (): void {}
+
+      let comm_proxy: ICommProxy;
+      let comm: Kernel.IComm;
+      const createCommProxy = (kernel: any): ICommProxy => {
+        comm = kernel.createComm(targetName, commId);
+        const sendClosure = (
+          data: JSONValue,
+          metadata?: JSONObject,
+          buffers?: (ArrayBuffer | ArrayBufferView)[],
+          disposeOnDone?: boolean
+        ): void => {
+          if (!comm.isDisposed) {
+            comm.send(data, metadata, buffers, disposeOnDone);
+          }
         };
-      }
-      const comm: Kernel.IComm = kernel.createComm(targetName, commId);
-      const sendClosure = (
-        data: JSONValue,
-        metadata?: JSONObject,
-        buffers?: (ArrayBuffer | ArrayBufferView)[],
-        disposeOnDone?: boolean
-      ): void => {
-        if (!comm.isDisposed) {
-          comm.send(data, metadata, buffers, disposeOnDone);
+        const openClosure = (
+          data?: JSONValue,
+          metadata?: JSONObject,
+          buffers?: (ArrayBuffer | ArrayBufferView)[]
+        ): void => {
+          comm.open(data, metadata, buffers);
+          comm_proxy.connected = true;
+        };
+        return {
+          set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
+            comm.onMsg = callback;
+          },
+          open: openClosure,
+          send: sendClosure,
+          connected: false,
+          active: true
         }
       };
-      const openClosure = (
-        data?: JSONValue,
-        metadata?: JSONObject,
-        buffers?: (ArrayBuffer | ArrayBufferView)[]
-      ): void => {
-        comm.open(data, metadata, buffers);
-      };
-      const comm_proxy: ICommProxy = {
-        set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
-          comm.onMsg = callback;
-        },
-        open: openClosure,
-        send: sendClosure
-      };
+
+      let msg_callback: any = null
+      if (kernel === undefined) {
+        comm_proxy = {
+          set onMsg(callback: (msg: KernelMessage.ICommMsgMsg) => void) {
+            msg_callback = callback;
+          },
+          open: function (): void {},
+          send: function (): void {},
+          connected: false,
+          active: false
+        };
+        let retries = 0;
+        const retry_cb = () => {
+          const kernel = manager!.context.sessionContext.session?.kernel;
+          if (kernel !== undefined) {
+            const new_comm = createCommProxy(kernel);
+            comm_proxy.open = new_comm.open;
+            comm_proxy.send = new_comm.send;
+            comm.onMsg = msg_callback;
+	    comm_proxy.active = true;
+          } else if (retries > 3) {
+            console.warn(
+              'Kernel not found, could not connect to comm target ',
+              targetName
+            )
+          } else {
+            retries += 1
+            setTimeout(retry_cb, 500)
+          }
+        }
+        setTimeout(retry_cb, 500);
+      } else {
+        comm_proxy = createCommProxy(kernel);
+      }
       return comm_proxy;
     };
     const kernel_proxy: IKernelProxy = {
