@@ -2,6 +2,23 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.6
+
+([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.5...428c12aa806be9c9337b7dde00c3f7d46597443d))
+
+### Merged PRs
+
+- Improve re-connect behavior [#139](https://github.com/holoviz/pyviz_comms/pull/139) ([@philippjfr](https://github.com/philippjfr))
+- Import `get_ipython` to avoid `NameError` [#138](https://github.com/holoviz/pyviz_comms/pull/138) ([@basnijholt](https://github.com/basnijholt))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2025-06-13&to=2025-06-16&type=c))
+
+[@basnijholt](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Abasnijholt+updated%3A2025-06-13..2025-06-16&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2025-06-13..2025-06-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.5
 
 ([Full Changelog](https://github.com/holoviz/pyviz_comms/compare/v3.0.4...f122bf716c61db4ae38a1247a6d4bc745516f94e))
@@ -17,8 +34,6 @@
 ([GitHub contributors page for this release](https://github.com/holoviz/pyviz_comms/graphs/contributors?from=2025-01-14&to=2025-06-13&type=c))
 
 [@hoxbro](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Ahoxbro+updated%3A2025-01-14..2025-06-13&type=Issues) | [@philippjfr](https://github.com/search?q=repo%3Aholoviz%2Fpyviz_comms+involves%3Aphilippjfr+updated%3A2025-01-14..2025-06-13&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.4
 
