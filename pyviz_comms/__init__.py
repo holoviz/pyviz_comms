@@ -591,7 +591,7 @@ class JupyterCommManager(CommManager):
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
         let retries = 0;
         const open = () => {
-          if (comm.active) {
+          if (comm.active || comm.active === undefined) {
             comm.open();
           } else if (retries > 3) {
             console.warn('Comm target never activated')
@@ -600,7 +600,7 @@ class JupyterCommManager(CommManager):
             setTimeout(open, 500)
           }
         }
-        if (comm.active) {
+        if (comm.active || comm.active === undefined) {
           comm.open();
         } else {
           setTimeout(open, 500)
