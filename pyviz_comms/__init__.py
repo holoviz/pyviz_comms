@@ -5,6 +5,8 @@ import traceback
 import json
 import builtins
 
+from comm import create_comm, get_comm_manager
+
 try:
     from StringIO import StringIO
 except:
@@ -400,8 +402,7 @@ class JupyterComm(Comm):
     """
 
     def init(self):
-        from ipykernel.comm import Comm as IPyComm
-        self._comm = IPyComm(target_name=self.id, data={})
+        self._comm = create_comm(target_name=self.id, data={})
         self._comm.on_msg(self._handle_msg)
         if self._on_open:
             self._on_open({})
@@ -460,9 +461,8 @@ class JupyterCommJS(JupyterComm):
         """
         Initializes a Comms object
         """
-        from IPython import get_ipython
         super(JupyterCommJS, self).__init__(id, on_msg, on_error, on_stdout, on_open)
-        self.manager = get_ipython().kernel.comm_manager
+        self.manager = get_comm_manager()
         self.manager.register_target(self.id, self._handle_open)
 
     def close(self):
