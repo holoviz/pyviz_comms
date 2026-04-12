@@ -13,7 +13,6 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-toml
       - id: check-yaml
-        exclude: conda.recipe/meta.yaml
       - id: check-json
       - id: detect-private-key
   - repo: https://github.com/astral-sh/ruff-pre-commit
