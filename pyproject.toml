@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pyviz_comms"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "License :: OSI Approved :: BSD License",
     "Development Status :: 5 - Production/Stable",
@@ -17,34 +17,25 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries"
+    "Topic :: Software Development :: Libraries",
 ]
-maintainers = [
-    { name="HoloViz", email="developers@holoviz.org" }
-]
-dependencies = [
-    "param"
-]
+maintainers = [{ name = "HoloViz", email = "developers@holoviz.org" }]
+dependencies = ["param"]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
 tests = ['flake8', 'pytest']
-build = [
-    'setuptools>=40.8.0',
-    'jupyterlab ~=4.0',
-    'twine',
-    'rfc3986',
-    'keyring'
-]
+build = ['setuptools>=40.8.0', 'jupyterlab ~=4.0', 'twine', 'rfc3986', 'keyring']
 all = ["pyviz_comms[tests]", "pyviz_comms[build]"]
 
 [tool.hatch.version]
@@ -94,7 +85,7 @@ before-build-npm = [
     "python -m pip install 'jupyterlab>=4.0.0,<5'",
     "jlpm",
     "jlpm clean",
-    "jlpm build:prod"
+    "jlpm build:prod",
 ]
 before-build-python = ["jlpm clean:all"]
 
