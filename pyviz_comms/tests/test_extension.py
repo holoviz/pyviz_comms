@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import builtins
 
 import pytest
@@ -177,7 +179,6 @@ def test_extension_count_two_cells_one_extension(get_ipython):
 
 
 def test_extension_count_two_cells_extensions_branched(get_ipython):
-
 
     class sub_extension1(extension):
         def __call__(self, *args, **params):
