@@ -12,6 +12,12 @@ on:
     - cron: '0 7 * * SUN'
 
 jobs:
+  pre_commit:
+    name: Run pre-commit
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: holoviz-dev/holoviz_tasks/pre-commit@v0
+
   test:
     runs-on: ubuntu-latest
     strategy:
