@@ -332,8 +332,7 @@ class Comm(param.Parameterized):
             frames = traceback.extract_tb(sys.exc_info()[2])
             for frame in frames[-20:]:
                 fname, lineno, fn, _text = frame
-                error_kwargs = {"fn": fn, "fname": fname, "line": lineno}
-                error += "{fname} {fn} L{line}\n".format(**error_kwargs)
+                error += f"{fname} {fn} L{lineno}\n"
             error += f"\t{type(e).__name__}: {e!s}"
             if stdout:
                 stdout = "\n\t" + "\n\t".join(stdout)
