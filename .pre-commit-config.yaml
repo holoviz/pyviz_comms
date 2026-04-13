@@ -20,3 +20,12 @@ repos:
     hooks:
       - id: ruff-check
       - id: ruff-format
+  - repo: https://github.com/hoxbro/prettier-pre-commit
+    rev: 86ff8f664c20f581d71c90a6ea0073c1bcafe1e5 # frozen: v3.8.1
+    hooks:
+      - id: prettier
+        exclude: conda.recipe/meta.yaml
+        types_or:
+          - markdown
+          - yaml
+          - css
