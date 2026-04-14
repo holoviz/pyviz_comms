@@ -1,14 +1,13 @@
+from __future__ import annotations
+
+import builtins
+import json
 import os
 import sys
-import uuid
 import traceback
-import json
-import builtins
-
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
+import uuid
+from contextlib import suppress
+from io import StringIO
 
 import param
 
@@ -16,30 +15,28 @@ from ._version import __version__
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(HERE, 'labextension', 'package.json')) as fid:
+with open(os.path.join(HERE, "labextension", "package.json")) as fid:
     data = json.load(fid)
 
-def _jupyter_labextension_paths():
-    return [{
-        'src': 'labextension',
-        'dest': data['name']
-    }]
 
-_in_ipython = hasattr(builtins, 'get_ipython')
+def _jupyter_labextension_paths():
+    return [{"src": "labextension", "dest": data["name"]}]
+
+
+_in_ipython = hasattr(builtins, "get_ipython")
 
 # Setting this so we can check the launched jupyter has pyviz_comms installed
-if not (_in_ipython and sys.argv[0].endswith('ipykernel_launcher.py')):
-    os.environ['_PYVIZ_COMMS_INSTALLED'] = str(__version__)
+if not (_in_ipython and sys.argv[0].endswith("ipykernel_launcher.py")):
+    os.environ["_PYVIZ_COMMS_INSTALLED"] = str(__version__)
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(comm_path, 'notebook.js')) as f:
-    nb_mime_js = '\n\n' + f.read()
+with open(os.path.join(comm_path, "notebook.js")) as f:
+    nb_mime_js = "\n\n" + f.read()
 
 
 class extension(param.ParameterizedFunction):
-    """
-    Base class for pyviz extensions, which allow defining shared cleanup
+    """Base class for pyviz extensions, which allow defining shared cleanup
     utilities.
     """
 
@@ -57,12 +54,12 @@ class extension(param.ParameterizedFunction):
         if _in_ipython:
             from IPython import get_ipython
 
-            exec_count = get_ipython().execution_count  # noqa: F821
-            extension._repeat_execution_in_cell = (exec_count == cls._last_execution_count)
+            exec_count = get_ipython().execution_count
+            extension._repeat_execution_in_cell = exec_count == cls._last_execution_count
             # Update the last count on this base class only so that every new instance
             # creation obtains the updated count.
             extension._last_execution_count = exec_count
-        return param.ParameterizedFunction.__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
 
     @classmethod
     def add_delete_action(cls, action):
@@ -74,17 +71,16 @@ class extension(param.ParameterizedFunction):
 
     @classmethod
     def _process_comm_msg(cls, msg):
-        """
-        Processes comm messages to handle global actions such as
+        """Processes comm messages to handle global actions such as
         cleaning up plots.
         """
-        event_type = msg['event_type']
-        if event_type == 'delete':
+        event_type = msg["event_type"]
+        if event_type == "delete":
             for action in cls._delete_actions:
-                action(msg['id'])
-        elif event_type == 'server_delete':
+                action(msg["id"])
+        elif event_type == "server_delete":
             for action in cls._server_delete_actions:
-                action(msg['id'])
+                action(msg["id"])
 
 
 PYVIZ_PROXY = """
@@ -236,8 +232,7 @@ if ((comm_status.blocked && (Date.now() < timeout))) {{
 
 
 class StandardOutput(list):
-    """
-    Context manager to capture standard output for any code it
+    """Context manager to capture standard output for any code it
     is wrapping and make it available as a list, e.g.:
 
     >>> with StandardOutput() as stdout:
@@ -257,8 +252,7 @@ class StandardOutput(list):
 
 
 class Comm(param.Parameterized):
-    """
-    Comm encompasses any uni- or bi-directional connection between
+    """Comm encompasses any uni- or bi-directional connection between
     a python process and a frontend allowing passing of messages
     between the two. A Comms class must implement methods
     send data and handle received message events.
@@ -283,97 +277,80 @@ class Comm(param.Parameterized):
 
     id = param.String(doc="Unique identifier of this Comm instance")
 
-    js_template = ''
+    js_template = ""
 
     def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
-        """
-        Initializes a Comms object
-        """
+        """Initializes a Comms object"""
         self._on_msg = on_msg
         self._on_error = on_error
         self._on_stdout = on_stdout
         self._on_open = on_open
         self._comm = None
-        super(Comm, self).__init__(id = id if id else uuid.uuid4().hex)
+        super().__init__(id=id if id else uuid.uuid4().hex)
 
     def init(self, on_msg=None):
-        """
-        Initializes comms channel.
-        """
+        """Initializes comms channel."""
 
     def close(self):
-        """
-        Closes the comm connection
-        """
+        """Closes the comm connection"""
 
-    def send(self, data=None, metadata=None, buffers=[]):
-        """
-        Sends data to the frontend
-        """
+    def send(self, data=None, metadata=None, buffers=None):
+        """Sends data to the frontend"""
 
     @classmethod
     def decode(cls, msg):
-        """
-        Decode incoming message, e.g. by parsing json.
-        """
+        """Decode incoming message, e.g. by parsing json."""
         return msg
 
     @property
     def comm(self):
         if not self._comm:
-            raise ValueError('Comm has not been initialized')
+            raise ValueError("Comm has not been initialized")
         return self._comm
 
     def _handle_msg(self, msg):
-        """
-        Decode received message before passing it to on_msg callback
+        """Decode received message before passing it to on_msg callback
         if it has been defined.
         """
         comm_id = None
         try:
             stdout = []
             msg = self.decode(msg)
-            comm_id = msg.pop('comm_id', None)
+            comm_id = msg.pop("comm_id", None)
             if self._on_msg:
                 # Comm swallows standard output so we need to capture
                 # it and then send it to the frontend
                 with StandardOutput() as stdout:
                     self._on_msg(msg)
                 if stdout:
-                    try:
+                    with suppress(Exception):
                         self._on_stdout(stdout)
-                    except:
-                        pass
         except Exception as e:
-            try:
+            with suppress(Exception):
                 self._on_error(e)
-            except:
-                pass
-            error = '\n'
+            error = "\n"
             frames = traceback.extract_tb(sys.exc_info()[2])
             for frame in frames[-20:]:
-                fname,lineno,fn,text = frame
-                error_kwargs = dict(fn=fn, fname=fname, line=lineno)
-                error += '{fname} {fn} L{line}\n'.format(**error_kwargs)
-            error += '\t{type}: {error}'.format(type=type(e).__name__, error=str(e))
+                fname, lineno, fn, _text = frame
+                error += f"{fname} {fn} L{lineno}\n"
+            error += f"\t{type(e).__name__}: {e!s}"
             if stdout:
-                stdout = '\n\t'+'\n\t'.join(stdout)
-                error = '\n'.join([stdout, error])
-            reply = {'msg_type': "Error", 'traceback': error}
+                stdout = "\n\t" + "\n\t".join(stdout)
+                error = f"{stdout}\n{error}"
+            reply = {"msg_type": "Error", "traceback": error}
         else:
-            stdout = '\n\t'+'\n\t'.join(stdout) if stdout else ''
-            reply = {'msg_type': "Ready", 'content': stdout}
+            stdout = "\n\t" + "\n\t".join(stdout) if stdout else ""
+            reply = {"msg_type": "Ready", "content": stdout}
 
         # Returning the comm_id in an ACK message ensures that
         # the correct comms handle is unblocked
         if comm_id:
-            reply['comm_id'] = comm_id
+            reply["comm_id"] = comm_id
         self.send(metadata=reply)
 
 
 class JupyterComm(Comm):
-    """
-    JupyterComm provides a Comm for the notebook which is initialized
+    """JupyterComm provides a Comm for the notebook which is initialized
     the first time data is pushed to the frontend.
     """
 
@@ -401,6 +378,7 @@ class JupyterComm(Comm):
 
     def init(self):
         from ipykernel.comm import Comm as IPyComm
+
         self._comm = IPyComm(target_name=self.id, data={})
         self._comm.on_msg(self._handle_msg)
         if self._on_open:
@@ -408,31 +386,27 @@ class JupyterComm(Comm):
 
     @classmethod
     def decode(cls, msg):
-        """
-        Decodes messages following Jupyter messaging protocol.
+        """Decodes messages following Jupyter messaging protocol.
         If JSON decoding fails data is assumed to be a regular string.
         """
-        return msg['content']['data']
+        return msg["content"]["data"]
 
     def close(self):
-        """
-        Closes the comm connection
-        """
+        """Closes the comm connection"""
         if self._comm:
             self._comm.close()
 
-    def send(self, data=None, metadata=None, buffers=[]):
-        """
-        Pushes data across comm socket.
-        """
+    def send(self, data=None, metadata=None, buffers=None):
+        """Pushes data across comm socket."""
+        if buffers is None:
+            buffers = []
         if not self._comm:
             self.init()
         self.comm.send(data, metadata=metadata, buffers=buffers)
 
 
 class JupyterCommJS(JupyterComm):
-    """
-    JupyterCommJS provides a comms channel for the Jupyter notebook,
+    """JupyterCommJS provides a comms channel for the Jupyter notebook,
     which is initialized on the frontend. This allows sending events
     initiated on the frontend to python.
     """
@@ -451,31 +425,27 @@ class JupyterCommJS(JupyterComm):
 
     @classmethod
     def decode(cls, msg):
-        decoded = dict(msg['content']['data'])
-        if 'buffers' in msg:
-            decoded['_buffers'] = {i: v for i, v in enumerate(msg['buffers'])}
+        decoded = dict(msg["content"]["data"])
+        if "buffers" in msg:
+            decoded["_buffers"] = dict(enumerate(msg["buffers"]))
         return decoded
 
     def __init__(self, id=None, on_msg=None, on_error=None, on_stdout=None, on_open=None):
-        """
-        Initializes a Comms object
-        """
+        """Initializes a Comms object"""
         from IPython import get_ipython
-        super(JupyterCommJS, self).__init__(id, on_msg, on_error, on_stdout, on_open)
+
+        super().__init__(id, on_msg, on_error, on_stdout, on_open)
         self.manager = get_ipython().kernel.comm_manager
         self.manager.register_target(self.id, self._handle_open)
 
     def close(self):
-        """
-        Closes the comm connection
-        """
+        """Closes the comm connection"""
         if self._comm:
             self._comm.close()
+        elif self.id in self.manager.targets:
+            del self.manager.targets[self.id]
         else:
-            if self.id in self.manager.targets:
-                del self.manager.targets[self.id]
-            else:
-                raise AssertionError('JupyterCommJS %s is already closed' % self.id)
+            raise AssertionError(f"JupyterCommJS {self.id} is already closed")
 
     def _handle_open(self, comm, msg):
         self._comm = comm
@@ -483,17 +453,15 @@ class JupyterCommJS(JupyterComm):
         if self._on_open:
             self._on_open(msg)
 
-    def send(self, data=None, metadata=None, buffers=[]):
-        """
-        Pushes data across comm socket.
-        """
+    def send(self, data=None, metadata=None, buffers=None):
+        """Pushes data across comm socket."""
+        if buffers is None:
+            buffers = []
         self.comm.send(data, metadata=metadata, buffers=buffers)
 
 
-
-class CommManager(object):
-    """
-    The CommManager is an abstract baseclass for establishing
+class CommManager:
+    """The CommManager is an abstract baseclass for establishing
     websocket comms on the client and the server.
     """
 
@@ -529,10 +497,8 @@ class CommManager(object):
         return comm
 
 
-
 class JupyterCommManager(CommManager):
-    """
-    The JupyterCommManager is used to establishing websocket comms on
+    """The JupyterCommManager is used to establishing websocket comms on
     the client and the server via the Jupyter comms interface.
 
     There are two cases for both the register_target and get_client_comm
@@ -643,3 +609,13 @@ class JupyterCommManager(CommManager):
     server_comm = JupyterComm
 
     client_comm = JupyterCommJS
+
+
+__all__ = [
+    "Comm",
+    "JupyterComm",
+    "JupyterCommJS",
+    "JupyterCommManager",
+    "__version__",
+    "extension",
+]

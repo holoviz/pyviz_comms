@@ -1,5 +1,6 @@
-import builtins
+from __future__ import annotations
 
+import IPython
 import pytest
 
 import pyviz_comms
@@ -26,7 +27,7 @@ def get_ipython():
     def _get_ipython():
         return ExecutionCount
 
-    builtins.get_ipython = _get_ipython
+    IPython.get_ipython = _get_ipython
     pyviz_comms._in_ipython = True
 
     yield _get_ipython
@@ -177,7 +178,6 @@ def test_extension_count_two_cells_one_extension(get_ipython):
 
 
 def test_extension_count_two_cells_extensions_branched(get_ipython):
-
 
     class sub_extension1(extension):
         def __call__(self, *args, **params):
