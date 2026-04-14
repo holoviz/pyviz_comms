@@ -27,7 +27,7 @@ _in_ipython = hasattr(builtins, "get_ipython")
 
 # Setting this so we can check the launched jupyter has pyviz_comms installed
 if not (_in_ipython and sys.argv[0].endswith("ipykernel_launcher.py")):
-    os.environ["_PYVIZ_COMMS_INSTALLED"] = "1"
+    os.environ["_PYVIZ_COMMS_INSTALLED"] = str(__version__)
 
 # nb_mime_js is used to enable the necessary mime type support in classic notebook
 comm_path = os.path.dirname(os.path.abspath(__file__))
