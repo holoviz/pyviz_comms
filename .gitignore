@@ -119,3 +119,5 @@ dmypy.json
 
 # Yarn cache
 .yarn/
+
+pyviz_comms/_version.py

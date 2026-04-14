@@ -1,0 +1,31 @@
+exclude: (\.min\.js$|\.svg$|\.html$)
+default_stages: [pre-commit]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-toml
+      - id: check-yaml
+      - id: check-json
+      - id: detect-private-key
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: b831c3dc5d27d9da294ae4e915773b99aa24a7c5 # frozen: v0.15.10
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  - repo: https://github.com/hoxbro/prettier-pre-commit
+    rev: 6b2e09e3ab1326207797989aad927e316dac8c3b # frozen: v3.8.2
+    hooks:
+      - id: prettier
+        exclude: conda.recipe/meta.yaml
+        types_or:
+          - markdown
+          - yaml
+          - css
