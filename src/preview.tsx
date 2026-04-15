@@ -61,7 +61,11 @@ export class CustomIFrame extends IFrame {
     if (value !== null) {
       iframe.setAttribute('srcdoc', value);
       if (this._clearSrcDocOnLoad) {
-        iframe.addEventListener('load', () => iframe.removeAttribute('srcdoc'));
+        iframe.addEventListener('load', () => {
+          if (this._clearSrcDocOnLoad) {
+            iframe.removeAttribute('srcdoc');
+          }
+        });
       }
     }
   }
@@ -76,16 +80,19 @@ export class CustomIFrame extends IFrame {
     iframe.dataset.absoluteUrl = value;
   }
 
+  get clearSrcDocOnLoad() {
+    return this._clearSrcDocOnLoad;
+  }
+
+  set clearSrcDocOnLoad(value: boolean) {
+    this._clearSrcDocOnLoad = value;
+  }
+
   private _srcdoc!: string | null;
   private _clearSrcDocOnLoad: boolean;
 }
 
-const CUSTOM_LOADER = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Jupyter Kernel Starting</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@900&display=swap" rel="stylesheet">
+const SHARED_STYLES = `
   <style>
     body {
       display: flex;
@@ -94,13 +101,54 @@ const CUSTOM_LOADER = `
       flex-direction: column;
       height: 100vh;
       background-color: #f7f7f7;
-      font-family: "Kumbh Sans", "Segoe UI", Arial, Helvetica, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     h1 {
       font-weight: 900;
     }
+  </style>
+`;
 
+const PANEL_NOT_INSTALLED_HTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Panel Not Found</title>
+  ${SHARED_STYLES}
+  <style>
+    p {
+      font-size: 1.1em;
+      color: #444;
+      margin: 6px 0;
+      text-align: center;
+    }
+
+    code {
+      background: #e0e0e0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  ${panelSvgStr}
+  <h1>Panel is not installed</h1>
+  <p>The Panel preview requires Panel to be installed in the Python environment that launched Jupyter Lab.</p>
+  <p>Install it with: <code>pip install panel</code> or <code>conda install panel</code></p>
+  <p>Then restart Jupyter Lab.</p>
+</body>
+</html>
+`;
+
+const CUSTOM_LOADER = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jupyter Kernel Starting</title>
+  ${SHARED_STYLES}
+  <style>
     .loading-container {
       display: flex;
       align-items: center;
@@ -189,16 +237,21 @@ export class PanelPreview extends DocumentWidget<
 
     const populateIframe = async (path: string) => {
       const panelUrl = getPanelUrl(path);
+      const response = await ServerConnection.makeRequest(
+        panelUrl,
+        {},
+        settings
+      );
+      if (!response.ok) {
+        this.content.clearSrcDocOnLoad = false;
+        this.content.srcdoc = PANEL_NOT_INSTALLED_HTML;
+        return;
+      }
       if (isJupyterHub && panelUrl.startsWith(settings.baseUrl)) {
         // if running on JupyterHub and the panel preview is served
         // from the same domain as JupyterHub, the CSP will forbid
         // embedding the page handled by JupyterHub in the iframe,
         // thus we need to set the content via the `srcdoc` attribute.
-        const response = await ServerConnection.makeRequest(
-          panelUrl,
-          {},
-          settings
-        );
         this.content.srcdoc = await response.text();
         // Bokeh needs to know the absolute URL to determine the appropriate
         // protocol and URL for the websocket; this is set as a data attribute.

@@ -80,14 +80,7 @@ export namespace CommandIDs {
   export const lumenOpen = 'notebook:open-with-lumen';
 }
 
-const TOOLTIP_CONTENT = `
-<span>Preview with Panel<span>
-<br>
-<br>
-<span>
-  <b>Note:</b> Your notebook must publish Panel contents with .servable().
-<span>
-`;
+const TOOLTIP_CONTENT = '<span>Preview with Panel<span>';
 
 /**
  * A notebook widget extension that adds a panel preview button to the toolbar.
