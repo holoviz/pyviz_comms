@@ -63,7 +63,7 @@ let registerWidgetManager: any = null;
 try {
   const jlm = require('@jupyter-widgets/jupyterlab-manager');
   registerWidgetManager = jlm.registerWidgetManager;
-} catch (_) {
+} catch {
   console.log('Could not load ipywidgets support for @pyviz/jupyterlab_pyviz');
 }
 

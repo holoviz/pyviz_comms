@@ -68,6 +68,7 @@ export class HVJSLoad extends Widget implements IRenderMime.IRenderer {
     const data = model.data[this._load_mimetype] as string;
     this._script_element.textContent = data;
     this.node.appendChild(this._script_element);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._manager.comm; // Ensure comm is initialized
     return Promise.resolve();
   }
