@@ -24,8 +24,4 @@ repos:
     rev: 6b2e09e3ab1326207797989aad927e316dac8c3b # frozen: v3.8.2
     hooks:
       - id: prettier
-        exclude: conda.recipe/meta.yaml
-        types_or:
-          - markdown
-          - yaml
-          - css
+        files: \.(ts|tsx|js|jsx|json|css|md|yaml|yml)$
