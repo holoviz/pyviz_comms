@@ -303,11 +303,10 @@ export namespace PanelPreview {
   /**
    * Instantiation options for `PanelPreview`.
    */
-  export interface IOptions
-    extends DocumentWidget.IOptionsOptionalContent<
-      IFrame,
-      DocumentRegistry.ICodeModel
-    > {
+  export interface IOptions extends DocumentWidget.IOptionsOptionalContent<
+    IFrame,
+    DocumentRegistry.ICodeModel
+  > {
     /**
      * The Panel URL function.
      */

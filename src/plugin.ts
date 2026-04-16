@@ -63,7 +63,7 @@ let registerWidgetManager: any = null;
 try {
   const jlm = require('@jupyter-widgets/jupyterlab-manager');
   registerWidgetManager = jlm.registerWidgetManager;
-} catch (_) {
+} catch {
   console.log('Could not load ipywidgets support for @pyviz/jupyterlab_pyviz');
 }
 
@@ -92,9 +92,10 @@ const TOOLTIP_CONTENT = `
 /**
  * A notebook widget extension that adds a panel preview button to the toolbar.
  */
-class PanelRenderButton
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
-{
+class PanelRenderButton implements DocumentRegistry.IWidgetExtension<
+  NotebookPanel,
+  INotebookModel
+> {
   /**
    * Instantiate a new PanelRenderButton.
    * @param commands The command registry.
@@ -136,9 +137,10 @@ class PanelRenderButton
 /**
  * A notebook widget extension that adds a panel preview button to the toolbar.
  */
-class LumenRenderButton
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
-{
+class LumenRenderButton implements DocumentRegistry.IWidgetExtension<
+  NotebookPanel,
+  INotebookModel
+> {
   /**
    * Instantiate a new PanelRenderButton.
    * @param commands The command registry.
