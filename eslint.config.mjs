@@ -6,11 +6,9 @@ import prettierRecommended from 'eslint-plugin-prettier/recommended';
 export default [
   {
     ignores: [
-      'node_modules/**',
       'dist/**',
       'lib/**',
       'coverage/**',
-      '**/*.d.ts',
       'tests/**',
       'pyviz_comms/**',
       'webpack.config.js'
