@@ -5980,7 +5980,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.19":
+"dayjs@npm:^1.11.19, dayjs@npm:^1.11.7":
   version: 1.11.20
   resolution: "dayjs@npm:1.11.20"
   checksum: 26f4867c4ae1315885ac3e560906d3f8c49cb6a1303e6fdd5f87ace3b814b07a45f036facad70299cea36f3eb62ee2070dd239079c56d8f55e4e684afb752a67
@@ -8661,6 +8661,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"launder@npm:^1.7.1":
+  version: 1.7.1
+  resolution: "launder@npm:1.7.1"
+  dependencies:
+    dayjs: ^1.11.7
+  checksum: d9b9f33b12a69b95523e48f0541f0ab2179d8af8bfa386dd9fa91dd95db46b21f430d0000a82e94505473fabc05fd55802a90ea006c50e3b0ef9773a1b0d6dc6
+  languageName: node
+  linkType: hard
+
 "layout-base@npm:^1.0.0":
   version: 1.0.2
   resolution: "layout-base@npm:1.0.2"
@@ -10235,16 +10244,17 @@ __metadata:
   linkType: hard
 
 "sanitize-html@npm:^2.3":
-  version: 2.17.2
-  resolution: "sanitize-html@npm:2.17.2"
+  version: 2.17.4
+  resolution: "sanitize-html@npm:2.17.4"
   dependencies:
     deepmerge: ^4.2.2
     escape-string-regexp: ^4.0.0
     htmlparser2: ^10.1.0
     is-plain-object: ^5.0.0
+    launder: ^1.7.1
     parse-srcset: ^1.0.2
     postcss: ^8.3.11
-  checksum: 9295bffef6551c690de55137a436762bec845351ec4482547462ddc274d91dc157f7c09f2f0fdd5a037031e5a8d19291861bc49627ade042a494e26ce9e162af
+  checksum: f4dff95bb57d57d37b2aa5b2419aadc6a4f8e98ed6d9ca45bf6a1be1c2aa411b8196e7b764fd2f572bd086021720573939c7ce20d1d70903c3b025c039681cc4
   languageName: node
   linkType: hard
 
@@ -11322,11 +11332,11 @@ __metadata:
 
 "typescript@patch:typescript@~5.9.3#~builtin<compat/typescript>":
   version: 5.9.3
-  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=85af82"
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 8bb8d86819ac86a498eada254cad7fb69c5f74778506c700c2a712daeaff21d3a6f51fd0d534fe16903cb010d1b74f89437a3d02d4d0ff5ca2ba9a4660de8497
+  checksum: a5a6dc399d3761ded54192031f11d3ad5df8001c7febe3fbbc8098efcb552cdf8f2f402b3618c56dafcd04fef63dee005f4900f608e185404caedc46480539ed
   languageName: node
   linkType: hard
 
